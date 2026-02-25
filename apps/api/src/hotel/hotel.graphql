@@ -12,12 +12,12 @@ input UpdateHotelInput {
   id: Int!
 }
 
-type Query {
-  hotel: [Hotel]!
+extend type Query {
+  hotels: [Hotel!]!
   hotel(id: Int!): Hotel
 }
 
-type Mutation {
+extend type Mutation {
   createHotel(createHotelInput: CreateHotelInput!): Hotel!
   updateHotel(updateHotelInput: UpdateHotelInput!): Hotel!
   removeHotel(id: Int!): Hotel

@@ -12,12 +12,12 @@ input UpdateRestaurantInput {
   id: Int!
 }
 
-type Query {
-  Restaurant: [Restaurant]!
-  Restaurant(id: Int!): Restaurant
+extend type Query {
+  restaurants: [Restaurant!]!
+  restaurant(id: Int!): Restaurant
 }
 
-type Mutation {
+extend type Mutation {
   createRestaurant(createRestaurantInput: CreateRestaurantInput!): Restaurant!
   updateRestaurant(updateRestaurantInput: UpdateRestaurantInput!): Restaurant!
   removeRestaurant(id: Int!): Restaurant

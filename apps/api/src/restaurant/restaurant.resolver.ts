@@ -14,12 +14,12 @@ export class RestaurantResolver {
     return this.RestaurantService.create(createRestaurantInput);
   }
 
-  @Query('Restaurant')
+  @Query('restaurants')
   findAll() {
     return this.RestaurantService.findAll();
   }
 
-  @Query('Restaurant')
+  @Query('restaurant')
   findOne(@Args('id') id: number) {
     return this.RestaurantService.findOne(id);
   }

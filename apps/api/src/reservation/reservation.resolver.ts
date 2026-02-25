@@ -12,7 +12,7 @@ export class ReservationResolver {
     return this.reservationService.create(createReservationInput);
   }
 
-  @Query('reservation')
+  @Query('reservations')
   findAll() {
     return this.reservationService.findAll();
   }

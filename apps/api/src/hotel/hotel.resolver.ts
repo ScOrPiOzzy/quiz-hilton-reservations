@@ -12,7 +12,7 @@ export class HotelResolver {
     return this.hotelService.create(createHotelInput);
   }
 
-  @Query('hotel')
+  @Query('hotels')
   findAll() {
     return this.hotelService.findAll();
   }

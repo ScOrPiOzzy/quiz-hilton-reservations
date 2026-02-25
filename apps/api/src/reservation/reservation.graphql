@@ -12,12 +12,12 @@ input UpdateReservationInput {
   id: Int!
 }
 
-type Query {
-  reservation: [Reservation]!
+extend type Query {
+  reservations: [Reservation!]!
   reservation(id: Int!): Reservation
 }
 
-type Mutation {
+extend type Mutation {
   createReservation(createReservationInput: CreateReservationInput!): Reservation!
   updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
   removeReservation(id: Int!): Reservation
