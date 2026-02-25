@@ -1,3 +1,4 @@
+import { EnvKey } from '@/common/constants';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CouchBaseModule } from 'nestjs-couchbase';
@@ -12,10 +13,10 @@ import { CouchBaseModule } from 'nestjs-couchbase';
     CouchBaseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        connectionString: configService.get<string>('COUCHBASE_HOST', 'couchbase://localhost'),
-        username: configService.get<string>('COUCHBASE_USERNAME', 'admin'),
-        password: configService.get<string>('COUCHBASE_PASSWORD', 'password'),
-        bucketName: configService.get<string>('COUCHBASE_BUCKET', 'hilton'),
+        connectionString: configService.get<string>(EnvKey.COUCHBASE_HOST, 'couchbase://localhost'),
+        username: configService.get<string>(EnvKey.COUCHBASE_USERNAME, 'admin'),
+        password: configService.get<string>(EnvKey.COUCHBASE_PASSWORD, 'password'),
+        bucketName: configService.get<string>(EnvKey.COUCHBASE_BUCKET, 'hilton'),
       }),
       inject: [ConfigService],
     }),
