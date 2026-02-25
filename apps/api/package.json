@@ -33,12 +33,10 @@
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
-    "couchbase": "^4.6.1",
     "cuid": "^3.0.0",
     "graphql": "^16.13.0",
     "jsonwebtoken": "^9.0.3",
     "lodash-es": "^4.17.23",
-    "nestjs-couchbase": "^1.8.2",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
