@@ -1,0 +1,24 @@
+type Hotel {
+  # Example field (placeholder)
+  exampleField: Int
+}
+
+input CreateHotelInput {
+  # Example field (placeholder)
+  exampleField: Int
+}
+
+input UpdateHotelInput {
+  id: Int!
+}
+
+type Query {
+  hotel: [Hotel]!
+  hotel(id: Int!): Hotel
+}
+
+type Mutation {
+  createHotel(createHotelInput: CreateHotelInput!): Hotel!
+  updateHotel(updateHotelInput: UpdateHotelInput!): Hotel!
+  removeHotel(id: Int!): Hotel
+}
