@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ResturantModule } from './resturant/resturant.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 import { HotelModule } from './hotel/hotel.module';
 import { ReservationModule } from './reservation/reservation.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [ResturantModule, HotelModule, ReservationModule, UserModule],
+  imports: [RestaurantModule, HotelModule, ReservationModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
