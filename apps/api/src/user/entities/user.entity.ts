@@ -1,9 +1,16 @@
-import { JwtPayload as Payload } from 'jsonwebtoken';
 import { Schema, Prop /*, Key*/ } from 'nestjs-couchbase';
 // 当前版本的nestjs-couchbase对于 util 包的导出有错误，暂时只能手动指定到 util 目录
 import { Key } from 'nestjs-couchbase/dist/util';
 
-export interface JwtPayload extends Payload {
+export interface JwtPayload {
+  // 从 jsonwebtoken 的 JwtPayload 中拷贝的
+  iss?: string | undefined;
+  sub?: string | undefined;
+  aud?: string | string[] | undefined;
+  exp?: number | undefined;
+  nbf?: number | undefined;
+  iat?: number | undefined;
+  jti?: string | undefined;
   email: string;
   phone: string;
 }
