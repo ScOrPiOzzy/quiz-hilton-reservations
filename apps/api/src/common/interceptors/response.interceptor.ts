@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -10,10 +10,13 @@ export interface Response<T> {
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
+  private readonly logger = new Logger(ResponseInterceptor.name);
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
     return next.handle().pipe(
       map((data) => ({ code: 200, message: '操作成功', data })),
       catchError((error) => {
+        this.logger.error(`Error caught: ${JSON.stringify(error)}`, error.stack);
         if (error instanceof HttpException) {
           const status = error.getStatus();
           const errorResponse = error.getResponse() as any;
