@@ -40,9 +40,8 @@ export class AuthService {
       throw new UnauthorizedException('用户名或密码错误');
     }
 
-    const token = generateToken(user, this.jwtSecret);
     this.logger.log(`用户登录成功: ${email}`);
-    return { token, user: omit(user, 'passwordHash') };
+    return this.$loginSuccess(user);
   }
 
   /**
@@ -61,9 +60,8 @@ export class AuthService {
       throw new UnauthorizedException('用户名或密码错误');
     }
 
-    const token = generateToken(user, this.jwtSecret);
     this.logger.log(`用户验证码登录成功: ${phone}`);
-    return { token, user: omit(user, 'passwordHash') };
+    return this.$loginSuccess(user);
   }
 
   /**
@@ -118,5 +116,10 @@ export class AuthService {
     this.logger.log(`用户注册成功: ${email}`);
 
     return omit(user, 'passwordHash');
+  }
+
+  $loginSuccess(user: User) {
+    const token = generateToken(user, this.jwtSecret);
+    return { token, user: omit(user, 'passwordHash') };
   }
 }

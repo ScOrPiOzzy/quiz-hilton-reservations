@@ -25,7 +25,7 @@ export class UserRepository extends BaseRepository<User> {
 
     this.logger.log(`查询结果数量: ${results.length}`, results);
     if (results.length > 0) {
-      return convertTo<User>(results[0], this.collectionName);
+      return this.$convertTo<User>(results[0]);
     }
     return null;
   }
@@ -43,7 +43,7 @@ export class UserRepository extends BaseRepository<User> {
     );
 
     if (results.length > 0) {
-      return convertTo<User>(results[0], this.collectionName);
+      return this.$convertTo<User>(results[0]);
     }
     return null;
   }
@@ -97,6 +97,10 @@ export class UserRepository extends BaseRepository<User> {
        LIMIT $limit`,
       { keyword: `%${lowerKeyword}%`, limit },
     );
-    return convertTo<User[]>(results, this.collectionName);
+    return this.$convertTo<User[]>(results);
+  }
+
+  private $convertTo<T>(result: any) {
+    return convertTo<T>(result, this.collectionName);
   }
 }
