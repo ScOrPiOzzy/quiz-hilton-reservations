@@ -28,7 +28,7 @@ export class User {
 
   passwordHash: string;
 
-  createdAt: Date;
+  createdAt: string;
 
-  updatedAt: Date;
+  updatedAt: string;
 }

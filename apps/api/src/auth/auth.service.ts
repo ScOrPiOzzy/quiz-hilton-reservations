@@ -31,14 +31,14 @@ export class AuthService {
 
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
+      this.logger.log(`邮箱不存在: ${email}`);
       throw new UnauthorizedException('用户名或密码错误');
     }
-
-    // const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
-    // console.log(`🚀 ~ AuthService ~ loginWithEmail ~ isPasswordValid:`, isPasswordValid);
-    // if (!isPasswordValid) {
-    //   throw new UnauthorizedException('用户名或密码错误');
-    // }
+    const isPasswordValid = await this.userRepository.validatePassword(user, password);
+    if (!isPasswordValid) {
+      this.logger.log(`密码不匹配`);
+      throw new UnauthorizedException('用户名或密码错误');
+    }
 
     const token = generateToken(user, this.jwtSecret);
     this.logger.log(`用户登录成功: ${email}`);
@@ -104,12 +104,15 @@ export class AuthService {
     const passwordHash = await bcrypt.hash(password, 10);
 
     // 创建用户
+    const now = new Date().toISOString();
     const user = await this.userRepository.create({
       firstName,
       lastName,
       email,
       phone,
       passwordHash,
+      createdAt: now,
+      updatedAt: now,
     });
 
     this.logger.log(`用户注册成功: ${email}`);
