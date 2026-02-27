@@ -55,6 +55,19 @@ npm run start
     - **Collection**: `Hotel` (酒店数据)
     - **Collection**: `Restaurant` (餐厅数据)
 
+## 测试用户
+
+脚本会自动创建以下测试用户：
+
+| 姓名 | 邮箱 | 手机号 | 角色 | 密码 |
+|------|------|--------|------|
+| 张三 | zhangsan@example.com | 13800138001 | CUSTOMER / password123 |
+| 李四 | lisi@example.com | 13800138002 | CUSTOMER / password123 |
+| 王五 | wangwu@example.com | 13800138003 | ADMIN / admin123 |
+| 赵六 | zhaoliu@example.com | 13800138004 | STAFF / staff123 |
+| 孙七 | sunqi@example.com | 13800138005 | STAFF / staff123 |
+| 周八 | zhouba@example.com | 13800138006 | STAFF / staff123 |
+
 ## 故障排除
 
 ### 认证失败
@@ -71,3 +84,7 @@ npm run start
 ### Collection 已存在
 
 脚本会自动检测 collection 是否已存在。如果 collection 已存在，会跳过创建步骤。
+
+### 测试用户已存在
+
+如果测试用户已存在，脚本会跳过创建并显示相应提示。

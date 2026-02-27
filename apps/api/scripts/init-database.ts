@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv';
-import { Cluster, connect } from 'couchbase';
+import { Cluster, connect, Collection } from 'couchbase';
+import * as bcrypt from 'bcrypt';
 
 dotenv.config({ path: '.env' });
 
@@ -104,6 +105,93 @@ async function ensureCollectionExists(bucketName: string, scopeName: string, col
     throw error;
   }
 }
+//  - CUSTOMER 用户密码：password123
+//  - ADMIN 用户密码：admin123
+//  - STAFF 用户密码：staff123
+async function insertTestUsers(bucketName: string): Promise<void> {
+  const connectionString = `couchbase://${COUCHBASE_HOST}`;
+  const cluster = await connect(connectionString, {
+    username: COUCHBASE_USERNAME,
+    password: COUCHBASE_PASSWORD,
+  });
+
+  try {
+    const userCollection = cluster.bucket(bucketName).scope('_default').collection('User');
+
+    const testUsers = [
+      {
+        firstName: '张',
+        lastName: '三',
+        email: 'zhangsan@example.com',
+        phone: '13800138001',
+        password: await bcrypt.hash('password123', await bcrypt.genSalt(10)),
+        role: 'CUSTOMER',
+        verified: true,
+      },
+      {
+        firstName: '李',
+        lastName: '四',
+        email: 'lisi@example.com',
+        phone: '13800138002',
+        password: await bcrypt.hash('password123', await bcrypt.genSalt(10)),
+        role: 'CUSTOMER',
+        verified: true,
+      },
+      {
+        firstName: '王',
+        lastName: '五',
+        email: 'wangwu@example.com',
+        phone: '13800138003',
+        password: await bcrypt.hash('admin123', await bcrypt.genSalt(10)),
+        role: 'ADMIN',
+        verified: true,
+      },
+      {
+        firstName: '赵',
+        lastName: '六',
+        email: 'zhaoliu@example.com',
+        phone: '13800138004',
+        password: await bcrypt.hash('staff123', await bcrypt.genSalt(10)),
+        role: 'STAFF',
+        verified: true,
+      },
+      {
+        firstName: '孙',
+        lastName: '七',
+        email: 'sunqi@example.com',
+        phone: '13800138005',
+        password: await bcrypt.hash('staff123', await bcrypt.genSalt(10)),
+        role: 'STAFF',
+        verified: true,
+      },
+      {
+        firstName: '周',
+        lastName: '八',
+        email: 'zhouba@example.com',
+        phone: '13800138006',
+        password: await bcrypt.hash('staff123', await bcrypt.genSalt(10)),
+        role: 'STAFF',
+        verified: true,
+      },
+    ];
+
+    for (let i = 0; i < testUsers.length; i++) {
+      const user = testUsers[i];
+      const key = `user_${i + 1}`;
+      const result = await userCollection.upsert(key, user);
+      if (result.cas) {
+        console.log(`✓ 创建测试用户: ${user.firstName} ${user.lastName} (${user.role})`);
+      } else {
+        console.error(`✗ 创建用户失败: ${user.firstName} ${user.lastName}`);
+      }
+    }
+
+    await cluster.close();
+  } catch (error) {
+    await cluster.close();
+    throw error;
+  }
+}
 
 async function main(): Promise<void> {
   console.log('========================================');
@@ -134,6 +222,12 @@ async function main(): Promise<void> {
     await ensureCollectionExists(COUCHBASE_BUCKET, '_default', 'Reservation');
     await ensureCollectionExists(COUCHBASE_BUCKET, '_default', 'Hotel');
     await ensureCollectionExists(COUCHBASE_BUCKET, '_default', 'Restaurant');
+
+    console.log('\n========================================');
+    console.log('开始创建测试用户...');
+    console.log('========================================');
+
+    await insertTestUsers(COUCHBASE_BUCKET);
 
     console.log('\n========================================');
     console.log('✓ 数据库初始化完成！');
