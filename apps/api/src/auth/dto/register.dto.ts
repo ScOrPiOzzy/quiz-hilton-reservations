@@ -1,3 +1,4 @@
+import { IUser } from '@/user/models/user.model';
 import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 
 export class RegisterDto {
@@ -20,4 +21,11 @@ export class RegisterDto {
     message: '密码必须包含大小写字母和至少一个数字或特殊字符',
   })
   password: string;
+
+  @IsNotEmpty({ message: '角色不能为空' })
+  role: IUser['role'];
+
+  convertToIUser(): Omit<IUser, 'id' | 'createdAt' | 'updatedAt'> {
+    return this as any as IUser;
+  }
 }

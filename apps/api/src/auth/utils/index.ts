@@ -1,4 +1,5 @@
-import { JwtPayload, User } from '@/user/entities/user.entity';
+import { JwtPayload } from '@/user/entities/user.entity';
+import { IUser } from '@/user/models/user.model';
 import { UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
@@ -17,9 +18,10 @@ export function verifyToken(token: string, secret: string): JwtPayload {
 /**
  * 生成 Token
  */
-export function generateToken(user: User, secret: string): string {
+export function generateToken(user: IUser, secret: string): string {
   const payload: Omit<JwtPayload, 'iat' | 'exp'> = {
     sub: user.id,
+    role: user.role,
     email: user.email,
     phone: user.phone,
   };

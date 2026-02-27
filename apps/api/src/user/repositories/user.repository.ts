@@ -1,81 +1,58 @@
 import { Injectable } from '@nestjs/common';
-import { BaseRepository } from '@/couchbase/base.repository';
-import { CouchbaseService } from '@/couchbase/couchbase.service';
+import { UserModel } from '../models/user.model';
+import type { IUser } from '../models/user.model';
 import * as bcrypt from 'bcrypt';
-import type { User } from '@/user/entities/user.entity';
-import { convertTo } from '@/couchbase/util';
+import { SearchConsistency } from 'ottoman';
 
 @Injectable()
-export class UserRepository extends BaseRepository<User> {
-  constructor(couchbaseService: CouchbaseService) {
-    super(couchbaseService, 'users');
+export class UserRepository {
+  async findAll(): Promise<IUser[]> {
+    return (await UserModel.find({}, { consistency: SearchConsistency.LOCAL })) as IUser[];
   }
 
-  /**
-   * 根据邮箱查找用户
-   */
-  async findByEmail(email: string): Promise<User | null> {
-    const results = await super.query(
-      `SELECT META().id as id, * 
-      FROM ${this.fullCollectionName} 
-      WHERE email = $email 
-      LIMIT 1`,
-      { email },
-    );
+  async findById(id: string): Promise<IUser | null> {
+    return await UserModel.findById(id);
+  }
 
-    this.logger.log(`查询结果数量: ${results.length}`, results);
-    if (results.length > 0) {
-      return this.$convertTo<User>(results[0]);
+  async findByEmail(email: string): Promise<IUser | null> {
+    const result = await UserModel.find({ email }, { limit: 1 });
+    return result.length > 0 ? result[0] : null;
+  }
+
+  async findByPhone(phone: string): Promise<IUser | null> {
+    const result = await UserModel.find({ phone }, { limit: 1 });
+    return result.length > 0 ? result[0] : null;
+  }
+
+  async create(user: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<IUser> {
+    const hashedPassword = await this.hashPassword(user.password);
+    const newUser = new UserModel({ ...user, password: hashedPassword });
+    return await newUser.save();
+  }
+
+  async update(id: string, user: Partial<IUser>): Promise<IUser | null> {
+    if (user.password) {
+      user.password = await this.hashPassword(user.password);
     }
-    return null;
+    return await UserModel.findByIdAndUpdate(id, user, { new: true });
   }
 
-  /**
-   * 根据手机号查找用户
-   */
-  async findByPhone(phone: string): Promise<User | null> {
-    const results = await super.query(
-      `SELECT META().id as id, * 
-      FROM ${this.fullCollectionName} 
-      WHERE phone = $phone 
-      LIMIT 1`,
-      { phone },
-    );
-
-    if (results.length > 0) {
-      return this.$convertTo<User>(results[0]);
-    }
-    return null;
+  async delete(id: string): Promise<{ cas: any }> {
+    return await UserModel.removeById(id);
   }
 
-  /**
-   * 检查邮箱是否已存在
-   */
   async existsByEmail(email: string): Promise<boolean> {
     const user = await this.findByEmail(email);
     return user !== null;
   }
 
-  /**
-   * 检查手机号是否已存在
-   */
   async existsByPhone(phone: string): Promise<boolean> {
     const user = await this.findByPhone(phone);
     return user !== null;
   }
 
-  /**
-   * 验证密码
-   */
-  async validatePassword(user: User, password: string): Promise<boolean> {
-    try {
-      const match = await bcrypt.compare(password, user.passwordHash);
-      this.logger.debug(`用户信息密码 hash： ${user.passwordHash} === ${password}, match:${match}`);
-      return match;
-    } catch (error) {
-      this.logger.error(`密码验证失败: ${error}`);
-      return false;
-    }
+  async validatePassword(user: IUser, password: string): Promise<boolean> {
+    return await bcrypt.compare(password, user.password);
   }
 
   async hashPassword(password: string): Promise<string> {
@@ -83,24 +60,15 @@ export class UserRepository extends BaseRepository<User> {
     return await bcrypt.hash(password, salt);
   }
 
-  /**
-   * 关键字搜索用户
-   */
-  async searchByKeyword(keyword: string, limit = 10): Promise<User[]> {
+  async searchByKeyword(keyword: string, limit = 10): Promise<IUser[]> {
     const lowerKeyword = keyword.toLowerCase();
-    const results = await super.query(
-      `SELECT META().id as id, *
-      FROM ${this.fullCollectionName}
-      WHERE LOWER(email) LIKE $keyword
-        OR LOWER(firstName) LIKE $keyword
-        OR LOWER(lastName) LIKE $keyword
-       LIMIT $limit`,
-      { keyword: `%${lowerKeyword}%`, limit },
+    const results = await UserModel.find(
+      {
+        $or: [{ email: { $like: `%${lowerKeyword}%` } }, { firstName: { $like: `%${lowerKeyword}%` } }, { lastName: { $like: `%${lowerKeyword}%` } }],
+      },
+      { limit },
     );
-    return this.$convertTo<User[]>(results);
-  }
 
-  private $convertTo<T>(result: any) {
-    return convertTo<T>(result, this.collectionName);
+    return results;
   }
 }
