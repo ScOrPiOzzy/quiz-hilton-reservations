@@ -1,24 +1,6 @@
 import { Schema } from 'ottoman';
 import { ottomanInstance } from '@/couchbase/ottoman-instance';
-
-export enum UserRole {
-  CUSTOMER = 'CUSTOMER',
-  ADMIN = 'ADMIN',
-  STAFF = 'STAFF',
-}
-
-export interface IUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  password: string;
-  role: UserRole;
-  verified?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { UserRole } from '@repo/schemas';
 
 const userSchema = new Schema(
   {

@@ -1,5 +1,5 @@
 import { JwtPayload } from '@/user/entities/user.entity';
-import { IUser } from '@/user/models/user.model';
+import { IUser } from '@repo/schemas';
 import { UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 

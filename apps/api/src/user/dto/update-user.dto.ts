@@ -1,6 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { UserRole } from '../models/user.model';
-
+import { UserRole } from '@repo/schemas';
 @InputType()
 export class UpdateUserInput {
   @Field(() => String)

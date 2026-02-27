@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserModel } from '../models/user.model';
-import type { IUser } from '../models/user.model';
+import { IUser } from '@repo/schemas';
 import * as bcrypt from 'bcrypt';
 import { SearchConsistency } from 'ottoman';
 

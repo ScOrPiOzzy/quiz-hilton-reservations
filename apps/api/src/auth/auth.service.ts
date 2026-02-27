@@ -8,7 +8,7 @@ import { UserRepository } from '@/user/repositories/user.repository';
 import { EnvKey } from '@/common/constants';
 import { omit } from 'lodash-es';
 import { generateToken } from './utils';
-import { IUser } from '@/user/models/user.model';
+import { IUser } from '@repo/schemas';
 
 @Injectable()
 export class AuthService {

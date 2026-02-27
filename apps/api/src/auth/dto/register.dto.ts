@@ -1,4 +1,4 @@
-import { IUser } from '@/user/models/user.model';
+import { IUser } from '@repo/schemas';
 import { IsEmail, IsNotEmpty, Length, Matches } from 'class-validator';
 
 export class RegisterDto {

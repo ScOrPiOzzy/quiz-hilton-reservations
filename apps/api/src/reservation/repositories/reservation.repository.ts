@@ -29,42 +29,41 @@ export class ReservationRepository {
       if (query.dateTo) filter.reservationDate.$lte = query.dateTo;
     }
 
-    return await ReservationModel.find(filter, { consistency: SearchConsistency.LOCAL });
+    return ReservationModel.find(filter, { consistency: SearchConsistency.LOCAL });
   }
 
   async findById(id: string): Promise<IReservation | null> {
     return await ReservationModel.findById(id);
   }
 
-  async create(reservation: Omit<IReservation, 'id' | 'createdAt' | 'updatedAt'>): Promise<IReservation> {
+  create(reservation: Omit<IReservation, 'id' | 'createdAt' | 'updatedAt'>): Promise<IReservation> {
     const newReservation = new ReservationModel(reservation);
-    const result = await newReservation.save();
-    return result as IReservation;
+    return newReservation.save();
   }
 
-  async update(id: string, data: Partial<IReservation>): Promise<IReservation | null> {
-    return await ReservationModel.findByIdAndUpdate(id, data, { new: true });
+  update(id: string, data: Partial<IReservation>): Promise<IReservation | null> {
+    return ReservationModel.findByIdAndUpdate(id, data, { new: true });
   }
 
-  async delete(id: string): Promise<boolean> {
-    return await ReservationModel.removeById(id);
+  delete(id: string): Promise<{ cas: any }> {
+    return ReservationModel.removeById(id);
   }
 
-  async findByUserId(userId: string): Promise<IReservation[]> {
-    return await ReservationModel.find({ userId });
+  findByUserId(userId: string): Promise<IReservation[]> {
+    return ReservationModel.find({ userId });
   }
 
-  async findByPhoneAndDate(phone: string, date: Date): Promise<IReservation[]> {
+  findByPhoneAndDate(phone: string, date: Date): Promise<IReservation[]> {
     const startOfDay = new Date(date.setHours(0, 0, 0, 0));
     const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
-    return await ReservationModel.find({
+    return ReservationModel.find({
       'customer.phone': phone,
       reservationDate: { $gte: startOfDay, $lte: endOfDay },
     });
   }
 
-  async findByStatus(status: ReservationStatus): Promise<IReservation[]> {
-    return await ReservationModel.find({ status });
+  findByStatus(status: ReservationStatus): Promise<IReservation[]> {
+    return ReservationModel.find({ status });
   }
 }
