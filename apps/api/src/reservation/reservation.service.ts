@@ -1,26 +1,72 @@
 import { Injectable } from '@nestjs/common';
-import { CreateReservationInput } from './dto/create-reservation.input';
-import { UpdateReservationInput } from './dto/update-reservation.input';
+import { ReservationRepository } from './repositories/reservation.repository';
+import { ReservationStatus } from './models/reservation.model';
+import type { IReservation } from './models/reservation.model';
+import type { CreateReservationInput } from './dto/create-reservation.input';
+import type { UpdateReservationInput } from './dto/update-reservation.input';
 
 @Injectable()
 export class ReservationService {
-  create(createReservationInput: CreateReservationInput) {
-    return 'This action adds a new reservation';
+  constructor(private readonly reservationRepository: ReservationRepository) {}
+
+  async findAll(query?: any): Promise<IReservation[]> {
+    return await this.reservationRepository.findAll(query);
   }
 
-  findAll() {
-    return `This action returns all reservation`;
+  async findById(id: string): Promise<IReservation | null> {
+    return await this.reservationRepository.findById(id);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} reservation`;
+  async create(input: CreateReservationInput, userId?: string): Promise<IReservation> {
+    return await this.reservationRepository.create({
+      userId,
+      customer: input.customer,
+      reservationDate: new Date(input.reservationDate),
+      storeId: input.storeId,
+      storeName: input.storeName,
+      timeSlot: input.timeSlot,
+      timeSlotName: input.timeSlotName,
+      tableConfigId: input.tableConfigId,
+      tableConfigName: input.tableConfigName,
+      status: ReservationStatus.REQUESTED,
+      specialRequests: input.specialRequests,
+      estimatedArrivalTime: input.estimatedArrivalTime,
+      verified: false,
+    });
   }
 
-  update(id: number, updateReservationInput: UpdateReservationInput) {
-    return `This action updates a #${id} reservation`;
+  async update(id: string, data: Partial<IReservation>): Promise<IReservation | null> {
+    return await this.reservationRepository.update(id, data);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} reservation`;
+  async delete(id: string): Promise<{ cas: any }> {
+    return await this.reservationRepository.delete(id);
+  }
+
+  async updateStatus(id: string, status: ReservationStatus, reason?: string, userId?: string): Promise<IReservation | null> {
+    const updateData: Partial<IReservation> = {
+      status,
+    };
+
+    if (status === ReservationStatus.APPROVED) {
+      updateData.confirmedAt = new Date();
+      updateData.confirmedBy = userId;
+    } else if (status === ReservationStatus.COMPLETED) {
+      updateData.completedAt = new Date();
+    } else if (status === ReservationStatus.CANCELLED) {
+      updateData.cancelledAt = new Date();
+      updateData.cancelReason = reason;
+      updateData.cancelledBy = userId;
+    }
+
+    return await this.reservationRepository.update(id, updateData);
+  }
+
+  async findByUserId(userId: string): Promise<IReservation[]> {
+    return await this.reservationRepository.findByUserId(userId);
+  }
+
+  async findByStatus(status: ReservationStatus): Promise<IReservation[]> {
+    return await this.reservationRepository.findByStatus(status);
   }
 }

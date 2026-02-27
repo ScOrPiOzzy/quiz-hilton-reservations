@@ -1,24 +1,91 @@
+enum ReservationStatus {
+  REQUESTED
+  APPROVED
+  CANCELLED
+  COMPLETED
+}
+
+type Customer {
+  name: String!
+  phone: String!
+  email: String
+}
+
 type Reservation {
-  # Example field (placeholder)
-  exampleField: Int
+  id: String!
+  userId: String
+  customer: Customer!
+  reservationDate: String!
+  storeId: String
+  storeName: String
+  timeSlot: String!
+  timeSlotName: String
+  tableConfigId: String
+  tableConfigName: String
+  status: ReservationStatus!
+  specialRequests: String
+  estimatedArrivalTime: String
+  verified: Boolean
+  verifiedAt: String
+  confirmedAt: String
+  confirmedBy: String
+  completedAt: String
+  cancelledAt: String
+  cancelReason: String
+  cancelledBy: String
+  createdAt: String!
+  updatedAt: String!
+}
+
+input CustomerInput {
+  name: String!
+  phone: String!
+  email: String
 }
 
 input CreateReservationInput {
-  # Example field (placeholder)
-  exampleField: Int
+  userId: String
+  customer: CustomerInput!
+  reservationDate: String!
+  storeId: String
+  storeName: String
+  timeSlot: String!
+  timeSlotName: String
+  tableConfigId: String
+  tableConfigName: String
+  specialRequests: String
+  estimatedArrivalTime: String
 }
 
 input UpdateReservationInput {
-  id: Int!
+  reservationId: String!
+  userId: String
+  customer: CustomerInput
+  reservationDate: String
+  storeId: String
+  storeName: String
+  timeSlot: String
+  timeSlotName: String
+  tableConfigId: String
+  tableConfigName: String
+  specialRequests: String
+  estimatedArrivalTime: String
+}
+
+input UpdateReservationStatusInput {
+  reservationId: String!
+  status: ReservationStatus!
+  reason: String
 }
 
 extend type Query {
-  reservations: [Reservation!]!
-  reservation(id: Int!): Reservation
+  reservations(status: ReservationStatus, userId: String, dateFrom: String, dateTo: String, phone: String, name: String, storeId: String): [Reservation!]!
+  reservation(id: String!): Reservation
 }
 
 extend type Mutation {
-  createReservation(createReservationInput: CreateReservationInput!): Reservation!
-  updateReservation(updateReservationInput: UpdateReservationInput!): Reservation!
-  removeReservation(id: Int!): Reservation
+  createReservation(input: CreateReservationInput!): Reservation!
+  updateReservation(input: UpdateReservationInput!): Reservation!
+  updateReservationStatus(input: UpdateReservationStatusInput!): Reservation!
+  deleteReservation(id: String!): Boolean
 }
