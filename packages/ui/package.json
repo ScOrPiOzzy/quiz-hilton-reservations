@@ -1,22 +1,10 @@
 {
-  "name": "{{name_of_lib}}",
+  "name": "@repo/ui",
   "version": "0.0.0",
-  "description": "{{desc_of_lib}}",
   "license": "MIT",
-  "author": "{{me}}",
-  "contributors": [],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/{{me}}/{{name_of_lib}}.git"
-  },
-  "homepage": "https://github.com/{{me}}/{{name_of_lib}}#readme",
-  "bugs": {
-    "url": "https://github.com/{{me}}/{{name_of_lib}}/issues"
-  },
   "files": [
     "dist"
   ],
-  "private": false,
   "sideEffects": false,
   "type": "module",
   "main": "./dist/index.js",
@@ -41,7 +29,6 @@
   },
   "typesVersions": {},
   "scripts": {
-    "dev": "vite serve dev",
     "build": "tsup",
     "test": "concurrently pnpm:test:*",
     "test:client": "vitest",
@@ -83,5 +70,9 @@
   "engines": {
     "node": ">=18",
     "pnpm": ">=9.0.0"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-solid": "^0.575.0"
   }
 }
