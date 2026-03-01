@@ -1,18 +1,11 @@
 @import "tailwindcss";
 
-:root {
-  --background-rgb: 214, 219, 220;
-  --foreground-rgb: 0, 0, 0;
-}
+@custom-variant dark (&:where(.dark, .dark *));
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background-rgb: 0, 0, 0;
-    --foreground-rgb: 255, 255, 255;
-  }
-}
+@source "./**/*.{ts,tsx,js,jsx}";
+@source "../../../packages/ui/src/**/*.{ts,tsx,js,jsx}";
 
 body {
-  background: rgb(var(--background-rgb));
-  color: rgb(var(--foreground-rgb));
+  background: #fff;
+  color: #000;
 }

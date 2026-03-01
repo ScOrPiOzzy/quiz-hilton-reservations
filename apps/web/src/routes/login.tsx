@@ -1,20 +1,27 @@
 import { Component, JSX, Show, createSignal } from "solid-js";
+import { debounce, isEmpty } from "lodash-es";
 import { Button } from "@repo/ui";
 import { Input } from "@repo/ui";
 import { useLocation, useNavigate } from "@solidjs/router";
 import { IUser, UserRole, getRoleLabel } from "@repo/schemas";
-import { debounce } from "@repo/shared";
+import { isValidEmail } from "../utils/validation";
+import {
+  clearFieldError as clearFieldErrorUtil,
+  type FormErrors,
+} from "../utils/form";
+import { APP_CONFIG } from "../lib/config";
 
-interface FormErrors {
-  email?: string;
-  password?: string;
-}
-
+/**
+ * 登录响应接口
+ */
 interface LoginResponse {
   token: string;
   user: IUser;
 }
 
+/**
+ * 输入事件类型
+ */
 type IEvent = InputEvent & {
   currentTarget: HTMLInputElement;
   target: HTMLInputElement;
@@ -32,39 +39,41 @@ export default function LoginPage() {
   const [errors, setErrors] = createSignal<FormErrors>({});
   const [loginError, setLoginError] = createSignal("");
 
-  // API 基础 URL
-  const API_BASE_URL = "http://localhost:3000";
-
-  // 表单验证
+  /**
+   * 表单验证
+   */
   const validateForm = (): boolean => {
-    const errors: FormErrors = {};
+    const newErrors: FormErrors = {};
 
     if (!email()) {
-      errors.email = "请输入正确的邮箱";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email())) {
-      errors.email = "邮箱格式不正确";
+      newErrors.email = "请输入正确的邮箱";
+    } else if (!isValidEmail(email())) {
+      newErrors.email = "邮箱格式不正确";
     }
 
     if (!password()) {
-      errors.password = "请输入密码";
-      // 登录时不需要校验密码格式..
+      newErrors.password = "请输入密码";
     }
 
-    setErrors(errors);
-    return isEmpty(errors);
+    setErrors(newErrors);
+    return isEmpty(newErrors);
   };
 
-  // 登录核心逻辑
+  /**
+   * 登录核心逻辑
+   */
   const performLogin = async (): Promise<void> => {
     try {
       setLoading(true);
 
-      // 直接用 fetch
-      const response = await fetch(`${API_BASE_URL}/auth/login-with-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email(), password: password() }),
-      });
+      const response = await fetch(
+        `${APP_CONFIG.apiBaseUrl}/auth/login-with-email`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email(), password: password() }),
+        },
+      );
 
       const data: LoginResponse = await response.json();
 
@@ -84,12 +93,10 @@ export default function LoginPage() {
 
       // 根据角色跳转到相应页面
       const returnUrl = new URLSearchParams(location.search).get("returnUrl");
-      // 根据用户角色，跳转到不同的页面
       const destination =
         returnUrl || (role() === UserRole.ADMIN ? "/admin" : "/dashboard");
       navigate(destination, { replace: true });
     } catch (error) {
-      console.log(`🚀 ~ performLogin ~ error:`, error);
       setLoginError(
         error instanceof Error ? error.message : "登录失败，请重新登录",
       );
@@ -98,45 +105,49 @@ export default function LoginPage() {
     }
   };
 
-  // 创建防抖登录处理函数（300ms）
-  const handleLogin = debounce(performLogin, { delay: 300 });
+  /**
+   * 防抖处理登录请求（300ms）
+   */
+  const handleLogin = debounce(performLogin, 300);
 
-  // 表单提交处理
+  /**
+   * 表单提交处理
+   */
   const handleSubmit = (e: Event) => {
     e.preventDefault();
-
-    // 清理"历史"错误消息
     setLoginError("");
 
     if (!validateForm()) {
       return;
     }
 
-    // 执行防抖登录
     handleLogin();
   };
 
+  /**
+   * 忘记密码处理
+   */
   const handleForgotPassword = () => {
     window.alert("暂未开放");
   };
 
+  /**
+   * 邮箱输入处理
+   */
   const onEmailInput = (e: IEvent) => {
     setEmail(e.target.value);
-    // 清除错误
-    if (errors().email) {
-      setErrors({ ...errors(), email: undefined });
-    }
+    setErrors(clearFieldErrorUtil(errors(), "email"));
     if (loginError()) {
       setLoginError("");
     }
   };
 
+  /**
+   * 密码输入处理
+   */
   const onPasswordInput = (e: IEvent) => {
     setPassword(e.target.value);
-    // 清除错误
-    if (errors().password) {
-      setErrors({ ...errors(), password: undefined });
-    }
+    setErrors(clearFieldErrorUtil(errors(), "password"));
     if (loginError()) {
       setLoginError("");
     }
@@ -144,7 +155,7 @@ export default function LoginPage() {
 
   return (
     <div class="flex min-h-screen bg-white">
-      {/* Left Side - Hilton Hotel Introduction */}
+      {/* 左侧 - Hilton 品牌介绍 */}
       <aside class="w-1/3 bg-[#002f61] text-white p-8">
         <div class="max-w-md">
           <h1 class="text-3xl font-bold mb-6">Hilton Hotels</h1>
@@ -164,7 +175,7 @@ export default function LoginPage() {
         </div>
       </aside>
 
-      {/* Right Side - Login Area */}
+      {/* 右侧 - 登录区域 */}
       <div class="flex-1 bg-gray-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div class="w-full max-w-md">
           <div class="bg-white rounded-[4px] shadow-lg p-8">
@@ -174,7 +185,7 @@ export default function LoginPage() {
                 <p class="text-gray-600 mb-6">所有字段均为必填项。</p>
               </div>
 
-              {/* Role Selection */}
+              {/* 角色选择 */}
               <div class="flex gap-2 mb-6">
                 <button
                   type="button"
@@ -200,8 +211,8 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              {/* Login Form */}
-              <form onSubmit={handleLogin} class="space-y-4">
+              {/* 登录表单 */}
+              <form onSubmit={handleSubmit} class="space-y-4">
                 {/* 错误提示 */}
                 <Show when={loginError()}>
                   <div class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-[4px] text-sm">
@@ -234,7 +245,7 @@ export default function LoginPage() {
                   />
                 </div>
 
-                {/* Remember Me & Forgot Password */}
+                {/* 记住我 & 忘记密码 */}
                 <div class="flex items-center justify-between mb-4">
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input
@@ -266,7 +277,17 @@ export default function LoginPage() {
               </form>
 
               <div class="mt-6 pt-4 border-t border-gray-200">
-                <p class="text-xs text-gray-500 text-center">
+                <p class="text-sm text-gray-600 text-center">
+                  还没有账户？
+                  <button
+                    type="button"
+                    onClick={() => navigate("/register")}
+                    class="ml-1 text-[#002f61] hover:underline font-medium"
+                  >
+                    立即注册
+                  </button>
+                </p>
+                <p class="text-xs text-gray-500 text-center mt-2">
                   {getRoleLabel(role())} Portal
                 </p>
               </div>

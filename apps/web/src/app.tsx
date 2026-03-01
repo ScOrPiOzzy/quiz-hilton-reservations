@@ -7,9 +7,9 @@ import "./app.css";
 export default function App() {
   return (
     <Router
-      root={props => (
+      root={(props) => (
         <>
-          <Nav />
+          {/* <Nav /> */}
           <Suspense>{props.children}</Suspense>
         </>
       )}
