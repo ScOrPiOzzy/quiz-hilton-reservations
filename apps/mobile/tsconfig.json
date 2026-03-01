@@ -1,0 +1,26 @@
+{
+  "extends": "../packages/typescript-config/base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "strict": true,
+    "jsx": "react-native",
+    "jsxImportSource": "react",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": [
+      "@tarojs/taro",
+      "@tarojs/components",
+      "@tarojs/helper",
+      "@tarojs/plugin-framework-react",
+      "@tarojs/plugin-html",
+      "@tarojs/runtime",
+      "@tarojs/shared",
+      "@types/weixin-app"
+    ]
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules"]
+}
