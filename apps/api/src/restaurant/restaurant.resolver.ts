@@ -1,41 +1,42 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { RestaurantService } from './restaurant.service';
+import { RestaurantType } from './models/restaurant.type';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
 import { UpdateRestaurantInput } from './dto/update-restaurant.input';
+import { RestaurantListInput } from './dto/restaurant-list.input';
+import { PaginatedRestaurant } from './dto/paginated-restaurant';
 
-@Resolver('Restaurant')
+@Resolver(() => RestaurantType)
 export class RestaurantResolver {
-  constructor(private readonly RestaurantService: RestaurantService) {}
+  constructor(private readonly restaurantService: RestaurantService) {}
 
-  @Mutation('createRestaurant')
-  create(
-    @Args('createRestaurantInput') createRestaurantInput: CreateRestaurantInput,
-  ) {
-    return this.RestaurantService.create(createRestaurantInput);
+  @Query(() => PaginatedRestaurant, { description: '查询餐厅列表' })
+  async restaurants(@Args('input') input: RestaurantListInput): Promise<PaginatedRestaurant> {
+    return await this.restaurantService.findAll(input);
   }
 
-  @Query('restaurants')
-  findAll() {
-    return this.RestaurantService.findAll();
+  @Query(() => [RestaurantType], { description: '查询所有餐厅（不分页）' })
+  async findAll(): Promise<RestaurantType[]> {
+    return await this.restaurantService.findAllSimple();
   }
 
-  @Query('restaurant')
-  findOne(@Args('id') id: number) {
-    return this.RestaurantService.findOne(id);
+  @Query(() => RestaurantType, { nullable: true })
+  findOne(@Args('id') id: string): Promise<RestaurantType | null> {
+    return this.restaurantService.findOne(id);
   }
 
-  @Mutation('updateRestaurant')
-  update(
-    @Args('updateRestaurantInput') updateRestaurantInput: UpdateRestaurantInput,
-  ) {
-    return this.RestaurantService.update(
-      updateRestaurantInput.id,
-      updateRestaurantInput,
-    );
+  @Mutation(() => RestaurantType)
+  createRestaurant(@Args('input') input: CreateRestaurantInput): Promise<RestaurantType> {
+    return this.restaurantService.create(input);
   }
 
-  @Mutation('removeRestaurant')
-  remove(@Args('id') id: number) {
-    return this.RestaurantService.remove(id);
+  @Mutation(() => RestaurantType)
+  updateRestaurant(@Args('id') id: string, @Args('input') input: UpdateRestaurantInput): Promise<RestaurantType> {
+    return this.restaurantService.update(id, input);
+  }
+
+  @Mutation(() => Boolean)
+  deleteRestaurant(@Args('id') id: string): Promise<boolean> {
+    return this.restaurantService.delete(id);
   }
 }

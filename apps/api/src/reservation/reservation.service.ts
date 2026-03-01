@@ -21,7 +21,7 @@ export class ReservationService {
     return await this.reservationRepository.create({
       userId,
       customer: input.customer,
-      reservationDate: new Date(input.reservationDate),
+      reservationDate: input.reservationDate,
       storeId: input.storeId,
       storeName: input.storeName,
       timeSlot: input.timeSlot,
@@ -31,7 +31,6 @@ export class ReservationService {
       status: ReservationStatus.REQUESTED,
       specialRequests: input.specialRequests,
       estimatedArrivalTime: input.estimatedArrivalTime,
-      verified: false,
     });
   }
 
@@ -49,12 +48,12 @@ export class ReservationService {
     };
 
     if (status === ReservationStatus.APPROVED) {
-      updateData.confirmedAt = new Date();
+      updateData.confirmedAt = new Date().toISOString();
       updateData.confirmedBy = userId;
     } else if (status === ReservationStatus.COMPLETED) {
-      updateData.completedAt = new Date();
+      updateData.completedAt = new Date().toISOString();
     } else if (status === ReservationStatus.CANCELLED) {
-      updateData.cancelledAt = new Date();
+      updateData.cancelledAt = new Date().toISOString();
       updateData.cancelReason = reason;
       updateData.cancelledBy = userId;
     }

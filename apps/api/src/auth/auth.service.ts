@@ -25,7 +25,10 @@ export class AuthService {
   async loginWithEmail(account: LoginWithEmailDto): Promise<{ token: string; user: Omit<IUser, 'password'> }> {
     const { email, password } = account;
 
+    // const all = await this.userRepository.findAll();
+    // this.logger.log(`🚀 ~ AuthService ~ loginWithEmail ~ all:`, all);
     const user = await this.userRepository.findByEmail(email);
+    this.logger.log(`🚀 ~ AuthService ~ loginWithEmail ~ user:`, user);
     if (!user) {
       this.logger.log(`邮箱不存在: ${email}`);
       throw new UnauthorizedException('用户名或密码错误');

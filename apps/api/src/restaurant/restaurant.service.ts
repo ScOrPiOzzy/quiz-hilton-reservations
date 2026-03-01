@@ -1,26 +1,131 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { CouchbaseService } from '@/couchbase/couchbase.service';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
 import { UpdateRestaurantInput } from './dto/update-restaurant.input';
+import { RestaurantType } from './models/restaurant.type';
+import { RestaurantListInput } from './dto/restaurant-list.input';
+import { PaginatedRestaurant } from './dto/paginated-restaurant';
 
 @Injectable()
 export class RestaurantService {
-  create(createRestaurantInput: CreateRestaurantInput) {
-    return 'This action adds a new Restaurant';
+  private readonly logger = new Logger(RestaurantService.name);
+  private readonly collectionName = 'Restaurant';
+
+  constructor(private readonly couchbaseService: CouchbaseService) {}
+
+  async create(createRestaurantInput: CreateRestaurantInput): Promise<RestaurantType> {
+    const id = 'rest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const now = new Date().toISOString();
+    const restaurant = {
+      ...createRestaurantInput,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await this.couchbaseService.getCollection(this.collectionName).insert(id, restaurant);
+    return { id, ...restaurant } as unknown as RestaurantType;
   }
 
-  findAll() {
-    return `This action returns all Restaurant`;
+  async findAll(input: RestaurantListInput): Promise<PaginatedRestaurant> {
+    const { page = 1, pageSize = 20, hotelId, search } = input;
+    const skip = (page - 1) * pageSize;
+
+    let query = 'SELECT * FROM `hilton`.`_default`.`Restaurant`';
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (hotelId) {
+      conditions.push('hotelId = $' + (params.length + 1));
+      params.push(hotelId);
+    }
+    if (search) {
+      conditions.push('LOWER(name) LIKE $' + (params.length + 1));
+      params.push(`%${search.toLowerCase()}%`);
+    }
+
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    query += ' LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    params.push(pageSize, skip);
+
+    try {
+      const result = await this.couchbaseService.query(query, params);
+      const items = result.map((row: any) => row.Restaurant);
+
+      return {
+        items: items as unknown as RestaurantType[],
+        total: items.length,
+        page,
+        pageSize,
+        totalPages: Math.ceil(items.length / pageSize),
+      };
+    } catch (error) {
+      this.logger.error('findAll error:', error);
+      return {
+        items: [],
+        total: 0,
+        page,
+        pageSize,
+        totalPages: 0,
+      };
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} Restaurant`;
+  async findAllSimple(): Promise<RestaurantType[]> {
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Restaurant` LIMIT 100');
+      return result.map((row: any) => row.Restaurant) as unknown as RestaurantType[];
+    } catch (error) {
+      this.logger.error('findAllSimple error:', error);
+      return [];
+    }
   }
 
-  update(id: number, updateRestaurantInput: UpdateRestaurantInput) {
-    return `This action updates a #${id} Restaurant`;
+  async findOne(id: string): Promise<RestaurantType | null> {
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Restaurant` USE KEYS $1', [id]);
+      return result.length > 0 ? (result[0].Restaurant as unknown as RestaurantType) : null;
+    } catch (error) {
+      this.logger.error('findOne error:', error);
+      return null;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} Restaurant`;
+  async update(id: string, updateRestaurantInput: UpdateRestaurantInput): Promise<RestaurantType> {
+    const existing = await this.findOne(id);
+    if (!existing) {
+      throw new Error('餐厅不存在');
+    }
+
+    const updated = {
+      ...existing,
+      ...updateRestaurantInput,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await this.couchbaseService.getCollection(this.collectionName).upsert(id, updated);
+    return updated as unknown as RestaurantType;
+  }
+
+  async delete(id: string): Promise<boolean> {
+    const existing = await this.findOne(id);
+    if (!existing) {
+      throw new Error('餐厅不存在');
+    }
+
+    await this.couchbaseService.getCollection(this.collectionName).remove(id);
+    return true;
+  }
+
+  async findByHotelId(hotelId: string): Promise<RestaurantType[]> {
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Restaurant` WHERE hotelId = $1', [hotelId]);
+      return result.map((row: any) => row.Restaurant) as unknown as RestaurantType[];
+    } catch (error) {
+      this.logger.error('findByHotelId error:', error);
+      return [];
+    }
   }
 }

@@ -1,44 +1,78 @@
-import { Injectable } from '@nestjs/common';
-import { UserModel } from '../models/user.model';
+import { Injectable, Logger } from '@nestjs/common';
 import { IUser } from '@repo/schemas';
 import * as bcrypt from 'bcrypt';
-import { SearchConsistency } from 'ottoman';
+import { CouchbaseService } from '@/couchbase/couchbase.service';
 
 @Injectable()
 export class UserRepository {
+  private readonly logger = new Logger(UserRepository.name);
+
+  constructor(private readonly couchbaseService: CouchbaseService) {}
+
   async findAll(): Promise<IUser[]> {
-    return (await UserModel.find({}, { consistency: SearchConsistency.LOCAL })) as IUser[];
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` LIMIT 100');
+      return result.map((row: any) => row.User);
+    } catch (error) {
+      this.logger.error('findAll error:', error);
+      return [];
+    }
   }
 
   async findById(id: string): Promise<IUser | null> {
-    return await UserModel.findById(id);
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` USE KEYS $1', [id]);
+      return result.length > 0 ? result[0].User : null;
+    } catch (error) {
+      this.logger.error('findById error:', error);
+      return null;
+    }
   }
 
   async findByEmail(email: string): Promise<IUser | null> {
-    const result = await UserModel.find({ email }, { limit: 1 });
-    return result.length > 0 ? result[0] : null;
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` WHERE email = $1 LIMIT 1', [email]);
+      return result.length > 0 ? result[0].User : null;
+    } catch (error) {
+      this.logger.error('findByEmail error:', error);
+      return null;
+    }
   }
 
   async findByPhone(phone: string): Promise<IUser | null> {
-    const result = await UserModel.find({ phone }, { limit: 1 });
-    return result.length > 0 ? result[0] : null;
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` WHERE phone = $1 LIMIT 1', [phone]);
+      return result.length > 0 ? result[0].User : null;
+    } catch (error) {
+      this.logger.error('findByPhone error:', error);
+      return null;
+    }
   }
 
   async create(user: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'>): Promise<IUser> {
     const hashedPassword = await this.hashPassword(user.password);
-    const newUser = new UserModel({ ...user, password: hashedPassword });
-    return await newUser.save();
+    const newUser = { ...user, password: hashedPassword };
+    const id = this.generateId();
+    const result = await this.couchbaseService.getCollection('User').insert(id, newUser);
+    return { id, ...newUser } as IUser;
   }
 
   async update(id: string, user: Partial<IUser>): Promise<IUser | null> {
-    if (user.password) {
-      user.password = await this.hashPassword(user.password);
+    const existing = await this.findById(id);
+    if (!existing) {
+      return null;
     }
-    return await UserModel.findByIdAndUpdate(id, user, { new: true });
+    const updated = { ...existing, ...user };
+    if (user.password) {
+      updated.password = await this.hashPassword(user.password);
+    }
+    await this.couchbaseService.getCollection('User').upsert(id, updated);
+    return updated;
   }
 
   async delete(id: string): Promise<{ cas: any }> {
-    return await UserModel.removeById(id);
+    await this.couchbaseService.getCollection('User').remove(id);
+    return { cas: 0 };
   }
 
   async existsByEmail(email: string): Promise<boolean> {
@@ -61,14 +95,19 @@ export class UserRepository {
   }
 
   async searchByKeyword(keyword: string, limit = 10): Promise<IUser[]> {
-    const lowerKeyword = keyword.toLowerCase();
-    const results = await UserModel.find(
-      {
-        $or: [{ email: { $like: `%${lowerKeyword}%` } }, { firstName: { $like: `%${lowerKeyword}%` } }, { lastName: { $like: `%${lowerKeyword}%` } }],
-      },
-      { limit },
-    );
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` WHERE LOWER(email) LIKE $1 OR LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $1 LIMIT $2', [
+        `%${keyword.toLowerCase()}%`,
+        limit,
+      ]);
+      return result.map((row: any) => row.User);
+    } catch (error) {
+      this.logger.error('searchByKeyword error:', error);
+      return [];
+    }
+  }
 
-    return results;
+  private generateId(): string {
+    return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 }

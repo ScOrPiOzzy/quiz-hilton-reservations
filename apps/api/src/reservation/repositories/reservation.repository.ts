@@ -1,7 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { ReservationModel, ReservationStatus } from '../models/reservation.model';
-import type { IReservation } from '../models/reservation.model';
-import { SearchConsistency } from 'ottoman';
+import { Injectable, Logger } from '@nestjs/common';
+import { CouchbaseService } from '@/couchbase/couchbase.service';
+import { ReservationStatus } from '../models/reservation.model';
 
 export interface ReservationQuery {
   status?: ReservationStatus;
@@ -13,57 +12,172 @@ export interface ReservationQuery {
   storeId?: string;
 }
 
+export interface IReservation {
+  id: string;
+  userId?: string;
+  storeId?: string;
+  storeName?: string;
+  reservationDate: string;
+  status: ReservationStatus;
+  customer: {
+    name: string;
+    phone: string;
+    email?: string;
+  };
+  timeSlot?: string;
+  timeSlotName?: string;
+  tableConfigId?: string;
+  tableConfigName?: string;
+  specialRequests?: string;
+  estimatedArrivalTime?: string;
+  hotelId?: string;
+  restaurantId?: string;
+  areaId?: string;
+  confirmedAt?: string;
+  confirmedBy?: string;
+  completedAt?: string;
+  cancelledAt?: string;
+  cancelReason?: string;
+  cancelledBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 @Injectable()
 export class ReservationRepository {
-  async findAll(query?: ReservationQuery): Promise<IReservation[]> {
-    const filter: any = {};
-    if (query?.status) filter.status = query.status;
-    if (query?.userId) filter.userId = query.userId;
-    if (query?.storeId) filter.storeId = query.storeId;
-    if (query?.phone) filter['customer.phone'] = query.phone;
-    if (query?.name) filter['customer.name'] = query.name;
+  private readonly logger = new Logger(ReservationRepository.name);
+  private readonly collectionName = 'Reservation';
 
-    if (query?.dateFrom || query?.dateTo) {
-      filter.reservationDate = {};
-      if (query.dateFrom) filter.reservationDate.$gte = query.dateFrom;
-      if (query.dateTo) filter.reservationDate.$lte = query.dateTo;
+  constructor(private readonly couchbaseService: CouchbaseService) {}
+
+  async findAll(query?: ReservationQuery): Promise<IReservation[]> {
+    let sql = 'SELECT * FROM `hilton`.`_default`.`Reservation`';
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    if (query?.status) {
+      conditions.push('status = $' + (params.length + 1));
+      params.push(query.status);
+    }
+    if (query?.userId) {
+      conditions.push('userId = $' + (params.length + 1));
+      params.push(query.userId);
+    }
+    if (query?.storeId) {
+      conditions.push('storeId = $' + (params.length + 1));
+      params.push(query.storeId);
+    }
+    if (query?.phone) {
+      conditions.push('customer.phone = $' + (params.length + 1));
+      params.push(query.phone);
+    }
+    if (query?.name) {
+      conditions.push('LOWER(customer.name) LIKE $' + (params.length + 1));
+      params.push(`%${query.name.toLowerCase()}%`);
     }
 
-    return ReservationModel.find(filter, { consistency: SearchConsistency.LOCAL });
+    if (query?.dateFrom || query?.dateTo) {
+      conditions.push('reservationDate >= $' + (params.length + 1));
+      params.push(query.dateFrom?.toISOString() || '1970-01-01');
+      conditions.push('reservationDate <= $' + (params.length + 1));
+      params.push(query.dateTo?.toISOString() || '2100-12-31');
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    sql += ' LIMIT 100';
+
+    try {
+      const result = await this.couchbaseService.query(sql, params);
+      return result.map((row: any) => row.Reservation);
+    } catch (error) {
+      this.logger.error('findAll error:', error);
+      return [];
+    }
   }
 
   async findById(id: string): Promise<IReservation | null> {
-    return await ReservationModel.findById(id);
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` USE KEYS $1', [id]);
+      return result.length > 0 ? result[0].Reservation : null;
+    } catch (error) {
+      this.logger.error('findById error:', error);
+      return null;
+    }
   }
 
-  create(reservation: Omit<IReservation, 'id' | 'createdAt' | 'updatedAt'>): Promise<IReservation> {
-    const newReservation = new ReservationModel(reservation);
-    return newReservation.save();
+  async create(reservation: Omit<IReservation, 'id' | 'createdAt' | 'updatedAt'>): Promise<IReservation> {
+    const id = 'res_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const now = new Date().toISOString();
+    const data = {
+      ...reservation,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await this.couchbaseService.getCollection(this.collectionName).insert(id, data);
+    return { id, ...data };
   }
 
-  update(id: string, data: Partial<IReservation>): Promise<IReservation | null> {
-    return ReservationModel.findByIdAndUpdate(id, data, { new: true });
+  async update(id: string, data: Partial<IReservation>): Promise<IReservation | null> {
+    const existing = await this.findById(id);
+    if (!existing) {
+      return null;
+    }
+
+    const updated = {
+      ...existing,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await this.couchbaseService.getCollection(this.collectionName).upsert(id, updated);
+    return updated;
   }
 
-  delete(id: string): Promise<{ cas: any }> {
-    return ReservationModel.removeById(id);
+  async delete(id: string): Promise<{ cas: any }> {
+    await this.couchbaseService.getCollection(this.collectionName).remove(id);
+    return { cas: 0 };
   }
 
-  findByUserId(userId: string): Promise<IReservation[]> {
-    return ReservationModel.find({ userId });
+  async findByUserId(userId: string): Promise<IReservation[]> {
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` WHERE userId = $1', [userId]);
+      return result.map((row: any) => row.Reservation);
+    } catch (error) {
+      this.logger.error('findByUserId error:', error);
+      return [];
+    }
   }
 
-  findByPhoneAndDate(phone: string, date: Date): Promise<IReservation[]> {
-    const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-    const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+  async findByPhoneAndDate(phone: string, date: Date): Promise<IReservation[]> {
+    const startOfDay = new Date(date);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(date);
+    endOfDay.setHours(23, 59, 59, 999);
 
-    return ReservationModel.find({
-      'customer.phone': phone,
-      reservationDate: { $gte: startOfDay, $lte: endOfDay },
-    });
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` WHERE customer.phone = $1 AND reservationDate >= $2 AND reservationDate <= $3', [
+        phone,
+        startOfDay.toISOString(),
+        endOfDay.toISOString(),
+      ]);
+      return result.map((row: any) => row.Reservation);
+    } catch (error) {
+      this.logger.error('findByPhoneAndDate error:', error);
+      return [];
+    }
   }
 
-  findByStatus(status: ReservationStatus): Promise<IReservation[]> {
-    return ReservationModel.find({ status });
+  async findByStatus(status: ReservationStatus): Promise<IReservation[]> {
+    try {
+      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` WHERE status = $1', [status]);
+      return result.map((row: any) => row.Reservation);
+    } catch (error) {
+      this.logger.error('findByStatus error:', error);
+      return [];
+    }
   }
 }
