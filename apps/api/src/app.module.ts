@@ -22,22 +22,23 @@ import type { CouchbaseConfig } from './couchbase/couchbase.interfaces';
     CouchbaseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService): CouchbaseConfig => ({
-        host: `couchbase://${configService.get(EnvKey.COUCHBASE_HOST, 'localhost')}`,
+        host: configService.get(EnvKey.COUCHBASE_HOST, '127.0.0.1'),
         username: configService.get(EnvKey.COUCHBASE_USERNAME, 'admin'),
         password: configService.get(EnvKey.COUCHBASE_PASSWORD, 'password'),
         bucket: configService.get(EnvKey.COUCHBASE_BUCKET, 'hilton'),
         timeouts: {
-          kvTimeout: 10000,
-          connectTimeout: 30000,
+          kvTimeout: 20_000,
+          connectTimeout: 60_000,
         },
       }),
     }),
     // GraphQL
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
-      typePaths: ['./**/*.graphql'],
+      autoSchemaFile: true,
       sortSchema: true,
       playground: true,
+      csrfPrevention: false, // 开发环境禁用 CSRF 保护
       context: ({ req }) => ({ req }),
     }),
     // 业务模块

@@ -41,7 +41,7 @@ export class CouchbaseService implements OnModuleInit, OnModuleDestroy {
     this.cluster = await Cluster.connect(host, options);
     this.bucket = this.cluster.bucket(bucket);
     this.scope = this.bucket.scope('_default'); // 使用默认作用域
-    this.collection = this.scope.collection('_default');
+    this.collection = this.scope.collection('User');
   }
 
   getCluster(): Cluster {

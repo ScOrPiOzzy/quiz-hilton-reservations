@@ -1,7 +1,6 @@
 import { Module, DynamicModule, Global } from '@nestjs/common';
 import { CouchbaseModuleAsyncOptions } from './couchbase.interfaces';
 import { CouchbaseService } from './couchbase.service';
-import { OttomanService } from './ottoman.service';
 import { COUCHBASE_OPTIONS } from './couchbase.constants';
 
 @Global()
@@ -18,9 +17,8 @@ export class CouchbaseModule {
           inject: options.inject || [],
         },
         CouchbaseService,
-        OttomanService,
       ],
-      exports: [COUCHBASE_OPTIONS, CouchbaseService, OttomanService],
+      exports: [COUCHBASE_OPTIONS, CouchbaseService],
     };
   }
 }
