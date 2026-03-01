@@ -66,6 +66,7 @@ export interface HotelStore {
   clearCurrent: () => void;
   updateHotel: (id: string, updates: Partial<Hotel>) => void;
   updateRestaurant: (id: string, updates: Partial<Restaurant>) => void;
+  reset: () => void;
 }
 
 /**
@@ -86,8 +87,17 @@ export const useHotelStore = create<HotelStore>((set, get) => ({
   // 添加酒店列表（合并）
   addHotels: (newHotels) =>
     set((state) => {
-      const existingIds = new Set(state.hotels.map((h) => h.id));
-      const uniqueHotels = newHotels.filter((h) => !existingIds.has(h.id));
+      // 处理 null/undefined 输入
+      if (!newHotels || !Array.isArray(newHotels)) {
+        return state;
+      }
+
+      // 过滤掉没有 id 的酒店并收集已有的 id
+      const validHotels = newHotels.filter((h) => h && h.id);
+      const existingIds = new Set(
+        state.hotels.filter((h) => h && h.id).map((h) => h.id)
+      );
+      const uniqueHotels = validHotels.filter((h) => !existingIds.has(h.id));
       return { hotels: [...state.hotels, ...uniqueHotels] };
     }),
 
@@ -134,4 +144,14 @@ export const useHotelStore = create<HotelStore>((set, get) => ({
           }
         : null,
     })),
+
+  // 重置所有状态
+  reset: () =>
+    set({
+      hotels: [],
+      currentHotel: null,
+      currentRestaurant: null,
+      loading: false,
+      error: null,
+    }),
 }));

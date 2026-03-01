@@ -84,6 +84,7 @@ export interface ReservationStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
+  reset: () => void;
   getReservationsByStatus: (status: ReservationStatus) => Reservation[];
   getReservationsByHotel: (hotelId: string) => Reservation[];
   getReservationsByRestaurant: (restaurantId: string) => Reservation[];
@@ -110,8 +111,15 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
 
   // 创建预约
   createReservation: (input) => {
+    // 使用更安全的 ID 生成策略：组合时间戳和随机字符串
+    const generateId = () => {
+      const timestamp = Date.now();
+      const randomPart = Math.random().toString(36).substring(2, 11);
+      return `reservation-${timestamp}-${randomPart}`;
+    };
+
     const newReservation: Reservation = {
-      id: `reservation-${Date.now()}`,
+      id: generateId(),
       ...input,
       status: ReservationStatus.REQUESTED,
       createdAt: new Date().toISOString(),
@@ -168,4 +176,12 @@ export const useReservationStore = create<ReservationStore>((set, get) => ({
     const { reservations } = get();
     return reservations.filter((res) => res.restaurantId === restaurantId);
   },
+
+  // 重置所有状态
+  reset: () =>
+    set({
+      reservations: [],
+      loading: false,
+      error: null,
+    }),
 }));
