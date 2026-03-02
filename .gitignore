@@ -2,8 +2,8 @@
 
 # Dependencies
 node_modules
-.pnp
-.pnp.js
+.pnpm
+.pnpm.js
 
 # Local env files
 .env
@@ -16,17 +16,18 @@ node_modules
 coverage
 
 # Turbo
-.turbo
+turbo
 
 # Vercel
-.vercel
+vercel
 
 # Build Outputs
 .next/
 out/
-build
-dist
-
+build/
+dist/
+.output/
+.vinxi/
 
 # Debug
 npm-debug.log*

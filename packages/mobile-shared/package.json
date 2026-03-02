@@ -21,6 +21,8 @@
     "graphql": "^16.10.1"
   },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@types/node": "^20.11.30",
     "typescript": "^5.9.2"
   }
