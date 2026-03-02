@@ -1,8 +1,8 @@
+import { useRouter } from '@tarojs/taro'
 import React, { useEffect } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
 import { useHotelStore } from '../../stores'
 import { Card } from '../../components'
-import Taro, { useRouter } from '@tarojs/taro'
 
 const HotelDetail: React.FC = () => {
   const router = useRouter()
@@ -22,11 +22,11 @@ const HotelDetail: React.FC = () => {
   }, [hotelId, setCurrentHotel])
 
   return (
-    <ScrollView scrollY className="h-full bg-gray-100">
-      <View className="p-4">
+    <ScrollView scrollY className='h-full bg-gray-100'>
+      <View className='p-4'>
         <Card>
-          <Text className="text-2xl font-bold">{currentHotel?.name || '加载中'}</Text>
-          <Text className="text-gray-600 mt-2">{currentHotel?.address || ''}</Text>
+          <Text className='text-2xl font-bold'>{currentHotel?.name || '加载中'}</Text>
+          <Text className='text-gray-600 mt-2'>{currentHotel?.address || ''}</Text>
         </Card>
       </View>
     </ScrollView>

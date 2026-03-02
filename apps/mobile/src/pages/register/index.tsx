@@ -1,8 +1,8 @@
+import Taro from '@tarojs/taro'
 import React, { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import { Button, Input } from '../../components'
 import { useUserStore } from '../../stores'
-import Taro from '@tarojs/taro'
 
 const Register: React.FC = () => {
   const { login } = useUserStore()
@@ -51,49 +51,49 @@ const Register: React.FC = () => {
   }
 
   return (
-    <View className="min-h-screen bg-gray-100 p-6">
-      <View className="bg-white rounded-xl p-6">
-        <Text className="text-2xl font-bold mb-6">注册</Text>
+    <View className='min-h-screen bg-gray-100 p-6'>
+      <View className='bg-white rounded-xl p-6'>
+        <Text className='text-2xl font-bold mb-6'>注册</Text>
         <Input
-          label="手机号"
-          placeholder="请输入手机号"
+          label='手机号'
+          placeholder='请输入手机号'
           value={phone}
           onInput={handlePhoneInput}
         />
         <Input
-          label="验证码"
-          placeholder="请输入验证码"
+          label='验证码'
+          placeholder='请输入验证码'
           value={code}
           onInput={handleCodeInput}
         />
         <Input
-          label="密码"
-          placeholder="请输入密码"
+          label='密码'
+          placeholder='请输入密码'
           password
           value={password}
           onInput={handlePasswordInput}
         />
         <Input
-          label="确认密码"
-          placeholder="请再次输入密码"
+          label='确认密码'
+          placeholder='请再次输入密码'
           password
           value={confirmPassword}
           onInput={handleConfirmPasswordInput}
         />
       </View>
-      <View className="mt-6">
+      <View className='mt-6'>
         <Button
           onClick={handleRegister}
           loading={loading}
-          className="w-full h-12"
+          className='w-full h-12'
         >
           注册
         </Button>
       </View>
-      <View className="mt-4 text-center">
-        <Text className="text-gray-600">
+      <View className='mt-4 text-center'>
+        <Text className='text-gray-600'>
           已有账号？
-          <Text className="text-blue-500" onClick={() => Taro.navigateBack()}>
+          <Text className='text-blue-500' onClick={() => Taro.navigateBack()}>
             去登录
           </Text>
         </Text>

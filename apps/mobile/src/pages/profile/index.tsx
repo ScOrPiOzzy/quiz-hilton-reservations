@@ -1,8 +1,8 @@
-import React from 'react'
-import { View, Text, Image } from '@tarojs/components'
-import { useUserStore } from '../../stores'
-import { Cell, Button } from '../../components'
 import Taro from '@tarojs/taro'
+import React from 'react'
+import { View, Text } from '@tarojs/components'
+import { Cell, Button } from '../../components'
+import { useUserStore } from '../../stores'
 
 const Profile: React.FC = () => {
   const { user, isAuthenticated, logout } = useUserStore()
@@ -26,10 +26,10 @@ const Profile: React.FC = () => {
 
   if (!isAuthenticated) {
     return (
-      <View className="min-h-screen bg-gray-100 p-6">
-        <View className="text-center mt-20">
-          <Text className="text-xl mb-4">未登录</Text>
-          <Button onClick={handleLogin} className="w-full">
+      <View className='min-h-screen bg-gray-100 p-6'>
+        <View className='text-center mt-20'>
+          <Text className='text-xl mb-4'>未登录</Text>
+          <Button onClick={handleLogin} className='w-full'>
             立即登录
           </Button>
         </View>
@@ -38,35 +38,35 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <View className="min-h-screen bg-gray-100">
-      <View className="bg-white p-6 mb-4">
-        <View className="flex items-center">
-          <View className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
-            <Text className="text-2xl text-white">
+    <View className='min-h-screen bg-gray-100'>
+      <View className='bg-white p-6 mb-4'>
+        <View className='flex items-center'>
+          <View className='w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center'>
+            <Text className='text-2xl text-white'>
               {user?.firstName?.[0] || '?'}
             </Text>
           </View>
-          <View className="ml-4">
-            <Text className="text-lg font-semibold">
+          <View className='ml-4'>
+            <Text className='text-lg font-semibold'>
               {user?.firstName} {user?.lastName}
             </Text>
-            <Text className="text-gray-500">{user?.phone}</Text>
+            <Text className='text-gray-500'>{user?.phone}</Text>
           </View>
         </View>
-        <View className="bg-white">
+        <View className='bg-white'>
           <Cell
-            title="个人信息"
+            title='个人信息'
             arrow
             onClick={() => Taro.navigateTo({ url: '/pages/profile/info/index' })}
           />
           <Cell
-            title="我的预约"
+            title='我的预约'
             arrow
             onClick={() => Taro.navigateTo({ url: '/pages/profile/reservations/index' })}
           />
         </View>
-        <View className="mt-4">
-          <Button variant="danger" onClick={handleLogout} className="w-full">
+        <View className='mt-4'>
+          <Button variant='danger' onClick={handleLogout} className='w-full'>
             退出登录
           </Button>
         </View>

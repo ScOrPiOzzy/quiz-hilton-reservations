@@ -1,12 +1,10 @@
+import Taro from '@tarojs/taro'
 import React, { useState } from 'react'
 import { View, Text, ScrollView } from '@tarojs/components'
-import { useHotelStore, useReservationStore } from '../../stores'
+import { useReservationStore } from '../../stores'
 import { Button, Input, Card } from '../../components'
-import Taro, { useRouter } from '@tarojs/taro'
 
 const RestaurantDetail: React.FC = () => {
-  const router = useRouter()
-  const { currentHotel } = useHotelStore()
   const { createReservation } = useReservationStore()
   const [date, setDate] = useState('')
   const [timeSlot, setTimeSlot] = useState('')
@@ -58,43 +56,43 @@ const RestaurantDetail: React.FC = () => {
   }
 
   return (
-    <ScrollView scrollY className="h-full bg-gray-100">
-      <View className="p-4">
+    <ScrollView scrollY className='h-full bg-gray-100'>
+      <View className='p-4'>
         <Card>
-          <Text className="text-xl font-bold mb-2">餐厅名称</Text>
-          <Text className="text-gray-600 mb-2">餐厅描述信息</Text>
-          <Text className="text-gray-500">营业时间: 10:00-22:00</Text>
+          <Text className='text-xl font-bold mb-2'>餐厅名称</Text>
+          <Text className='text-gray-600 mb-2'>餐厅描述信息</Text>
+          <Text className='text-gray-500'>营业时间: 10:00-22:00</Text>
         </Card>
-        <View className="mt-6">
-          <Text className="text-lg font-semibold mb-4">预约信息</Text>
-          <Card className="mb-4">
+        <View className='mt-6'>
+          <Text className='text-lg font-semibold mb-4'>预约信息</Text>
+          <Card className='mb-4'>
             <Input
-              label="预约日期"
-              placeholder="请选择日期"
+              label='预约日期'
+              placeholder='请选择日期'
               value={date}
               onInput={handleDateInput}
             />
             <Input
-              label="预约时间"
-              placeholder="请选择时间段"
+              label='预约时间'
+              placeholder='请选择时间段'
               value={timeSlot}
               onInput={handleTimeSlotInput}
             />
             <Input
-              label="姓名"
-              placeholder="请输入姓名"
+              label='姓名'
+              placeholder='请输入姓名'
               value={name}
               onInput={handleNameInput}
             />
             <Input
-              label="手机号"
-              placeholder="请输入手机号"
+              label='手机号'
+              placeholder='请输入手机号'
               value={phone}
               onInput={handlePhoneInput}
             />
             <Input
-              label="特殊要求"
-              placeholder="选填"
+              label='特殊要求'
+              placeholder='选填'
               value={requests}
               onInput={handleRequestsInput}
             />
@@ -102,7 +100,7 @@ const RestaurantDetail: React.FC = () => {
           <Button
             onClick={handleReserve}
             loading={loading}
-            className="w-full h-12"
+            className='w-full h-12'
           >
             确认预约
           </Button>

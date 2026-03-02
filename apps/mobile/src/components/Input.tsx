@@ -25,7 +25,7 @@ const Input: React.FC<InputProps> = ({
   return (
     <View className={`mb-4 ${className}`}>
       {label && (
-        <Text className="block text-sm font-medium text-gray-700 mb-1">
+        <Text className='block text-sm font-medium text-gray-700 mb-1'>
           {label}
         </Text>
       )}
@@ -35,10 +35,10 @@ const Input: React.FC<InputProps> = ({
         onInput={onInput}
         placeholder={placeholder}
         disabled={disabled}
-        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className='w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
       />
       {error && (
-        <Text className="text-red-500 text-sm mt-1">{error}</Text>
+        <Text className='text-red-500 text-sm mt-1'>{error}</Text>
       )}
     </View>
   )

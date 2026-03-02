@@ -43,7 +43,7 @@ const Button: React.FC<ButtonProps> = ({
       style={style}
     >
       {loading ? (
-        <View className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full" />
+        <View className='animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full' />
       ) : (
         <Text>{children}</Text>
       )}

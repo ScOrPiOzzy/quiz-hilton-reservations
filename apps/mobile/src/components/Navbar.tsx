@@ -9,13 +9,13 @@ export interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ title, showBack, onBack }) => {
   return (
-    <View className="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
+    <View className='bg-white border-b border-gray-200 px-4 py-3 flex items-center'>
       {showBack && (
-        <View className="mr-4 text-gray-600" onClick={onBack}>
+        <View className='mr-4 text-gray-600' onClick={onBack}>
           <Text>‹</Text>
         </View>
       )}
-      <Text className="text-lg font-semibold">{title}</Text>
+      <Text className='text-lg font-semibold'>{title}</Text>
     </View>
   )
 }

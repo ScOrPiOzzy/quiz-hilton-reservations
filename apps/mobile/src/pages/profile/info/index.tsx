@@ -1,8 +1,8 @@
+import Taro from '@tarojs/taro'
 import React, { useState } from 'react'
 import { View, Text } from '@tarojs/components'
 import { Button, Input } from '../../../components'
 import { useUserStore } from '../../../stores'
-import Taro from '@tarojs/taro'
 
 const ProfileInfo: React.FC = () => {
   const { user, updateProfile } = useUserStore()
@@ -37,33 +37,33 @@ const ProfileInfo: React.FC = () => {
   }
 
   return (
-    <View className="min-h-screen bg-gray-100 p-6">
-      <View className="bg-white rounded-xl p-4">
-        <Text className="text-xl font-bold mb-4">编辑个人信息</Text>
+    <View className='min-h-screen bg-gray-100 p-6'>
+      <View className='bg-white rounded-xl p-4'>
+        <Text className='text-xl font-bold mb-4'>编辑个人信息</Text>
         <Input
-          label="姓"
-          placeholder="请输入姓"
+          label='姓'
+          placeholder='请输入姓'
           value={lastName}
           onInput={handleLastNameInput}
         />
         <Input
-          label="名"
-          placeholder="请输入名"
+          label='名'
+          placeholder='请输入名'
           value={firstName}
           onInput={handleFirstNameInput}
         />
         <Input
-          label="邮箱"
-          placeholder="请输入邮箱"
+          label='邮箱'
+          placeholder='请输入邮箱'
           value={email}
           onInput={handleEmailInput}
         />
       </View>
-      <View className="mt-6">
+      <View className='mt-6'>
         <Button
           onClick={handleSave}
           loading={loading}
-          className="w-full h-12"
+          className='w-full h-12'
         >
           保存
         </Button>
