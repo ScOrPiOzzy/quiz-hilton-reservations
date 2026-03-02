@@ -2,7 +2,7 @@ import { Show, For } from 'solid-js';
 import type { Restaurant } from "~/lib/types";
 import { RestaurantType, AreaType } from "~/lib/types";
 import { StatusBadge } from "./StatusBadge";
-import { HotelImagesGrid } from "./HotelImagesGrid";
+import { HotelCarousel } from "./HotelCarousel";
 import { Button } from "@repo/ui";
 
 interface RestaurantCardProps {
@@ -67,18 +67,15 @@ export const RestaurantCard = (props: RestaurantCardProps) => {
         <p class="text-gray-700 mb-4">{props.restaurant.description}</p>
       </Show>
 
-      <Show when={props.restaurant.images.length > 0}>
+      <Show when={props.restaurant.images?.length > 0}>
         <div class="mb-4">
-          <HotelImagesGrid
-            images={props.restaurant.images}
-            columns={3}
-          />
+          <HotelCarousel images={props.restaurant.images || []} />
         </div>
       </Show>
 
       <div class="flex flex-wrap gap-4 text-sm text-gray-600">
         <span>👥 容量: {props.restaurant.capacity} 人</span>
-        <Show when={props.restaurant.areas.length > 0}>
+        <Show when={props.restaurant.areas?.length > 0}>
           <span>
             🏢 区域:
             <For each={props.restaurant.areas}>

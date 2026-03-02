@@ -41,18 +41,16 @@ export class HotelService {
 
     try {
       const result = await this.couchbaseService.query(query, params);
-      // Couchbase 返回的行结构：{ meta: { id }, Hotel: { ... } } 或 { id: ..., Hotel: { ... } }
       const items = result.map<HotelType>((row: any) => {
-        console.log(`🚀 ~ HotelService ~ findAll ~ row:`, row);
-        // Couchbase 内部 ID 可能自动添加为 row.Hotel.id
-        // 我们传入的 cuid ID 应该在 row.id 或 row.meta?.id
-        const couchbaseId = row.id || row.meta?.id || row.Hotel?.id;
         const hotel = row.Hotel || row;
-        console.log(`🏨 ~ HotelService ~ findAll ~ row.id:`, row.id);
-        console.log(`🏨 ~ HotelService ~ findAll ~ row.meta:`, row.meta);
-        console.log(`🏨 ~ HotelService ~ findAll ~ couchbaseId:`, couchbaseId);
-        console.log(`🏨 ~ HotelService ~ findAll ~ row.Hotel.id:`, hotel?.id);
-        return { ...hotel, id: couchbaseId, images: hotelImages, restaurants: hotel.restaurants || [] };
+        // 移除 Couchbase 自动添加的元数据（_type, active 等）
+        const { _type, active, ...cleanHotel } = hotel || {};
+        return {
+          id: row.id || row.meta?.id || cleanHotel.id,
+          ...cleanHotel,
+          images: hotelImages,
+          restaurants: cleanHotel.restaurants || [],
+        };
       });
 
       const countQuery = 'SELECT COUNT(*) as total FROM `hilton`.`_default`.`Hotel`' + (conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '');
@@ -74,9 +72,9 @@ export class HotelService {
         const hotel = result[0].Hotel as unknown as HotelType;
         // 移除 Couchbase 自动添加的元数据（_type, active 等）
         console.log(`🏨 ~ HotelService ~ findOne ~ hotel.id:`, hotel.id);
-        console.log(`🏨 ~ HotelService ~ findOne ~ hotelId (from meta):`, result[0].meta?.id);
+        console.log(`🏨 ~ HotelService ~ findOne ~ hotelId (from meta):`, result[0].id);
         // 确保数组字段不为 null
-        return { ...hotel, id: result[0].meta?.id || hotel.id, images: hotelImages, restaurants: hotel.restaurants || [] };
+        return { ...hotel, id: result[0].id, images: hotelImages, restaurants: hotel.restaurants || [] };
       }
       return null;
     } catch (error) {

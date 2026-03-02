@@ -121,7 +121,7 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
           ...input,
         });
       } else {
-        await createMutation.execute(input);
+        await createMutation.execute({ input });
       }
 
       props.onSuccess();

@@ -9,7 +9,12 @@ const CREATE_RESTAURANT = `
       hotelId
       description
       capacity
-      images
+      images {
+        id
+        url
+        alt
+        order
+      }
     }
   }
 `;
@@ -23,7 +28,12 @@ const UPDATE_RESTAURANT = `
       hotelId
       description
       capacity
-      images
+      images {
+        id
+        url
+        alt
+        order
+      }
     }
   }
 `;

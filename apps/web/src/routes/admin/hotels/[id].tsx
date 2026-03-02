@@ -2,7 +2,7 @@ import { Show } from 'solid-js';
 import { useParams, useNavigate } from '@solidjs/router';
 import { AdminLayout } from "~/components/admin/Layout/AdminLayout";
 import { HotelInfoCard } from "~/components/admin/hotel-detail/HotelInfoCard";
-import { HotelImagesGrid } from "~/components/admin/hotel-detail/HotelImagesGrid";
+import { HotelCarousel } from "~/components/admin/hotel-detail/HotelCarousel";
 import { RestaurantList } from "~/components/admin/hotel-detail/RestaurantList";
 import { useHotelDetail } from "~/hooks/admin/useHotelDetail";
 import { Button } from "@repo/ui";
@@ -19,7 +19,7 @@ export default function HotelDetailPage() {
 
   return (
     <AdminLayout>
-      <div class="space-y-6">
+      <div class="max-w-4xl mx-auto space-y-6">
         <div class="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate("/admin/hotels")}>
             ← 返回
@@ -49,12 +49,14 @@ export default function HotelDetailPage() {
 
         <Show when={data()?.hotel}>
           <div class="space-y-6">
-            <HotelImagesGrid
-              images={data()!.hotel.images || []}
-              columns={4}
-            />
-
-            <HotelInfoCard hotel={data()!.hotel} />
+            <div class="flex flex-col lg:flex-row gap-6">
+              <div class="flex-1 min-w-0">
+                <HotelCarousel images={data()!.hotel.images || []} />
+              </div>
+              <div class="lg:w-72 shrink-0">
+                <HotelInfoCard hotel={data()!.hotel} />
+              </div>
+            </div>
 
             <RestaurantList
               restaurants={data()!.hotel.restaurants || []}

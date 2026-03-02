@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CouchbaseService } from '@/couchbase/couchbase.service';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
 import { UpdateRestaurantInput } from './dto/update-restaurant.input';
@@ -8,6 +8,7 @@ import { PaginatedRestaurant } from './dto/paginated-restaurant';
 import { generateId } from '@/common/utils/id-generator';
 import { restaurantImages } from '@/common/constants';
 
+@Injectable()
 export class RestaurantService {
   private readonly logger = new Logger(RestaurantService.name);
   private readonly collectionName = 'Restaurant';
@@ -97,7 +98,7 @@ export class RestaurantService {
   async findAllSimple(): Promise<RestaurantType[]> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Restaurant` LIMIT 100');
-      return result.map((row: any) => row.Restaurant) as unknown as RestaurantType[];
+      return result.map((row: any) => ({ id: row.id, ...row.Restaurant })) as unknown as RestaurantType[];
     } catch (error) {
       this.logger.error('findAllSimple error:', error);
       return [];
@@ -107,7 +108,7 @@ export class RestaurantService {
   async findOne(id: string): Promise<RestaurantType | null> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Restaurant` USE KEYS $1', [id]);
-      return result.length > 0 ? (result[0].Restaurant as unknown as RestaurantType) : null;
+      return result.length > 0 ? ({ id: result[0].id, ...result[0].Restaurant } as unknown as RestaurantType) : null;
     } catch (error) {
       this.logger.error('findOne error:', error);
       return null;

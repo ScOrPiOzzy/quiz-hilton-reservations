@@ -92,7 +92,7 @@ export class ReservationRepository {
 
     try {
       const result = await this.couchbaseService.query(sql, params);
-      return result.map((row: any) => row.Reservation);
+      return result.map((row: any) => ({ id: row.id, ...row.Reservation }));
     } catch (error) {
       this.logger.error('findAll error:', error);
       return [];
@@ -102,7 +102,7 @@ export class ReservationRepository {
   async findById(id: string): Promise<IReservation | null> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` USE KEYS $1', [id]);
-      return result.length > 0 ? result[0].Reservation : null;
+      return result.length > 0 ? { id: result[0].id, ...result[0].Reservation } : null;
     } catch (error) {
       this.logger.error('findById error:', error);
       return null;
@@ -146,7 +146,7 @@ export class ReservationRepository {
   async findByUserId(userId: string): Promise<IReservation[]> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` WHERE userId = $1', [userId]);
-      return result.map((row: any) => row.Reservation);
+      return result.map((row: any) => ({ id: row.id, ...row.Reservation }));
     } catch (error) {
       this.logger.error('findByUserId error:', error);
       return [];
@@ -165,7 +165,7 @@ export class ReservationRepository {
         startOfDay.toISOString(),
         endOfDay.toISOString(),
       ]);
-      return result.map((row: any) => row.Reservation);
+      return result.map((row: any) => ({ id: row.id, ...row.Reservation }));
     } catch (error) {
       this.logger.error('findByPhoneAndDate error:', error);
       return [];
@@ -175,7 +175,7 @@ export class ReservationRepository {
   async findByStatus(status: ReservationStatus): Promise<IReservation[]> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` WHERE status = $1', [status]);
-      return result.map((row: any) => row.Reservation);
+      return result.map((row: any) => ({ id: row.id, ...row.Reservation }));
     } catch (error) {
       this.logger.error('findByStatus error:', error);
       return [];

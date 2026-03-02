@@ -13,7 +13,7 @@ export class UserRepository {
   async findAll(): Promise<IUser[]> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` LIMIT 100');
-      return result.map((row: any) => row.User);
+      return result.map((row: any) => ({ id: row.id, ...row.User }));
     } catch (error) {
       this.logger.error('findAll error:', error);
       return [];
@@ -23,7 +23,7 @@ export class UserRepository {
   async findById(id: string): Promise<IUser | null> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` USE KEYS $1', [id]);
-      return result.length > 0 ? result[0].User : null;
+      return result.length > 0 ? { id: result[0].id, ...result[0].User } : null;
     } catch (error) {
       this.logger.error('findById error:', error);
       return null;
@@ -33,7 +33,7 @@ export class UserRepository {
   async findByEmail(email: string): Promise<IUser | null> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE email = $1 LIMIT 1', [email]);
-      return result.length > 0 ? result[0].User : null;
+      return result.length > 0 ? { id: result[0].id, ...result[0].User } : null;
     } catch (error) {
       this.logger.error('findByEmail error:', error);
       return null;
@@ -43,7 +43,7 @@ export class UserRepository {
   async findByPhone(phone: string): Promise<IUser | null> {
     try {
       const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE phone = $1 LIMIT 1', [phone]);
-      return result.length > 0 ? result[0].User : null;
+      return result.length > 0 ? { id: result[0].id, ...result[0].User } : null;
     } catch (error) {
       this.logger.error('findByPhone error:', error);
       return null;
@@ -101,7 +101,7 @@ export class UserRepository {
         `%${keyword.toLowerCase()}%`,
         limit,
       ]);
-      return result.map((row: any) => row.User);
+      return result.map((row: any) => ({ id: row.id, ...row.User }));
     } catch (error) {
       this.logger.error('searchByKeyword error:', error);
       return [];
