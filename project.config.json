@@ -1,0 +1,24 @@
+{
+  "miniprogramRoot": "src",
+  "projectname": "hilton-reservations-mobile",
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "setting": {
+    "urlCheck": false
+  },
+  "condition": {
+    "miniprogram": {
+      "urlCheck": false,
+      "es6": false,
+      "style": "v2",
+      "compileType": "miniprogram",
+      "lazyCodeLoading": false
+    }
+  },
+  "cloudbaseRequest": {
+    "enable": false,
+    "permission": {
+      "scope.userLocation": false
+    }
+  }
+}
