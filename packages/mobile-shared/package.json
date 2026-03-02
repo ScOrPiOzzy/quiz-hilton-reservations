@@ -1,0 +1,26 @@
+{
+  "name": "@repo/mobile-shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.13.1",
+    "graphql": "^16.10.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2"
+  }
+}
