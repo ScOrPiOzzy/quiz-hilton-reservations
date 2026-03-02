@@ -1,39 +1,5 @@
 {
-  "miniprogramRoot": "dist/",
+  "appid": "touristappid",
   "projectname": "hilton-reservations-mobile",
-  "description": "希尔顿酒店预订微信小程序",
-  "appid": "your-appid-here",
-  "setting": {
-    "urlCheck": true,
-    "es6": true,
-    "postcss": true,
-    "minified": true,
-    "babelSetting": {
-      "ignore": [],
-      "disablePlugins": [],
-      "outputPath": ""
-    }
-  },
-  "compileType": "miniprogram",
-  "libVersion": "2.19.4",
-  "condition": {
-    "search": {
-      "list": []
-    },
-    "conversation": {
-      "list": []
-    },
-    "game": {
-      "list": []
-    },
-    "plugin": {
-      "list": []
-    },
-    "gamePlugin": {
-      "list": []
-    },
-    "miniprogram": {
-      "list": []
-    }
-  }
+  "compileType": "miniprogram"
 }

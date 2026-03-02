@@ -7,7 +7,7 @@ const config: UserConfigExport = defineConfig({
     640: 2.34 / 2,
     750: 1,
     828: 1.81 / 2,
-    375: 2 / 1
+    375: 2 / 1,
   },
   sourceRoot: 'src',
   outputRoot: 'dist',
@@ -15,34 +15,12 @@ const config: UserConfigExport = defineConfig({
     '@tarojs/plugin-framework-react'
   ],
   alias: {
-    '@': '/src'
+    react: '@tarojs/react',
   },
   framework: 'react',
-  compiler: {
-    type: 'webpack5'
-  },
-  mini: {
+  h5: {
     postcss: {
       pxtransform: {
-        enable: true,
-        config: {}
-      },
-      url: {
-        enable: true,
-        config: {
-          limit: 1024
-        }
-      },
-      cssModules: {
-        enable: false
-      }
-    }
-  },
-  h5: {
-    publicPath: '/',
-    staticDirectory: 'static',
-    postcss: {
-      autoprefixer: {
         enable: true,
         config: {}
       },

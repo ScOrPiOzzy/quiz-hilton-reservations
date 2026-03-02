@@ -29,10 +29,10 @@
     "@tarojs/shared": "4.1.0",
     "@tarojs/taro": "4.1.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.11",
     "@tarojs/cli": "4.1.0",
     "@tarojs/webpack5-runner": "4.1.0",
     "@tailwindcss/vite": "^4.0.7",
