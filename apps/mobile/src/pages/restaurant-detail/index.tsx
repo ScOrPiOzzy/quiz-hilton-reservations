@@ -1,0 +1,95 @@
+import React, { useState } from 'react'
+import { View, Text, ScrollView } from '@tarojs/components'
+import { useHotelStore, useReservationStore } from '../../stores'
+import { Button, Input, Card } from '../../components'
+import Taro, { useRouter } from '@tarojs/taro'
+
+const RestaurantDetail: React.FC = () => {
+  const router = useRouter()
+  const { currentHotel } = useHotelStore()
+  const { createReservation } = useReservationStore()
+  const [date, setDate] = useState('')
+  const [timeSlot, setTimeSlot] = useState('')
+  const [name, setName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [requests, setRequests] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const handleReserve = async () => {
+    if (!date || !timeSlot || !name || !phone) {
+      Taro.showToast({ title: '请填写完整信息', icon: 'none' })
+      return
+    }
+    setLoading(true)
+    try {
+      await createReservation({
+        reservationDate: date,
+        timeSlot,
+        customer: { name, phone },
+        specialRequests: requests,
+      })
+      Taro.showToast({ title: '预约成功', icon: 'success' })
+      Taro.navigateBack()
+    } catch (error) {
+      Taro.showToast({ title: '预约失败', icon: 'none' })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <ScrollView scrollY className="h-full bg-gray-100">
+      <View className="p-4">
+        <Card>
+          <Text className="text-xl font-bold mb-2">餐厅名称</Text>
+          <Text className="text-gray-600 mb-2">餐厅描述信息</Text>
+          <Text className="text-gray-500">营业时间: 10:00-22:00</Text>
+        </Card>
+        <View className="mt-6">
+          <Text className="text-lg font-semibold mb-4">预约信息</Text>
+          <Card className="mb-4">
+            <Input
+              label="预约日期"
+              placeholder="请选择日期"
+              value={date}
+              onInput={(e) => setDate(e.detail.value)}
+            />
+            <Input
+              label="预约时间"
+              placeholder="请选择时间段"
+              value={timeSlot}
+              onInput={(e) => setTimeSlot(e.detail.value)}
+            />
+            <Input
+              label="姓名"
+              placeholder="请输入姓名"
+              value={name}
+              onInput={(e) => setName(e.detail.value)}
+            />
+            <Input
+              label="手机号"
+              placeholder="请输入手机号"
+              value={phone}
+              onInput={(e) => setPhone(e.detail.value)}
+            />
+            <Input
+              label="特殊要求"
+              placeholder="选填"
+              value={requests}
+              onInput={(e) => setRequests(e.detail.value)}
+            />
+          </Card>
+          <Button
+            onClick={handleReserve}
+            loading={loading}
+            className="w-full h-12"
+          >
+            确认预约
+          </Button>
+        </View>
+      </View>
+    </ScrollView>
+  )
+}
+
+export default RestaurantDetail
