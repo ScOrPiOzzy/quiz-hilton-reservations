@@ -1,26 +1,44 @@
 import { createSignal } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
+import { authApi } from "@repo/mobile-shared";
 
 export default function Register() {
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
   const [confirmPassword, setConfirmPassword] = createSignal("");
-  const [name, setName] = createSignal("");
+  const [firstName, setFirstName] = createSignal("");
+  const [lastName, setLastName] = createSignal("");
+  const [phone, setPhone] = createSignal("");
   const [loading, setLoading] = createSignal(false);
+  const [error, setError] = createSignal("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
     if (password() !== confirmPassword()) {
-      alert("密码不一致");
+      setError("密码不一致");
       return;
     }
     setLoading(true);
-    // 模拟注册
-    setTimeout(() => {
+    setError("");
+
+    const result = await authApi.register({
+      firstName: firstName(),
+      lastName: lastName(),
+      email: email(),
+      phone: phone(),
+      password: password(),
+      role: "customer",
+    });
+
+    if (result.error) {
+      setError(result.error);
       setLoading(false);
-      navigate("/login");
-    }, 1000);
+      return;
+    }
+
+    setLoading(false);
+    navigate("/login");
   };
 
   return (
@@ -42,18 +60,33 @@ export default function Register() {
           </h1>
 
           <form onSubmit={handleSubmit} class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                姓名
-              </label>
-              <input
-                type="text"
-                value={name()}
-                onInput={(e) => setName((e.target as HTMLInputElement).value)}
-                placeholder="您的姓名"
-                required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  名
+                </label>
+                <input
+                  type="text"
+                  value={firstName()}
+                  onInput={(e) => setFirstName((e.target as HTMLInputElement).value)}
+                  placeholder="名"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  姓
+                </label>
+                <input
+                  type="text"
+                  value={lastName()}
+                  onInput={(e) => setLastName((e.target as HTMLInputElement).value)}
+                  placeholder="姓"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
             <div>
@@ -65,6 +98,20 @@ export default function Register() {
                 value={email()}
                 onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
                 placeholder="your@email.com"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                手机号
+              </label>
+              <input
+                type="tel"
+                value={phone()}
+                onInput={(e) => setPhone((e.target as HTMLInputElement).value)}
+                placeholder="138****8888"
                 required
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -97,6 +144,10 @@ export default function Register() {
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {error() && (
+              <div class="text-red-500 text-sm text-center">{error()}</div>
+            )}
 
             <button
               type="submit"

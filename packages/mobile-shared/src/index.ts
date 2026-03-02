@@ -1,4 +1,4 @@
-export { ApolloClient, createApolloClient } from "./apollo";
+export { ApolloClient, createApolloClient, getApolloClient } from "./apollo";
 export * from "./api";
 export * from "./auth";
 export * from "./hotel";
@@ -6,3 +6,7 @@ export * from "./restaurant";
 export * from "./reservation";
 export * from "./storage";
 export * from "./platform";
+export * from "./rest-client";
+export { authApi } from "./auth-api";
+export type { ApiResponse, LoginResponse, RegisterResponse, SendCodeResponse } from "./auth-api";
+export type { CreateReservationInput } from "./reservation";

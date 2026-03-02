@@ -1,20 +1,29 @@
 import { createSignal } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
+import { authApi } from "@repo/mobile-shared";
 
 export default function Login() {
   const [email, setEmail] = createSignal("");
   const [password, setPassword] = createSignal("");
   const [loading, setLoading] = createSignal(false);
+  const [error, setError] = createSignal("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: Event) => {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
     setLoading(true);
-    // 模拟登录
-    setTimeout(() => {
+    setError("");
+
+    const result = await authApi.loginWithEmail(email(), password());
+
+    if (result.error) {
+      setError(result.error);
       setLoading(false);
-      navigate("/");
-    }, 1000);
+      return;
+    }
+
+    setLoading(false);
+    navigate("/");
   };
 
   return (
@@ -63,6 +72,10 @@ export default function Login() {
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            {error() && (
+              <div class="text-red-500 text-sm text-center">{error()}</div>
+            )}
 
             <button
               type="submit"

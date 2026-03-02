@@ -44,7 +44,7 @@ export const useHotelList = () => {
   const [page, setPage] = createSignal(1);
   const [pageSize, setPageSize] = createSignal(20);
 
-  const { data, loading, error, refetch } = useQuery<GetHotelsResponse>(GET_HOTELS, {
+  const { data, loading, error, refetch, graphqlErrors } = useQuery<GetHotelsResponse>(GET_HOTELS, {
     variables: { input: { page: page(), pageSize: pageSize() } },
   });
 
@@ -75,6 +75,7 @@ export const useHotelList = () => {
     hotels,
     loading,
     error,
+    graphqlErrors,
     pagination,
     setPagination,
     setPageSize: changePageSize,

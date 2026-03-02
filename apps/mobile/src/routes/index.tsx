@@ -1,42 +1,30 @@
-import { createSignal } from "solid-js";
+import { createSignal, createResource, Show, For } from "solid-js";
 import { A } from "@solidjs/router";
+import { getApolloClient, GET_HOTELS } from "@repo/mobile-shared";
 
 interface Hotel {
   id: string;
   name: string;
-  location: string;
-  rating: number;
-  price: number;
-  image: string;
+  city: string;
+  address: string;
+  phone: string;
+  description: string;
+  images: string[];
+  amenities: string[];
+}
+
+async function fetchHotels(): Promise<Hotel[]> {
+  const client = getApolloClient();
+  const { data } = await client.query({
+    query: GET_HOTELS,
+    variables: { limit: 20 },
+  });
+  return data.hotels.items as Hotel[];
 }
 
 export default function Index() {
-  const [hotels, setHotels] = createSignal<Hotel[]>([
-    {
-      id: "1",
-      name: "希尔顿酒店 (上海)",
-      location: "上海外滩",
-      rating: 4.8,
-      price: 1288,
-      image: "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=400",
-    },
-    {
-      id: "2",
-      name: "希尔顿酒店 (北京)",
-      location: "北京王府井",
-      rating: 4.7,
-      price: 1199,
-      image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400",
-    },
-    {
-      id: "3",
-      name: "希尔顿酒店 (广州)",
-      location: "广州天河",
-      rating: 4.6,
-      price: 1088,
-      image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400",
-    },
-  ]);
+  const [hotels, { refetch }] = createResource(fetchHotels);
+  const [searchCity, setSearchCity] = createSignal("");
 
   return (
     <div class="min-h-screen bg-gray-50 pb-20">
@@ -52,7 +40,9 @@ export default function Index() {
         <div class="max-w-md mx-auto px-4 py-3">
           <input
             type="text"
-            placeholder="搜索酒店..."
+            placeholder="搜索城市..."
+            value={searchCity()}
+            onInput={(e) => setSearchCity((e.target as HTMLInputElement).value)}
             class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -60,34 +50,49 @@ export default function Index() {
 
       {/* 酒店列表 */}
       <div class="max-w-md mx-auto px-4 py-4 space-y-4">
-        {hotels().map((hotel) => (
-          <A
-            href={`/hotel/${hotel.id}`}
-            class="block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-          >
-            <div class="flex">
-              <img
-                src={hotel.image}
-                alt={hotel.name}
-                class="w-32 h-32 object-cover"
-              />
-              <div class="flex-1 p-4">
-                <h2 class="font-semibold text-gray-900 mb-1">{hotel.name}</h2>
-                <p class="text-sm text-gray-500 mb-2">{hotel.location}</p>
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <span class="text-yellow-500">★</span>
-                    <span class="ml-1 text-sm text-gray-700">{hotel.rating}</span>
+        <Show when={hotels.loading}>
+          <div class="text-center py-8 text-gray-500">加载中...</div>
+        </Show>
+        
+        <Show when={hotels.error}>
+          <div class="text-center py-8 text-red-500">加载失败，请重试</div>
+        </Show>
+        
+        <Show when={!hotels.loading && hotels()}>
+          <For each={hotels()}>
+            {(hotel) => (
+              <A
+                href={`/hotel/${hotel.id}`}
+                class="block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              >
+                <div class="flex">
+                  <img
+                    src={hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=400"}
+                    alt={hotel.name}
+                    class="w-32 h-32 object-cover"
+                  />
+                  <div class="flex-1 p-4">
+                    <h2 class="font-semibold text-gray-900 mb-1">{hotel.name}</h2>
+                    <p class="text-sm text-gray-500 mb-2">{hotel.city} - {hotel.address}</p>
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center">
+                        <span class="text-yellow-500">★</span>
+                        <span class="ml-1 text-sm text-gray-700">4.8</span>
+                      </div>
+                      <span class="text-lg font-bold text-blue-600">
+                        查看详情
+                      </span>
+                    </div>
                   </div>
-                  <span class="text-lg font-bold text-blue-600">
-                    ¥{hotel.price}
-                    <span class="text-sm font-normal text-gray-500">/晚</span>
-                  </span>
                 </div>
-              </div>
-            </div>
-          </A>
-        ))}
+              </A>
+            )}
+          </For>
+          
+          <Show when={hotels()?.length === 0}>
+            <div class="text-center py-8 text-gray-500">暂无酒店数据</div>
+          </Show>
+        </Show>
       </div>
 
       {/* 底部导航栏 */}
@@ -99,6 +104,13 @@ export default function Index() {
           >
             <span class="text-xl">🏨</span>
             <span class="text-xs mt-1">酒店</span>
+          </A>
+          <A
+            href="/reservations"
+            class="flex-1 flex flex-col items-center py-2 text-gray-600"
+          >
+            <span class="text-xl">📅</span>
+            <span class="text-xs mt-1">预约</span>
           </A>
           <A
             href="/profile"

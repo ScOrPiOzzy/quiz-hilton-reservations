@@ -11,6 +11,8 @@ export interface Reservation {
   timeSlot: string
   name: string
   phone: string
+  partySize?: number
+  tableType?: string
   specialRequests?: string
   status: 'pending' | 'confirmed' | 'cancelled'
   createdAt: string
@@ -22,6 +24,8 @@ export interface CreateReservationInput {
   timeSlot: string
   name: string
   phone: string
+  partySize?: number
+  tableType?: string
   specialRequests?: string
 }
 

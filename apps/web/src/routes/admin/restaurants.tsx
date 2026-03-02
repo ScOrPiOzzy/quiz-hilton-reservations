@@ -23,6 +23,13 @@ export default function RestaurantsPage() {
       searchable: true,
     },
     {
+      key: "hotel",
+      label: "所属酒店",
+      render: (value) => (
+        <span class="text-blue-600 font-medium">{value?.name || '-'}</span>
+      ),
+    },
+    {
       key: "type",
       label: "类型",
       render: (value) => {

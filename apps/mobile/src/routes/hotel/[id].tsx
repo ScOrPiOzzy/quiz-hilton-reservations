@@ -1,31 +1,43 @@
-import { createSignal } from "solid-js";
-import { A, useParams, useNavigate } from "@solidjs/router";
+import { createResource, Show, For } from "solid-js";
+import { A, useParams } from "@solidjs/router";
+import { getApolloClient, GET_HOTEL_DETAIL } from "@repo/mobile-shared";
+
+interface Restaurant {
+  id: string;
+  name: string;
+  hotelId: string;
+  hotelName: string;
+  cuisine: string;
+  openingHours: string;
+  description: string;
+  images: string[];
+  timeSlots: string[];
+}
+
+interface Hotel {
+  id: string;
+  name: string;
+  city: string;
+  address: string;
+  phone: string;
+  description: string;
+  images: string[];
+  amenities: string[];
+  restaurants?: Restaurant[];
+}
+
+async function fetchHotelDetail(id: string): Promise<Hotel | null> {
+  const client = getApolloClient();
+  const { data } = await client.query({
+    query: GET_HOTEL_DETAIL,
+    variables: { id },
+  });
+  return data.hotel as Hotel;
+}
 
 export default function HotelDetail() {
   const params = useParams();
-  const navigate = useNavigate();
-  const [selectedDate, setSelectedDate] = createSignal("");
-
-  const hotel = {
-    id: params.id,
-    name: "希尔顿酒店 (上海)",
-    location: "上海外滩",
-    rating: 4.8,
-    reviews: 1234,
-    price: 1288,
-    description: "位于上海外滩核心地带，尽享黄浦江美景。酒店拥有豪华客房、多个餐厅和顶级水疗中心。",
-    amenities: ["免费WiFi", "游泳池", "健身房", "水疗中心", "24小时前台", "停车场"],
-    images: [
-      "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800",
-      "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800",
-      "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800",
-    ],
-  };
-
-  const handleBooking = () => {
-    // 跳转到登录或预约页面
-    navigate("/login");
-  };
+  const [hotel] = createResource(() => params.id, fetchHotelDetail);
 
   return (
     <div class="min-h-screen bg-gray-50 pb-32">
@@ -36,115 +48,110 @@ export default function HotelDetail() {
             ←
           </A>
           <h1 class="text-lg font-bold text-gray-900 truncate">
-            {hotel.name}
+            {hotel()?.name || "酒店详情"}
           </h1>
         </div>
       </div>
 
-      {/* 酒店图片 */}
-      <div class="relative">
-        <img
-          src={hotel.images[0]}
-          alt={hotel.name}
-          class="w-full h-64 object-cover"
-        />
-        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-          <p class="text-white font-semibold">{hotel.location}</p>
-        </div>
-      </div>
+      <Show when={hotel.loading}>
+        <div class="text-center py-8 text-gray-500">加载中...</div>
+      </Show>
 
-      {/* 酒店信息 */}
-      <div class="max-w-md mx-auto px-4 py-4">
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <div class="flex items-center justify-between mb-3">
-            <div>
-              <div class="flex items-center">
-                <span class="text-yellow-500 text-xl">★★★★★</span>
-                <span class="ml-2 text-lg font-bold text-gray-900">
-                  {hotel.rating}
-                </span>
-              </div>
-              <p class="text-sm text-gray-500">{hotel.reviews} 条评价</p>
-            </div>
-            <div class="text-right">
-              <p class="text-2xl font-bold text-blue-600">¥{hotel.price}</p>
-              <p class="text-sm text-gray-500">/晚</p>
-            </div>
+      <Show when={hotel.error}>
+        <div class="text-center py-8 text-red-500">加载失败</div>
+      </Show>
+
+      <Show when={hotel()}>
+        {/* 酒店图片 */}
+        <div class="relative">
+          <img
+            src={hotel()!.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800"}
+            alt={hotel()!.name}
+            class="w-full h-64 object-cover"
+          />
+          <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+            <p class="text-white font-semibold">{hotel()!.city} - {hotel()!.address}</p>
           </div>
+        </div>
 
-          <p class="text-gray-700 leading-relaxed">{hotel.description}</p>
-
-          {/* 设施 */}
-          <div class="mt-4 pt-4 border-t">
-            <h3 class="font-semibold text-gray-900 mb-3">酒店设施</h3>
-            <div class="grid grid-cols-2 gap-2">
-              {hotel.amenities.map((amenity) => (
-                <div class="flex items-center text-sm text-gray-700">
-                  <span class="mr-2">✓</span>
-                  {amenity}
+        {/* 酒店信息 */}
+        <div class="max-w-md mx-auto px-4 py-4">
+          <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="flex items-center">
+                  <span class="text-yellow-500 text-xl">★★★★★</span>
+                  <span class="ml-2 text-lg font-bold text-gray-900">4.8</span>
                 </div>
-              ))}
+                <p class="text-sm text-gray-500">1234 条评价</p>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* 图片轮播 */}
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <h3 class="font-semibold text-gray-900 mb-3">酒店图片</h3>
-          <div class="flex gap-2 overflow-x-auto">
-            {hotel.images.map((image, index) => (
-              <img
-                src={image}
-                alt={`${hotel.name} ${index + 1}`}
-                class="w-32 h-24 object-cover rounded flex-shrink-0"
-              />
-            ))}
-          </div>
-        </div>
+            <p class="text-gray-700 leading-relaxed">{hotel()!.description}</p>
 
-        {/* 预约表单 */}
-        <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
-          <h3 class="font-semibold text-gray-900 mb-3">预约信息</h3>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                入住日期
-              </label>
-              <input
-                type="date"
-                value={selectedDate()}
-                onInput={(e) => setSelectedDate((e.target as HTMLInputElement).value)}
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                退房日期
-              </label>
-              <input
-                type="date"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                客房数量
-              </label>
-              <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="1">1 间</option>
-                <option value="2">2 间</option>
-                <option value="3">3 间</option>
-              </select>
-            </div>
-            <button
-              onClick={handleBooking}
-              class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
-            >
-              立即预约
-            </button>
+            {/* 设施 */}
+            <Show when={hotel()!.amenities && hotel()!.amenities.length > 0}>
+              <div class="mt-4 pt-4 border-t">
+                <h3 class="font-semibold text-gray-900 mb-3">酒店设施</h3>
+                <div class="grid grid-cols-2 gap-2">
+                  <For each={hotel()!.amenities}>
+                    {(amenity) => (
+                      <div class="flex items-center text-sm text-gray-700">
+                        <span class="mr-2">✓</span>
+                        {amenity}
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </div>
+            </Show>
           </div>
+
+          {/* 图片轮播 */}
+          <Show when={hotel()!.images && hotel()!.images.length > 1}>
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+              <h3 class="font-semibold text-gray-900 mb-3">酒店图片</h3>
+              <div class="flex gap-2 overflow-x-auto">
+                <For each={hotel()!.images}>
+                  {(image, index) => (
+                    <img
+                      src={image}
+                      alt={`${hotel()!.name} ${index() + 1}`}
+                      class="w-32 h-24 object-cover rounded flex-shrink-0"
+                    />
+                  )}
+                </For>
+              </div>
+            </div>
+          </Show>
+
+          {/* 餐厅列表 */}
+          <Show when={hotel()!.restaurants && hotel()!.restaurants!.length > 0}>
+            <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
+              <h3 class="font-semibold text-gray-900 mb-3">酒店餐厅</h3>
+              <div class="space-y-3">
+                <For each={hotel()!.restaurants}>
+                  {(restaurant) => (
+                    <A
+                      href={`/restaurant/${restaurant.id}`}
+                      class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    >
+                      <div class="flex justify-between items-center">
+                        <div>
+                          <h4 class="font-medium text-gray-900">{restaurant.name}</h4>
+                          <p class="text-sm text-gray-500">{restaurant.cuisine}</p>
+                          <p class="text-xs text-gray-400">{restaurant.openingHours}</p>
+                        </div>
+                        <span class="text-blue-600 text-sm">预约 →</span>
+                      </div>
+                    </A>
+                  )}
+                </For>
+              </div>
+            </div>
+          </Show>
         </div>
-      </div>
+      </Show>
     </div>
   );
 }

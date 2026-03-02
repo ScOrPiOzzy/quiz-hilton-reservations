@@ -1,11 +1,11 @@
 import { Show, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { type Hotel, TableColumn, ActionConfig } from "~/lib/types";
-import { AdminLayout } from "../../components/admin/Layout/AdminLayout";
-import { DataTable } from "../../components/admin/Table/DataTable";
-import { useHotelList } from "../../hooks/admin/useHotelList";
+import { AdminLayout } from "~/components/admin/Layout/AdminLayout";
+import { DataTable } from "~/components/admin/Table/DataTable";
+import { useHotelList } from "~/hooks/admin/useHotelList";
 import { useDeleteHotel } from "~/lib/hotel-mutations";
-import { HotelForm } from "../../components/admin/Modals/HotelForm";
+import { HotelForm } from "~/components/admin/Modals/HotelForm";
 import { Button } from "@repo/ui";
 
 export default function HotelsPage() {
@@ -67,34 +67,37 @@ export default function HotelsPage() {
     },
   ];
 
-  const getRowActions = (hotel: Hotel): ActionConfig[] => [
-    {
-      label: "详情",
-      type: "primary",
-      onClick: () => {
-        navigate(`/admin/hotels/${hotel.id}`);
+  const getRowActions = (hotel: Hotel): ActionConfig[] => {
+    console.log(`🚀 ~ getRowActions ~ hotel:`, hotel);
+    return [
+      {
+        label: "详情",
+        type: "primary",
+        onClick: () => {
+          navigate(`/admin/hotels/${hotel.id}`);
+        },
       },
-    },
-    {
-      label: "编辑",
-      type: "primary",
-      onClick: () => {
-        setSelectedHotel(hotel);
-        setFormOpen(true);
+      {
+        label: "编辑",
+        type: "primary",
+        onClick: () => {
+          setSelectedHotel(hotel);
+          setFormOpen(true);
+        },
       },
-    },
-    {
-      label: "删除",
-      type: "danger",
-      dropdown: true,
-      onClick: async () => {
-        if (confirm(`确定要删除酒店 "${hotel.name}" 吗？`)) {
-          await deleteMutation.execute(hotel.id);
-          refetch();
-        }
+      {
+        label: "删除",
+        type: "danger",
+        dropdown: true,
+        onClick: async () => {
+          if (confirm(`确定要删除酒店 "${hotel.name}" 吗？`)) {
+            await deleteMutation.execute(hotel.id);
+            refetch();
+          }
+        },
       },
-    },
-  ];
+    ];
+  };
 
   const handleFormSuccess = () => {
     setFormOpen(false);

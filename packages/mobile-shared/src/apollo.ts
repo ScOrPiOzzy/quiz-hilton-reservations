@@ -5,12 +5,16 @@ import {
   ApolloLink,
 } from "@apollo/client";
 
+const GRAPHQL_ENDPOINT = typeof window !== 'undefined' 
+  ? (localStorage.getItem('graphql_endpoint') || 'http://localhost:3000/graphql')
+  : 'http://localhost:3000/graphql';
+
 const httpLink = new HttpLink({
-  uri: process.env.GRAPHQL_ENDPOINT || "https://api.hilton.com/graphql",
+  uri: GRAPHQL_ENDPOINT,
 });
 
 const authLink = new ApolloLink((operation, forward) => {
-  const token = localStorage.getItem("token");
+  const token = typeof window !== 'undefined' ? localStorage.getItem("hilton_token") : null;
   operation.setContext({
     headers: {
       authorization: token ? `Bearer ${token}` : "",
@@ -37,6 +41,15 @@ export const createApolloClient = (): ApolloClient<unknown> => {
       },
     },
   });
+};
+
+let apolloClient: ApolloClient<unknown> | null = null;
+
+export const getApolloClient = (): ApolloClient<unknown> => {
+  if (!apolloClient) {
+    apolloClient = createApolloClient();
+  }
+  return apolloClient;
 };
 
 export { ApolloClient };

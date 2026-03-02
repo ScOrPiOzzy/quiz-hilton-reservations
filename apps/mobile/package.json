@@ -9,6 +9,7 @@
     "start": "vinxi start"
   },
   "dependencies": {
+    "@repo/mobile-shared": "workspace:*",
     "@repo/schemas": "workspace:*",
     "@repo/ui": "workspace:*",
     "@solid-primitives/graphql": "^2.2.5",

@@ -18,7 +18,8 @@
     "paths": {
       "~/*": ["./src/*"],
       "@repo/schemas": ["../../packages/schemas/src"],
-      "@repo/ui": ["../../packages/ui/src"]
+      "@repo/ui": ["../../packages/ui/src"],
+      "@repo/mobile-shared": ["../../packages/mobile-shared/src"]
     }
   },
   "include": ["src"],

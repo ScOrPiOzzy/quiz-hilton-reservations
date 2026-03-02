@@ -142,8 +142,8 @@ export class RestaurantService {
 
   async findByHotelId(hotelId: string): Promise<RestaurantType[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Restaurant` WHERE hotelId = $1', [hotelId]);
-      return result.map((row: any) => row.Restaurant) as unknown as RestaurantType[];
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Restaurant` WHERE hotelId = $1', [hotelId]);
+      return result.map((row: any) => ({ id: row.id, ...row.Restaurant })) as unknown as RestaurantType[];
     } catch (error) {
       this.logger.error('findByHotelId error:', error);
       return [];
