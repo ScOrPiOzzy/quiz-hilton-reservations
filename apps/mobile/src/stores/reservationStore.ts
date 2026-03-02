@@ -30,9 +30,13 @@ export interface Reservation {
   userId?: string;
   storeId?: string;
   storeName?: string;
+  restaurantName?: string; // 餐厅名称
   reservationDate: string;
+  date?: string; // 日期别名
   status: ReservationStatus;
   customer: Customer;
+  name?: string; // 客户姓名别名
+  phone?: string; // 客户电话别名
   timeSlot?: string;
   timeSlotName?: string;
   tableConfigId?: string;
@@ -40,6 +44,7 @@ export interface Reservation {
   specialRequests?: string;
   estimatedArrivalTime?: string;
   hotelId?: string;
+  hotelName?: string; // 酒店名称
   hotel?: {
     id?: string;
     name?: string;

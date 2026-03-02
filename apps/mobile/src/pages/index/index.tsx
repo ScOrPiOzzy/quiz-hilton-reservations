@@ -7,7 +7,8 @@ import Taro from '@tarojs/taro'
 const Index: React.FC = () => {
   const { hotels } = useHotelStore()
 
-  const handleHotelClick = (hotelId: string) => {
+  const handleHotelClick = (hotelId: string | undefined) => {
+    if (!hotelId) return
     Taro.navigateTo({ url: `/pages/hotel-detail/index?id=${hotelId}` })
   }
 

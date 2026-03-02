@@ -55,13 +55,13 @@ const Profile: React.FC = () => {
         </View>
         <View className="bg-white">
           <Cell
-            label="个人信息"
-            showArrow
+            title="个人信息"
+            arrow
             onClick={() => Taro.navigateTo({ url: '/pages/profile/info/index' })}
           />
           <Cell
-            label="我的预约"
-            showArrow
+            title="我的预约"
+            arrow
             onClick={() => Taro.navigateTo({ url: '/pages/profile/reservations/index' })}
           />
         </View>

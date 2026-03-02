@@ -15,6 +15,26 @@ const RestaurantDetail: React.FC = () => {
   const [requests, setRequests] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const handleDateInput = (e: { detail: { value: string } }) => {
+    setDate(e.detail.value)
+  }
+
+  const handleTimeSlotInput = (e: { detail: { value: string } }) => {
+    setTimeSlot(e.detail.value)
+  }
+
+  const handleNameInput = (e: { detail: { value: string } }) => {
+    setName(e.detail.value)
+  }
+
+  const handlePhoneInput = (e: { detail: { value: string } }) => {
+    setPhone(e.detail.value)
+  }
+
+  const handleRequestsInput = (e: { detail: { value: string } }) => {
+    setRequests(e.detail.value)
+  }
+
   const handleReserve = async () => {
     if (!date || !timeSlot || !name || !phone) {
       Taro.showToast({ title: '请填写完整信息', icon: 'none' })
@@ -52,31 +72,31 @@ const RestaurantDetail: React.FC = () => {
               label="预约日期"
               placeholder="请选择日期"
               value={date}
-              onInput={(e) => setDate(e.detail.value)}
+              onInput={handleDateInput}
             />
             <Input
               label="预约时间"
               placeholder="请选择时间段"
               value={timeSlot}
-              onInput={(e) => setTimeSlot(e.detail.value)}
+              onInput={handleTimeSlotInput}
             />
             <Input
               label="姓名"
               placeholder="请输入姓名"
               value={name}
-              onInput={(e) => setName(e.detail.value)}
+              onInput={handleNameInput}
             />
             <Input
               label="手机号"
               placeholder="请输入手机号"
               value={phone}
-              onInput={(e) => setPhone(e.detail.value)}
+              onInput={handlePhoneInput}
             />
             <Input
               label="特殊要求"
               placeholder="选填"
               value={requests}
-              onInput={(e) => setRequests(e.detail.value)}
+              onInput={handleRequestsInput}
             />
           </Card>
           <Button

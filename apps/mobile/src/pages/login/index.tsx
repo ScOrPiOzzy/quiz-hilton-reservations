@@ -10,6 +10,14 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const { login } = useUserStore()
 
+  const handlePhoneInput = (e: { detail: { value: string } }) => {
+    setPhone(e.detail.value)
+  }
+
+  const handleCodeInput = (e: { detail: { value: string } }) => {
+    setCode(e.detail.value)
+  }
+
   const handleSendCode = () => {
     if (!phone) {
       Taro.showToast({ title: '请输入手机号', icon: 'none' })
@@ -25,16 +33,7 @@ const Login: React.FC = () => {
     }
     setLoading(true)
     try {
-      const mockToken = 'mock-token-' + Date.now()
-      const mockUser = {
-        id: '1',
-        firstName: '张',
-        lastName: '三',
-        email: 'zhangsan@example.com',
-        phone,
-        role: 'CUSTOMER',
-      }
-      login(mockToken, mockUser)
+      await login(phone, code)
       Taro.switchTab({ url: '/pages/index/index' })
     } catch (error) {
       Taro.showToast({ title: '登录失败', icon: 'none' })
@@ -54,7 +53,7 @@ const Login: React.FC = () => {
           label="手机号"
           placeholder="请输入手机号"
           value={phone}
-          onInput={(e) => setPhone(e.detail.value)}
+          onInput={handlePhoneInput}
         />
         <View className="flex gap-2 mb-4">
           <View className="flex-1">
@@ -62,7 +61,7 @@ const Login: React.FC = () => {
               label="验证码"
               placeholder="请输入验证码"
               value={code}
-              onInput={(e) => setCode(e.detail.value)}
+              onInput={handleCodeInput}
             />
           </View>
           <Button

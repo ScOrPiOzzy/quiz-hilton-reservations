@@ -12,6 +12,22 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
+  const handlePhoneInput = (e: { detail: { value: string } }) => {
+    setPhone(e.detail.value)
+  }
+
+  const handleCodeInput = (e: { detail: { value: string } }) => {
+    setCode(e.detail.value)
+  }
+
+  const handlePasswordInput = (e: { detail: { value: string } }) => {
+    setPassword(e.detail.value)
+  }
+
+  const handleConfirmPasswordInput = (e: { detail: { value: string } }) => {
+    setConfirmPassword(e.detail.value)
+  }
+
   const handleRegister = async () => {
     if (!phone || !code || !password) {
       Taro.showToast({ title: '请填写完整信息', icon: 'none' })
@@ -42,27 +58,27 @@ const Register: React.FC = () => {
           label="手机号"
           placeholder="请输入手机号"
           value={phone}
-          onInput={(e) => setPhone(e.detail.value)}
+          onInput={handlePhoneInput}
         />
         <Input
           label="验证码"
           placeholder="请输入验证码"
           value={code}
-          onInput={(e) => setCode(e.detail.value)}
+          onInput={handleCodeInput}
         />
         <Input
           label="密码"
           placeholder="请输入密码"
           password
           value={password}
-          onInput={(e) => setPassword(e.detail.value)}
+          onInput={handlePasswordInput}
         />
         <Input
           label="确认密码"
           placeholder="请再次输入密码"
           password
           value={confirmPassword}
-          onInput={(e) => setConfirmPassword(e.detail.value)}
+          onInput={handleConfirmPasswordInput}
         />
       </View>
       <View className="mt-6">

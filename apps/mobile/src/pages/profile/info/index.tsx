@@ -11,6 +11,18 @@ const ProfileInfo: React.FC = () => {
   const [email, setEmail] = useState(user?.email || '')
   const [loading, setLoading] = useState(false)
 
+  const handleFirstNameInput = (e: { detail: { value: string } }) => {
+    setFirstName(e.detail.value)
+  }
+
+  const handleLastNameInput = (e: { detail: { value: string } }) => {
+    setLastName(e.detail.value)
+  }
+
+  const handleEmailInput = (e: { detail: { value: string } }) => {
+    setEmail(e.detail.value)
+  }
+
   const handleSave = async () => {
     setLoading(true)
     try {
@@ -32,19 +44,19 @@ const ProfileInfo: React.FC = () => {
           label="姓"
           placeholder="请输入姓"
           value={lastName}
-          onInput={(e) => setLastName(e.detail.value)}
+          onInput={handleLastNameInput}
         />
         <Input
           label="名"
           placeholder="请输入名"
           value={firstName}
-          onInput={(e) => setFirstName(e.detail.value)}
+          onInput={handleFirstNameInput}
         />
         <Input
           label="邮箱"
           placeholder="请输入邮箱"
           value={email}
-          onInput={(e) => setEmail(e.detail.value)}
+          onInput={handleEmailInput}
         />
       </View>
       <View className="mt-6">
