@@ -4,7 +4,7 @@ import { LoginWithEmailDto } from '@/auth/dto/login-with-email.dto';
 import { LoginWithCodeDto } from '@/auth/dto/login-with-code.dto';
 import { SendCodeDto } from '@/auth/dto/send-code.dto';
 import { RegisterDto } from '@/auth/dto/register.dto';
-import { UserRepository } from '@/user/repositories/user.repository';
+import { UserRepository } from '@/user/user.repository';
 import { EnvKey } from '@/common/constants';
 import { omit } from 'lodash-es';
 import { generateToken } from './utils';
@@ -25,8 +25,6 @@ export class AuthService {
   async loginWithEmail(account: LoginWithEmailDto): Promise<{ token: string; user: Omit<IUser, 'password'> }> {
     const { email, password } = account;
 
-    // const all = await this.userRepository.findAll();
-    // this.logger.log(`🚀 ~ AuthService ~ loginWithEmail ~ all:`, all);
     const user = await this.userRepository.findByEmail(email);
     this.logger.log(`🚀 ~ AuthService ~ loginWithEmail ~ user:`, user);
     if (!user) {
