@@ -5,6 +5,8 @@ import { PaginatedHotel } from './dto/paginated-hotel';
 import { HotelType } from './models/hotel.type';
 import { CreateHotelInput } from './dto/create-hotel.input';
 import { UpdateHotelInput } from './dto/update-hotel.input';
+import { generateId } from '@/common/utils/id-generator';
+import { hotelImages } from '@/common/constants';
 
 @Injectable()
 export class HotelService {
@@ -17,7 +19,7 @@ export class HotelService {
     const { page = 1, pageSize = 20, city, search } = input;
     const skip = (page - 1) * pageSize;
 
-    let query = 'SELECT * FROM `hilton`.`_default`.`Hotel`';
+    let query = 'SELECT META().id, * FROM `hilton`.`_default`.`Hotel`';
     const conditions: string[] = [];
     const params: any[] = [];
 
@@ -39,35 +41,44 @@ export class HotelService {
 
     try {
       const result = await this.couchbaseService.query(query, params);
-      const items = result.map((row: any) => row.Hotel);
+      // Couchbase 返回的行结构：{ meta: { id }, Hotel: { ... } } 或 { id: ..., Hotel: { ... } }
+      const items = result.map<HotelType>((row: any) => {
+        console.log(`🚀 ~ HotelService ~ findAll ~ row:`, row);
+        // Couchbase 内部 ID 可能自动添加为 row.Hotel.id
+        // 我们传入的 cuid ID 应该在 row.id 或 row.meta?.id
+        const couchbaseId = row.id || row.meta?.id || row.Hotel?.id;
+        const hotel = row.Hotel || row;
+        console.log(`🏨 ~ HotelService ~ findAll ~ row.id:`, row.id);
+        console.log(`🏨 ~ HotelService ~ findAll ~ row.meta:`, row.meta);
+        console.log(`🏨 ~ HotelService ~ findAll ~ couchbaseId:`, couchbaseId);
+        console.log(`🏨 ~ HotelService ~ findAll ~ row.Hotel.id:`, hotel?.id);
+        return { ...hotel, id: couchbaseId, images: hotelImages, restaurants: hotel.restaurants || [] };
+      });
 
       const countQuery = 'SELECT COUNT(*) as total FROM `hilton`.`_default`.`Hotel`' + (conditions.length > 0 ? ' WHERE ' + conditions.join(' AND ') : '');
       const countResult = await this.couchbaseService.query(countQuery, params.slice(0, -2));
       const total = countResult[0]?.total || 0;
 
-      return {
-        items: items as unknown as HotelType[],
-        total,
-        page,
-        pageSize,
-        totalPages: Math.ceil(total / pageSize),
-      };
+      return { items: items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
     } catch (error) {
       this.logger.error('findAll error:', error);
-      return {
-        items: [],
-        total: 0,
-        page,
-        pageSize,
-        totalPages: 0,
-      };
+      return { items: [], total: 0, page, pageSize, totalPages: 0 };
     }
   }
 
   async findOne(id: string): Promise<HotelType | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Hotel` USE KEYS $1', [id]);
-      return result.length > 0 ? (result[0].Hotel as unknown as HotelType) : null;
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Hotel` USE KEYS $1', [id]);
+      console.log(`🏨 ~ HotelService ~ findOne ~ result[0]:`, result[0]);
+      if (result.length > 0) {
+        const hotel = result[0].Hotel as unknown as HotelType;
+        // 移除 Couchbase 自动添加的元数据（_type, active 等）
+        console.log(`🏨 ~ HotelService ~ findOne ~ hotel.id:`, hotel.id);
+        console.log(`🏨 ~ HotelService ~ findOne ~ hotelId (from meta):`, result[0].meta?.id);
+        // 确保数组字段不为 null
+        return { ...hotel, id: result[0].meta?.id || hotel.id, images: hotelImages, restaurants: hotel.restaurants || [] };
+      }
+      return null;
     } catch (error) {
       this.logger.error('findOne error:', error);
       return null;
@@ -75,7 +86,7 @@ export class HotelService {
   }
 
   async create(createHotelInput: CreateHotelInput): Promise<HotelType> {
-    const id = 'hotel_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const id = generateId('hotel_');
     const now = new Date().toISOString();
     const hotel = {
       ...createHotelInput,

@@ -71,7 +71,8 @@ export class CreateHotelInput {
 
   @Field(() => [String], { nullable: true })
   @IsOptional()
-  @IsArray({ message: '图片列表必须是数组' })
-  @IsUrl({}, { each: true, message: '每个图片URL格式不正确' })
+  // quiz 系统不要求图片上传，暂时移除图片验证
+  // @IsArray({ message: '图片列表必须是数组' })
+  // @IsUrl({}, { each: true, message: '每个图片URL格式不正确' })
   images?: string[];
 }

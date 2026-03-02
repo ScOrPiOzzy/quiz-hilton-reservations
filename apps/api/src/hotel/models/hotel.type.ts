@@ -18,6 +18,9 @@ export class HotelType extends BaseEntity {
   city!: string;
 
   @Field(() => String, { nullable: true })
+  country?: string;
+
+  @Field(() => String, { nullable: true })
   phone?: string;
 
   @Field(() => String, { nullable: true })

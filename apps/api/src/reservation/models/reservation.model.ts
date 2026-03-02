@@ -1,4 +1,4 @@
-import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
+import { ObjectType, Field, registerEnumType, Int } from '@nestjs/graphql';
 
 export enum ReservationStatus {
   REQUESTED = 'REQUESTED',
@@ -54,6 +54,12 @@ export class ReservationType {
 
   @Field(() => String, { nullable: true })
   timeSlotName?: string;
+
+  @Field(() => Int, { nullable: true })
+  partySize?: number;
+
+  @Field(() => String, { nullable: true })
+  tableType?: string;
 
   @Field(() => String, { nullable: true })
   tableConfigId?: string;

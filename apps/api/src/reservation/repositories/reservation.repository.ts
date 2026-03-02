@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CouchbaseService } from '@/couchbase/couchbase.service';
 import { ReservationStatus } from '../models/reservation.model';
+import { generateId } from '@/common/utils/id-generator';
 
 export interface ReservationQuery {
   status?: ReservationStatus;
@@ -51,7 +52,7 @@ export class ReservationRepository {
   constructor(private readonly couchbaseService: CouchbaseService) {}
 
   async findAll(query?: ReservationQuery): Promise<IReservation[]> {
-    let sql = 'SELECT * FROM `hilton`.`_default`.`Reservation`';
+    let sql = 'SELECT META().id, * FROM `hilton`.`_default`.`Reservation`';
     const conditions: string[] = [];
     const params: any[] = [];
 
@@ -100,7 +101,7 @@ export class ReservationRepository {
 
   async findById(id: string): Promise<IReservation | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` USE KEYS $1', [id]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` USE KEYS $1', [id]);
       return result.length > 0 ? result[0].Reservation : null;
     } catch (error) {
       this.logger.error('findById error:', error);
@@ -109,7 +110,7 @@ export class ReservationRepository {
   }
 
   async create(reservation: Omit<IReservation, 'id' | 'createdAt' | 'updatedAt'>): Promise<IReservation> {
-    const id = 'res_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const id = generateId('res_');
     const now = new Date().toISOString();
     const data = {
       ...reservation,
@@ -144,7 +145,7 @@ export class ReservationRepository {
 
   async findByUserId(userId: string): Promise<IReservation[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` WHERE userId = $1', [userId]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` WHERE userId = $1', [userId]);
       return result.map((row: any) => row.Reservation);
     } catch (error) {
       this.logger.error('findByUserId error:', error);
@@ -159,7 +160,7 @@ export class ReservationRepository {
     endOfDay.setHours(23, 59, 59, 999);
 
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` WHERE customer.phone = $1 AND reservationDate >= $2 AND reservationDate <= $3', [
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` WHERE customer.phone = $1 AND reservationDate >= $2 AND reservationDate <= $3', [
         phone,
         startOfDay.toISOString(),
         endOfDay.toISOString(),
@@ -173,7 +174,7 @@ export class ReservationRepository {
 
   async findByStatus(status: ReservationStatus): Promise<IReservation[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Reservation` WHERE status = $1', [status]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Reservation` WHERE status = $1', [status]);
       return result.map((row: any) => row.Reservation);
     } catch (error) {
       this.logger.error('findByStatus error:', error);

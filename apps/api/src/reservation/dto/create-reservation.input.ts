@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 import {
   IsNotEmpty,
   IsString,
@@ -69,6 +69,16 @@ export class CreateReservationInput {
   @IsOptional()
   @IsString({ message: '时间段名称必须是字符串' })
   timeSlotName?: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsNotEmpty({ message: '用餐人数不能为空' })
+  partySize?: number;
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString({ message: '餐桌类型必须是字符串' })
+  tableType?: string;
 
   @Field(() => String, { nullable: true })
   @IsOptional()

@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { IUser } from '@repo/schemas';
 import * as bcrypt from 'bcrypt';
 import { CouchbaseService } from '@/couchbase/couchbase.service';
+import { generateId } from '@/common/utils/id-generator';
 
 @Injectable()
 export class UserRepository {
@@ -11,7 +12,7 @@ export class UserRepository {
 
   async findAll(): Promise<IUser[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` LIMIT 100');
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` LIMIT 100');
       return result.map((row: any) => row.User);
     } catch (error) {
       this.logger.error('findAll error:', error);
@@ -21,7 +22,7 @@ export class UserRepository {
 
   async findById(id: string): Promise<IUser | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` USE KEYS $1', [id]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` USE KEYS $1', [id]);
       return result.length > 0 ? result[0].User : null;
     } catch (error) {
       this.logger.error('findById error:', error);
@@ -31,7 +32,7 @@ export class UserRepository {
 
   async findByEmail(email: string): Promise<IUser | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` WHERE email = $1 LIMIT 1', [email]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE email = $1 LIMIT 1', [email]);
       return result.length > 0 ? result[0].User : null;
     } catch (error) {
       this.logger.error('findByEmail error:', error);
@@ -41,7 +42,7 @@ export class UserRepository {
 
   async findByPhone(phone: string): Promise<IUser | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` WHERE phone = $1 LIMIT 1', [phone]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE phone = $1 LIMIT 1', [phone]);
       return result.length > 0 ? result[0].User : null;
     } catch (error) {
       this.logger.error('findByPhone error:', error);
@@ -96,7 +97,7 @@ export class UserRepository {
 
   async searchByKeyword(keyword: string, limit = 10): Promise<IUser[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`User` WHERE LOWER(email) LIKE $1 OR LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $1 LIMIT $2', [
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE LOWER(email) LIKE $1 OR LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $1 LIMIT $2', [
         `%${keyword.toLowerCase()}%`,
         limit,
       ]);
@@ -108,6 +109,6 @@ export class UserRepository {
   }
 
   private generateId(): string {
-    return 'id_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    return generateId('user_');
   }
 }

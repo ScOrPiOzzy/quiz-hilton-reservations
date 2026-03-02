@@ -1,12 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { CouchbaseService } from '@/couchbase/couchbase.service';
 import { CreateRestaurantInput } from './dto/create-restaurant.input';
 import { UpdateRestaurantInput } from './dto/update-restaurant.input';
 import { RestaurantType } from './models/restaurant.type';
 import { RestaurantListInput } from './dto/restaurant-list.input';
 import { PaginatedRestaurant } from './dto/paginated-restaurant';
+import { generateId } from '@/common/utils/id-generator';
+import { restaurantImages } from '@/common/constants';
 
-@Injectable()
 export class RestaurantService {
   private readonly logger = new Logger(RestaurantService.name);
   private readonly collectionName = 'Restaurant';
@@ -14,7 +15,7 @@ export class RestaurantService {
   constructor(private readonly couchbaseService: CouchbaseService) {}
 
   async create(createRestaurantInput: CreateRestaurantInput): Promise<RestaurantType> {
-    const id = 'rest_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    const id = generateId('rest_');
     const now = new Date().toISOString();
     const restaurant = {
       ...createRestaurantInput,
@@ -30,16 +31,23 @@ export class RestaurantService {
     const { page = 1, pageSize = 20, hotelId, search } = input;
     const skip = (page - 1) * pageSize;
 
-    let query = 'SELECT * FROM `hilton`.`_default`.`Restaurant`';
+    let query = `
+      SELECT r.*,
+             h.id as hotelId,
+             h.name as hotelName,
+             h.city as hotelCity
+      FROM \`hilton\`.\`_default\`.\`Restaurant\` r
+      LEFT JOIN \`hilton\`.\`_default\`.\`Hotel\` h ON r.hotelId = h.id
+    `;
     const conditions: string[] = [];
     const params: any[] = [];
 
     if (hotelId) {
-      conditions.push('hotelId = $' + (params.length + 1));
+      conditions.push('h.id = $' + (params.length + 1));
       params.push(hotelId);
     }
     if (search) {
-      conditions.push('LOWER(name) LIKE $' + (params.length + 1));
+      conditions.push('LOWER(r.name) LIKE $' + (params.length + 1));
       params.push(`%${search.toLowerCase()}%`);
     }
 
@@ -47,12 +55,25 @@ export class RestaurantService {
       query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    query += ' ORDER BY r.updatedAt DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
     params.push(pageSize, skip);
 
     try {
       const result = await this.couchbaseService.query(query, params);
-      const items = result.map((row: any) => row.Restaurant);
+
+      type Row = RestaurantType & {
+        hotelId: string;
+        hotelName: string;
+        hotelCity: string;
+      };
+      // 组合餐厅和酒店数据
+      const items = result.map((row: Row) => {
+        console.log(`🚀 ~ RestaurantService ~ findAll ~ row:`, row);
+        const hotelId = row.hotelId;
+        // 只有当有 hotelId 时才返回 hotel 对象
+        const hotel = hotelId ? { id: row.hotelId, name: row.hotelName, city: row.hotelCity } : null;
+        return { ...row, hotel, images: restaurantImages };
+      });
 
       return {
         items: items as unknown as RestaurantType[],
@@ -75,7 +96,7 @@ export class RestaurantService {
 
   async findAllSimple(): Promise<RestaurantType[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Restaurant` LIMIT 100');
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Restaurant` LIMIT 100');
       return result.map((row: any) => row.Restaurant) as unknown as RestaurantType[];
     } catch (error) {
       this.logger.error('findAllSimple error:', error);
@@ -85,7 +106,7 @@ export class RestaurantService {
 
   async findOne(id: string): Promise<RestaurantType | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT * FROM `hilton`.`_default`.`Restaurant` USE KEYS $1', [id]);
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Restaurant` USE KEYS $1', [id]);
       return result.length > 0 ? (result[0].Restaurant as unknown as RestaurantType) : null;
     } catch (error) {
       this.logger.error('findOne error:', error);

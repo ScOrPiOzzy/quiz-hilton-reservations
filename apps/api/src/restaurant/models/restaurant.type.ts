@@ -2,6 +2,7 @@ import { ObjectType, Field, Int } from '@nestjs/graphql';
 import { ImageType } from '../../common/models/image.type';
 import { BaseEntity } from '../../common/models/base-entity.type';
 import { HotelType } from '../../hotel/models/hotel.type';
+import { AreaType } from './area.type';
 
 @ObjectType()
 export class RestaurantType extends BaseEntity {
@@ -14,8 +15,8 @@ export class RestaurantType extends BaseEntity {
   })
   hotel?: HotelType;
 
-  @Field(() => String)
-  name!: string;
+  @Field(() => String, { nullable: true })
+  name?: string;
 
   @Field(() => String, { nullable: true })
   type?: string;
@@ -31,4 +32,10 @@ export class RestaurantType extends BaseEntity {
 
   @Field(() => [ImageType], { nullable: true })
   images?: ImageType[];
+
+  @Field(() => [AreaType], {
+    nullable: true,
+    description: '餐厅区域列表',
+  })
+  areas?: AreaType[];
 }

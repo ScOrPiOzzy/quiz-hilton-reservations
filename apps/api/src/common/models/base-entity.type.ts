@@ -2,6 +2,11 @@ import { ObjectType, Field, Int, ArgsType } from '@nestjs/graphql';
 import { IsInt, Min, Max } from 'class-validator';
 
 /**
+ * DateTime scalar type for GraphQL
+ */
+export const DateTimeScalarType = 'DateTime';
+
+/**
  * 基础实体类型
  * 所有实体类型都应继承此基类，包含通用的 ID 和时间戳字段
  */
@@ -10,10 +15,10 @@ export abstract class BaseEntity {
   @Field(() => String, { nullable: true, description: '实体ID' })
   id?: string;
 
-  @Field(() => Date, { nullable: true, description: '创建时间' })
+  @Field(() => String, { nullable: true, description: '创建时间' })
   createdAt?: Date;
 
-  @Field(() => Date, { nullable: true, description: '更新时间' })
+  @Field(() => String, { nullable: true, description: '更新时间' })
   updatedAt?: Date;
 }
 
