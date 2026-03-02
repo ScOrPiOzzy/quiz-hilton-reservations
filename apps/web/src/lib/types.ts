@@ -9,13 +9,23 @@ export interface PaginatedResult<T> {
 }
 
 export enum HotelStatus {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
+  ACTIVE = "ACTIVE",           // 营业中
+  INACTIVE = "INACTIVE",       // 已关闭
+  RENOVATION = "RENOVATION",   // 装修中
+  COMING_SOON = "COMING_SOON", // 即将开放
 }
 
 export enum RestaurantType {
   HALL = "HALL",
   PRIVATE_ROOM = "PRIVATE_ROOM",
+}
+
+export enum RestaurantStatus {
+  ACTIVE = "ACTIVE",           // 营业中（餐厅开放）
+  INACTIVE = "INACTIVE",       // 已关闭（餐厅关闭）
+  RENOVATION = "RENOVATION",   // 装修中
+  COMING_SOON = "COMING_SOON", // 即将开放
+  DELETED = "DELETED",         // 已删除（软删除标记）
 }
 
 export enum AreaType {
@@ -48,8 +58,8 @@ export interface Hotel {
   phone?: string;
   email?: string;
   status: HotelStatus;
-  images: Image[];
-  restaurants: Restaurant[];
+  images?: Image[];
+  restaurants?: Restaurant[];
   createdAt: string;
   updatedAt: string;
 }
@@ -118,7 +128,7 @@ export interface Restaurant {
   capacity: number;
   images: Image[];
   areas: Area[];
-  status: HotelStatus;
+  status: RestaurantStatus;
   createdAt: string;
   updatedAt: string;
 }
