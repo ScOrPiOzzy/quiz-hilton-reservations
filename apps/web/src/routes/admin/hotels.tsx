@@ -1,8 +1,8 @@
 import { Show, createSignal } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 import { type Hotel, TableColumn, ActionConfig } from "~/lib/types";
 import { AdminLayout } from "../../components/admin/Layout/AdminLayout";
 import { DataTable } from "../../components/admin/Table/DataTable";
-import { ImageGallery } from "../../components/admin/ImageGallery/ImageGallery";
 import { useHotelList } from "../../hooks/admin/useHotelList";
 import { useDeleteHotel } from "~/lib/hotel-mutations";
 import { HotelForm } from "../../components/admin/Modals/HotelForm";
@@ -13,8 +13,8 @@ export default function HotelsPage() {
     useHotelList();
   const [formOpen, setFormOpen] = createSignal(false);
   const [selectedHotel, setSelectedHotel] = createSignal<Hotel | null>(null);
-  const [detailOpen, setDetailOpen] = createSignal(false);
   const deleteMutation = useDeleteHotel();
+  const navigate = useNavigate();
 
   const columns: TableColumn<Hotel>[] = [
     {
@@ -72,8 +72,7 @@ export default function HotelsPage() {
       label: "详情",
       type: "primary",
       onClick: () => {
-        setSelectedHotel(hotel);
-        setDetailOpen(true);
+        navigate(`/admin/hotels/${hotel.id}`);
       },
     },
     {
@@ -152,63 +151,6 @@ export default function HotelsPage() {
             onSuccess={handleFormSuccess}
           />
         </Show>
-
-        <Show when={detailOpen()}>
-          <div
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            onClick={() => setDetailOpen(false)}
-          >
-            <div
-              class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div class="flex justify-between items-center p-4 border-b">
-                <h2 class="text-xl font-bold">酒店详情</h2>
-                <button
-                  onClick={() => setDetailOpen(false)}
-                  class="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-              <div class="p-4">
-                <Show when={selectedHotel()}>
-                  <div class="space-y-3">
-                    <p>
-                      <strong>名称:</strong> {selectedHotel()?.name}
-                    </p>
-                    <p>
-                      <strong>城市:</strong> {selectedHotel()?.city}
-                    </p>
-                    <p>
-                      <strong>地址:</strong> {selectedHotel()?.address}
-                    </p>
-                    <Show when={selectedHotel()?.description}>
-                      <p>
-                        <strong>简介:</strong> {selectedHotel()?.description}
-                      </p>
-                    </Show>
-                    <p>
-                      <strong>状态:</strong>{" "}
-                      {selectedHotel()?.status === "ACTIVE" ? "营业中" : "已下架"}
-                    </p>
-                    <Show
-                      when={
-                        selectedHotel()?.images &&
-                        selectedHotel()!.images.length > 0
-                      }
-                    >
-                      <div>
-                        <strong class="block mb-2">图片:</strong>
-                        <ImageGallery images={selectedHotel()?.images || []} />
-                      </div>
-                    </Show>
-                  </div>
-                </Show>
-              </div>
-            </div>
-          </div>
-          </Show>
       </div>
     </AdminLayout>
   );

@@ -34,6 +34,15 @@ const DELETE_RESTAURANT = `
   }
 `;
 
+const SOFT_DELETE_RESTAURANT = `
+  mutation SoftDeleteRestaurant($id: String!) {
+    updateRestaurant(input: { id: $id, status: "DELETED" }) {
+      id
+      status
+    }
+  }
+`;
+
 export function useCreateRestaurant() {
   return useMutation(CREATE_RESTAURANT);
 }
@@ -44,4 +53,8 @@ export function useUpdateRestaurant() {
 
 export function useDeleteRestaurant() {
   return useMutation(DELETE_RESTAURANT);
+}
+
+export function useSoftDeleteRestaurant() {
+  return useMutation(SOFT_DELETE_RESTAURANT);
 }

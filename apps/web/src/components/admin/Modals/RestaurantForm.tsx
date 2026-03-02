@@ -7,6 +7,7 @@ import { useCreateRestaurant, useUpdateRestaurant } from "~/lib/restaurant-mutat
 
 interface RestaurantFormProps {
   restaurant: Restaurant | null;
+  hotelId?: string;
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -35,8 +36,10 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
         description: props.restaurant.description || "",
         capacity: props.restaurant.capacity || 0,
       });
+    } else if (props.hotelId) {
+      setFormData("hotelId", props.hotelId);
     }
-  }, [props.restaurant]);
+  }, [props.restaurant, props.hotelId]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -104,28 +107,30 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
         <form onSubmit={handleSubmit}>
           <div class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="form-group">
-                <label class="block text-sm font-medium mb-2">
-                  所属酒店 <span class="text-red-500">*</span>
-                </label>
-                <select
-                  value={formData.hotelId}
-                  onInput={(e) => setFormData("hotelId", e.currentTarget.value)}
-                  class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#002f61]"
-                >
-                  <option value="">请选择酒店</option>
-                  <For each={hotels()}>
-                    {(hotel) => (
-                      <option value={hotel.id}>
-                        {hotel.name}
-                      </option>
-                    )}
-                  </For>
-                </select>
-                <Show when={errors.hotelId}>
-                  <p class="mt-1 text-sm text-red-600">{errors.hotelId}</p>
-                </Show>
-              </div>
+              <Show when={!props.hotelId}>
+                <div class="form-group">
+                  <label class="block text-sm font-medium mb-2">
+                    所属酒店 <span class="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={formData.hotelId}
+                    onInput={(e) => setFormData("hotelId", e.currentTarget.value)}
+                    class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#002f61]"
+                  >
+                    <option value="">请选择酒店</option>
+                    <For each={hotels()}>
+                      {(hotel) => (
+                        <option value={hotel.id}>
+                          {hotel.name}
+                        </option>
+                      )}
+                    </For>
+                  </select>
+                  <Show when={errors.hotelId}>
+                    <p class="mt-1 text-sm text-red-600">{errors.hotelId}</p>
+                  </Show>
+                </div>
+              </Show>
 
               <div class="form-group">
                 <label class="block text-sm font-medium mb-2">

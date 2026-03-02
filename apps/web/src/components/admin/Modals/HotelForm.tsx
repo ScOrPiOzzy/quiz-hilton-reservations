@@ -90,7 +90,7 @@ export const HotelForm = (props: HotelFormProps) => {
           ...input,
         });
       } else {
-        await createMutation.execute(input);
+        await createMutation.execute({ input });
       }
 
       props.onSuccess();

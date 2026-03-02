@@ -2,7 +2,7 @@ import { Component, JSX, splitProps, createMemo, Show } from 'solid-js'
 import { clsx } from 'clsx'
 import { LoaderCircle } from 'lucide-solid'
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost'
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'
 export type ButtonSize = 'sm' | 'md' | 'lg'
 export type ButtonType = 'button' | 'submit' | 'reset'
 
@@ -29,6 +29,8 @@ const variantStyles: Record<ButtonVariant, string> = {
     'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 dark:bg-red-500 dark:hover:bg-red-600',
   ghost:
     'bg-transparent hover:bg-[#002f61] hover:text-white text-gray-700 focus-visible:ring-[#002f61] dark:text-gray-300',
+  outline:
+    'border border-[#002f61] text-[#002f61] hover:bg-[#002f61] hover:text-white focus-visible:ring-[#002f61] dark:border-gray-500 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {
