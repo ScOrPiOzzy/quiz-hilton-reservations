@@ -1,20 +1,26 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "strict": true,
-    "jsx": "react-native",
-    "jsxImportSource": "react",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
     "target": "ES2020",
-    "lib": ["ES2020", "DOM"],
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@repo/*": ["../../packages/*"]
+      "~/*": ["./src/*"],
+      "@repo/schemas": ["../../packages/schemas/src"],
+      "@repo/ui": ["../../packages/ui/src"]
     }
   },
   "include": ["src"],
-  "exclude": ["dist", "node_modules"]
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
