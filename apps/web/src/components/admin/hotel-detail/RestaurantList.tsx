@@ -1,9 +1,12 @@
-import { Show, createSignal } from 'solid-js';
+import { Show, createSignal } from "solid-js";
 import { RestaurantCard } from "./RestaurantCard";
 import { Button } from "@repo/ui";
 import type { Restaurant } from "~/lib/types";
 import { RestaurantForm } from "../Modals/RestaurantForm";
-import { useDeleteRestaurant, useUpdateRestaurantStatus } from "~/lib/restaurant-mutations";
+import {
+  useDeleteRestaurant,
+  useUpdateRestaurantStatus,
+} from "~/lib/restaurant-mutations";
 
 interface RestaurantListProps {
   restaurants: Restaurant[];
@@ -13,7 +16,8 @@ interface RestaurantListProps {
 
 export const RestaurantList = (props: RestaurantListProps) => {
   const [formOpen, setFormOpen] = createSignal(false);
-  const [selectedRestaurant, setSelectedRestaurant] = createSignal<Restaurant | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    createSignal<Restaurant | null>(null);
   const deleteMutation = useDeleteRestaurant();
   const updateStatusMutation = useUpdateRestaurantStatus();
 
@@ -33,10 +37,8 @@ export const RestaurantList = (props: RestaurantListProps) => {
   };
 
   const handleDelete = async (restaurant: Restaurant) => {
-    if (confirm(`确定要删除餐厅 "${restaurant.name}" 吗？`)) {
-      await deleteMutation.execute({ id: restaurant.id });
-      props.onUpdate();
-    }
+    await deleteMutation.execute({ id: restaurant.id });
+    props.onUpdate();
   };
 
   const handleFormSuccess = () => {
@@ -49,9 +51,7 @@ export const RestaurantList = (props: RestaurantListProps) => {
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-semibold">餐厅管理</h2>
-        <Button onClick={handleAdd}>
-          + 添加餐厅
-        </Button>
+        <Button onClick={handleAdd}>+ 添加餐厅</Button>
       </div>
 
       <Show

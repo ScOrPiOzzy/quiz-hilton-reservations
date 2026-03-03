@@ -40,34 +40,13 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
 
   const [errors, setErrors] = createStore<Record<string, string>>({});
   const [error, setError] = createSignal("");
-  const [loadingAreas, setLoadingAreas] = createSignal(false);
 
   const createMutation = useCreateRestaurant();
   const updateMutation = useUpdateRestaurant();
   const { hotels } = useGetHotels();
 
-  const areasQuery = useGetAreasByRestaurant();
   const createAreaMutation = useCreateArea();
   const updateAreaMutation = useUpdateArea();
-  const deleteAreaMutation = useDeleteArea();
-
-  const loadAreas = async () => {
-    if (props.restaurant?.id) {
-      setLoadingAreas(true);
-      try {
-        const result = await areasQuery.execute({
-          restaurantId: props.restaurant.id,
-        });
-        if (result.data?.areasByRestaurant) {
-          setAreas(result.data.areasByRestaurant);
-        }
-      } catch (e) {
-        console.error("Failed to load areas:", e);
-      } finally {
-        setLoadingAreas(false);
-      }
-    }
-  };
 
   createEffect(() => {
     if (props.restaurant) {
@@ -78,7 +57,6 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
         description: props.restaurant.description || "",
         capacity: props.restaurant.capacity || 0,
       });
-      loadAreas();
     } else if (props.hotelId) {
       setFormData("hotelId", props.hotelId);
     }
@@ -192,20 +170,8 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
       }
 
       setShowAreaModal(false);
-      loadAreas();
     } catch (e) {
       alert(e instanceof Error ? e.message : "操作失败");
-    }
-  };
-
-  const handleDeleteArea = async (area: Area) => {
-    if (confirm(`确定要删除包厢 "${area.name}" 吗？`)) {
-      try {
-        await deleteAreaMutation.execute({ id: area.id });
-        loadAreas();
-      } catch (e) {
-        alert(e instanceof Error ? e.message : "删除失败");
-      }
     }
   };
 

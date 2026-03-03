@@ -111,10 +111,8 @@ export default function RestaurantsPage() {
       type: "danger",
       dropdown: true,
       onClick: async () => {
-        if (confirm(`确定要删除餐厅 "${restaurant.name}" 吗？`)) {
-          await deleteMutation.execute({ id: restaurant.id });
-          refetch();
-        }
+        await deleteMutation.execute({ id: restaurant.id });
+        refetch();
       },
     },
   ];

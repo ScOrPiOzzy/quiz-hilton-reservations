@@ -104,10 +104,8 @@ export default function HotelsPage() {
         type: "danger",
         dropdown: true,
         onClick: async () => {
-          if (confirm(`确定要删除酒店 "${hotel.name}" 吗？`)) {
-            await deleteMutation.execute({ id: hotel.id });
-            refetch();
-          }
+          await deleteMutation.execute({ id: hotel.id });
+          refetch();
         },
       },
     ];
