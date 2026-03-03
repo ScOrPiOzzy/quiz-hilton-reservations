@@ -1,6 +1,7 @@
 import { Show, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import { authApi, getUser } from "~/lib";
+import { Building2, CalendarCheck, User, LogIn, UserCircle } from "lucide-solid";
 
 interface UserInfo {
   firstName: string;
@@ -41,7 +42,7 @@ export default function ProfileInfo() {
       <Show when={authApi.isAuthenticated()} fallback={
         <div class="max-w-md mx-auto px-4 py-8">
           <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-            <div class="text-5xl mb-4">L</div>
+            <LogIn size={64} class="mx-auto mb-4 text-gray-400" />
             <h2 class="text-xl font-bold text-gray-900 mb-2">请先登录</h2>
             <p class="text-gray-600 mb-4">登录后查看您的个人信息</p>
             <A href="/login" class="inline-block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700">
@@ -53,8 +54,8 @@ export default function ProfileInfo() {
         <div class="max-w-md mx-auto px-4 py-4">
           {/* 头像 */}
           <div class="bg-white rounded-lg shadow-sm p-6 text-center mb-4">
-            <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-3xl font-bold mx-auto mb-3">
-              {user().firstName?.charAt(0) || "?"}
+            <div class="flex items-center justify-center mx-auto mb-3">
+              <UserCircle size={80} class="text-blue-600" />
             </div>
             <h2 class="text-xl font-bold text-gray-900">
               {user().firstName} {user().lastName}
@@ -103,15 +104,15 @@ export default function ProfileInfo() {
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t">
         <div class="max-w-md mx-auto flex">
           <A href="/" class="flex-1 flex flex-col items-center py-2 text-gray-600">
-            <span class="text-xl">H</span>
+            <Building2 size={24} />
             <span class="text-xs mt-1">酒店</span>
           </A>
           <A href="/reservations" class="flex-1 flex flex-col items-center py-2 text-gray-600">
-            <span class="text-xl">R</span>
+            <CalendarCheck size={24} />
             <span class="text-xs mt-1">预约</span>
           </A>
           <A href="/profile" class="flex-1 flex flex-col items-center py-2 text-blue-600">
-            <span class="text-xl">P</span>
+            <User size={24} />
             <span class="text-xs mt-1">我的</span>
           </A>
         </div>

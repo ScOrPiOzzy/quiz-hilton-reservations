@@ -1,6 +1,7 @@
 import { createSignal, Show, onMount } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
 import { authApi, getUser } from "~/lib";
+import { Building2, CalendarCheck, User, LogIn, Info, Award, Settings, LogOut } from "lucide-solid";
 
 interface User {
   name: string;
@@ -70,33 +71,33 @@ export default function Profile() {
         <div class="bg-white rounded-lg shadow-sm divide-y">
           <Show when={isLoggedIn} fallback={
             <A href="/login" class="flex items-center px-4 py-4 hover:bg-gray-50">
-              <span class="text-xl mr-3">L</span>
+              <LogIn size={20} class="mr-3 text-gray-600" />
               <span class="flex-1">登录 / 注册</span>
               <span class="text-gray-400">&gt;</span>
             </A>
           }>
             <A href="/profile/info" class="flex items-center px-4 py-4 hover:bg-gray-50">
-              <span class="text-xl mr-3">I</span>
+              <Info size={20} class="mr-3 text-gray-600" />
               <span class="flex-1">个人信息</span>
               <span class="text-gray-400">&gt;</span>
             </A>
             <A href="/reservations" class="flex items-center px-4 py-4 hover:bg-gray-50">
-              <span class="text-xl mr-3">R</span>
+              <CalendarCheck size={20} class="mr-3 text-gray-600" />
               <span class="flex-1">我的预约</span>
               <span class="text-gray-400">&gt;</span>
             </A>
             <a href="#" class="flex items-center px-4 py-4 hover:bg-gray-50">
-              <span class="text-xl mr-3">V</span>
+              <Award size={20} class="mr-3 text-gray-600" />
               <span class="flex-1">会员权益</span>
               <span class="text-gray-400">&gt;</span>
             </a>
             <a href="#" class="flex items-center px-4 py-4 hover:bg-gray-50">
-              <span class="text-xl mr-3">S</span>
+              <Settings size={20} class="mr-3 text-gray-600" />
               <span class="flex-1">设置</span>
               <span class="text-gray-400">&gt;</span>
             </a>
             <button onClick={handleLogout} class="flex items-center px-4 py-4 hover:bg-gray-50 text-red-600 w-full">
-              <span class="text-xl mr-3">O</span>
+              <LogOut size={20} class="mr-3" />
               <span class="flex-1 text-left">退出登录</span>
               <span class="text-gray-400">&gt;</span>
             </button>
@@ -107,15 +108,15 @@ export default function Profile() {
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t">
         <div class="max-w-md mx-auto flex">
           <A href="/" class="flex-1 flex flex-col items-center py-2 text-gray-600">
-            <span class="text-xl">H</span>
+            <Building2 size={24} />
             <span class="text-xs mt-1">酒店</span>
           </A>
           <A href="/reservations" class="flex-1 flex flex-col items-center py-2 text-gray-600">
-            <span class="text-xl">R</span>
+            <CalendarCheck size={24} />
             <span class="text-xs mt-1">预约</span>
           </A>
           <A href="/profile" class="flex-1 flex flex-col items-center py-2 text-blue-600">
-            <span class="text-xl">P</span>
+            <User size={24} />
             <span class="text-xs mt-1">我的</span>
           </A>
         </div>

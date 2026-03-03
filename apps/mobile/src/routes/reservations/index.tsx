@@ -1,6 +1,7 @@
 import { createResource, Show, For, createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { graphqlRequest, GET_RESERVATIONS, CANCEL_RESERVATION, authApi, getUserId } from "~/lib";
+import { Building2, CalendarCheck, User, LogIn, CalendarX } from "lucide-solid";
 
 interface Reservation {
   id: string;
@@ -91,10 +92,10 @@ export default function Reservations() {
       </div>
 
       {/* 未登录提示 */}
-      <Show when={!isLoggedIn}>
+      <Show when={!isLoggedIn()}>
         <div class="max-w-md mx-auto px-4 py-8">
           <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-            <div class="text-5xl mb-4">L</div>
+            <LogIn size={64} class="mx-auto mb-4 text-gray-400" />
             <h2 class="text-xl font-bold text-gray-900 mb-2">请先登录</h2>
             <p class="text-gray-600 mb-4">登录后查看您的餐厅预约</p>
             <A
@@ -193,7 +194,7 @@ export default function Reservations() {
 
             <Show when={reservations()?.length === 0}>
               <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-                <div class="text-5xl mb-4">N</div>
+                <CalendarX size={64} class="mx-auto mb-4 text-gray-400" />
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">
                   暂无预约
                 </h3>
@@ -217,21 +218,21 @@ export default function Reservations() {
             href="/"
             class="flex-1 flex flex-col items-center py-2 text-gray-600"
           >
-            <span class="text-xl">H</span>
+            <Building2 size={24} />
             <span class="text-xs mt-1">酒店</span>
           </A>
           <A
             href="/reservations"
             class="flex-1 flex flex-col items-center py-2 text-blue-600"
           >
-            <span class="text-xl">R</span>
+            <CalendarCheck size={24} />
             <span class="text-xs mt-1">预约</span>
           </A>
           <A
             href="/profile"
             class="flex-1 flex flex-col items-center py-2 text-gray-600"
           >
-            <span class="text-xl">P</span>
+            <User size={24} />
             <span class="text-xs mt-1">我的</span>
           </A>
         </div>
