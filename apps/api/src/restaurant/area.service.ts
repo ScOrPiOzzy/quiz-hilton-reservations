@@ -10,13 +10,7 @@ export class AreaService {
 
   constructor(private readonly couchbaseService: CouchbaseService) {}
 
-  async create(data: {
-    restaurantId: string;
-    name: string;
-    type?: string;
-    capacity?: number;
-    minimumCapacity?: number;
-  }): Promise<AreaType> {
+  async create(data: { restaurantId: string; name: string; type?: string; capacity?: number; minimumCapacity?: number }): Promise<AreaType> {
     const id = generateId('area_');
     const now = new Date().toISOString();
     const area = {
@@ -31,9 +25,7 @@ export class AreaService {
 
   async findAll(): Promise<AreaType[]> {
     try {
-      const result = await this.couchbaseService.query(
-        'SELECT META().id, * FROM `hilton`.`_default`.`Area` ORDER BY createdAt DESC'
-      );
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Area` ORDER BY createdAt DESC');
       return result.map((row: any) => ({ id: row.id, ...row.Area })) as unknown as AreaType[];
     } catch (error) {
       this.logger.error('findAll error:', error);
@@ -43,10 +35,7 @@ export class AreaService {
 
   async findByRestaurantId(restaurantId: string): Promise<AreaType[]> {
     try {
-      const result = await this.couchbaseService.query(
-        'SELECT META().id, * FROM `hilton`.`_default`.`Area` WHERE restaurantId = $1 ORDER BY createdAt DESC',
-        [restaurantId]
-      );
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Area` WHERE restaurantId = $1 ORDER BY createdAt DESC', [restaurantId]);
       return result.map((row: any) => ({ id: row.id, ...row.Area })) as unknown as AreaType[];
     } catch (error) {
       this.logger.error('findByRestaurantId error:', error);
@@ -56,10 +45,7 @@ export class AreaService {
 
   async findOne(id: string): Promise<AreaType | null> {
     try {
-      const result = await this.couchbaseService.query(
-        'SELECT META().id, * FROM `hilton`.`_default`.`Area` USE KEYS $1',
-        [id]
-      );
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Area` USE KEYS $1', [id]);
       return result.length > 0 ? ({ id: result[0].id, ...result[0].Area } as unknown as AreaType) : null;
     } catch (error) {
       this.logger.error('findOne error:', error);
@@ -74,7 +60,7 @@ export class AreaService {
       type?: string;
       capacity?: number;
       minimumCapacity?: number;
-    }
+    },
   ): Promise<AreaType> {
     const existing = await this.findOne(id);
     if (!existing) {

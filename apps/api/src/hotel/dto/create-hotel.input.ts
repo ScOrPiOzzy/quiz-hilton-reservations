@@ -75,4 +75,9 @@ export class CreateHotelInput {
   // @IsArray({ message: '图片列表必须是数组' })
   // @IsUrl({}, { each: true, message: '每个图片URL格式不正确' })
   images?: string[];
+
+  @Field(() => String, { nullable: true })
+  @IsOptional()
+  @IsString({ message: '状态必须是字符串' })
+  status?: string;
 }

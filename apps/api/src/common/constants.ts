@@ -1,5 +1,6 @@
 // constants
 
+import { random, times } from 'lodash-es';
 import { ImageType } from './models/image.type';
 
 export const enum EnvKey {
@@ -22,7 +23,14 @@ export const hotelImages = [
   'https://www.hilton.com/im/en/WUXSSHT/16515728/spin2cycle1.jpg?impolicy=crop&cw=4500&ch=3000&gravity=NorthWest&xposition=0&yposition=1&rw=640&rh=427',
   'https://www.hilton.com/im/en/WUXSSHT/16515769/meetingroom.jpg?impolicy=crop&cw=4500&ch=3000&gravity=NorthWest&xposition=0&yposition=1&rw=640&rh=427',
   'https://www.hilton.com/im/en/WUXSSHT/16515740/spin2cycle2.jpg?impolicy=crop&cw=4500&ch=3000&gravity=NorthWest&xposition=0&yposition=7&rw=640&rh=427',
-].map<ImageType>((url, index) => ({ id: `img_$(index)`, order: index, url }));
+].map<ImageType>((url, index) => ({ id: `img_${index}`, order: index, url }));
+
+export const getHotelImages = () => {
+  // 生成 3 ~ hotelImages.length 的数字， 返回相应数量的数组
+  const num = random(3, hotelImages.length);
+  const seed = random(hotelImages.length);
+  return times(num, (i) => hotelImages[(i + seed) % hotelImages.length]);
+};
 
 export const restaurantImages = [
   'https://www.hilton.com/im/en/WUXQQQQ/23788038/function-room-pdr.jpg?impolicy=crop&cw=4500&ch=3000&gravity=NorthWest&xposition=175&yposition=0&rw=640&rh=427',
@@ -35,4 +43,11 @@ export const restaurantImages = [
   'https://www.hilton.com/im/en/WUXSSHT/16515805/-breakfast3.jpg?impolicy=crop&cw=4500&ch=3000&gravity=NorthWest&xposition=0&yposition=1&rw=640&rh=427',
   'https://www.hilton.com/im/en/WUXWIHX/17672583/dining-1-.jpg?impolicy=crop&cw=5000&ch=3333&gravity=NorthWest&xposition=0&yposition=6&rw=640&rh=427',
   'https://www.hilton.com/im/en/WUXTRHX/19579878/dining-1.jpg?impolicy=crop&cw=4500&ch=3000&gravity=NorthWest&xposition=0&yposition=0&rw=640&rh=427',
-].map<ImageType>((url, index) => ({ id: `img_$(index)`, order: index, url }));
+].map<ImageType>((url, index) => ({ id: `img_${index}`, order: index, url }));
+
+export const getRestaurantImages = () => {
+  // 生成 3 ~ restaurantImages.length 的数字， 返回相应数量的数组
+  const num = random(3, restaurantImages.length);
+  const seed = random(restaurantImages.length);
+  return times(num, (i) => restaurantImages[(i + seed) % restaurantImages.length]);
+};

@@ -1,4 +1,7 @@
 import { ObjectType, Field, registerEnumType, Int } from '@nestjs/graphql';
+import { HotelType } from '@/hotel/models/hotel.type';
+import { RestaurantType } from '@/restaurant/models/restaurant.type';
+import { AreaType } from '@/restaurant/models/area.type';
 
 export enum ReservationStatus {
   REQUESTED = 'REQUESTED',
@@ -87,6 +90,39 @@ export class ReservationType {
 
   @Field(() => String, { nullable: true })
   updatedAt?: string;
+
+  @Field(() => RestaurantType, { nullable: true })
+  restaurant?: RestaurantType;
+
+  @Field(() => HotelType, { nullable: true })
+  hotel?: HotelType;
+
+  @Field(() => AreaType, { nullable: true })
+  area?: AreaType;
+
+  @Field(() => Boolean, { nullable: true })
+  verified?: boolean;
+
+  @Field(() => String, { nullable: true })
+  verifiedAt?: string;
+
+  @Field(() => String, { nullable: true })
+  confirmedAt?: string;
+
+  @Field(() => String, { nullable: true })
+  confirmedBy?: string;
+
+  @Field(() => String, { nullable: true })
+  completedAt?: string;
+
+  @Field(() => String, { nullable: true })
+  cancelledAt?: string;
+
+  @Field(() => String, { nullable: true })
+  cancelReason?: string;
+
+  @Field(() => String, { nullable: true })
+  cancelledBy?: string;
 }
 
 export type { IReservation } from '../repositories/reservation.repository';

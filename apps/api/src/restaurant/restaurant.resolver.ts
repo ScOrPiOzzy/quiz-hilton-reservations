@@ -31,8 +31,8 @@ export class RestaurantResolver {
   }
 
   @Mutation(() => RestaurantType)
-  updateRestaurant(@Args('id') id: string, @Args('input') input: UpdateRestaurantInput): Promise<RestaurantType> {
-    return this.restaurantService.update(id, input);
+  updateRestaurant(@Args('input') input: UpdateRestaurantInput): Promise<RestaurantType> {
+    return this.restaurantService.update(input.id, input);
   }
 
   @Mutation(() => Boolean)

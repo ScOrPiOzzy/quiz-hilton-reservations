@@ -31,8 +31,8 @@ export class HotelResolver {
   }
 
   @Mutation(() => HotelType, { description: '更新酒店' })
-  async updateHotel(@Args('id') id: string, @Args('input') input: UpdateHotelInput): Promise<HotelType> {
-    return await this.hotelService.update(id, input);
+  async updateHotel(@Args('input') input: UpdateHotelInput): Promise<HotelType> {
+    return await this.hotelService.update(input);
   }
 
   @Mutation(() => Boolean, { description: '删除酒店' })

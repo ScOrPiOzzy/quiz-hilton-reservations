@@ -6,7 +6,7 @@ import { HotelType } from './models/hotel.type';
 import { CreateHotelInput } from './dto/create-hotel.input';
 import { UpdateHotelInput } from './dto/update-hotel.input';
 import { generateId } from '@/common/utils/id-generator';
-import { hotelImages } from '@/common/constants';
+import { getHotelImages } from '@/common/constants';
 
 @Injectable()
 export class HotelService {
@@ -36,7 +36,7 @@ export class HotelService {
       query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    query += ' ORDER BY createdAt DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
     params.push(pageSize, skip);
 
     try {
@@ -48,7 +48,6 @@ export class HotelService {
         return {
           id: row.id || row.meta?.id || cleanHotel.id,
           ...cleanHotel,
-          images: hotelImages,
           restaurants: cleanHotel.restaurants || [],
         };
       });
@@ -64,19 +63,30 @@ export class HotelService {
     }
   }
 
+  async findAllSimple(): Promise<HotelType[]> {
+    try {
+      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Hotel` ORDER BY createdAt DESC LIMIT 100');
+      return result.map((row: any) => {
+        const hotel = row.Hotel || row;
+        const { _type, active, ...cleanHotel } = hotel || {};
+        return {
+          id: row.id || row.meta?.id || cleanHotel.id,
+          ...cleanHotel,
+          restaurants: cleanHotel.restaurants || [],
+        };
+      }) as unknown as HotelType[];
+    } catch (error) {
+      this.logger.error('findAllSimple error:', error);
+      return [];
+    }
+  }
+
   async findOne(id: string): Promise<HotelType | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Hotel` USE KEYS $1', [id]);
-      console.log(`🏨 ~ HotelService ~ findOne ~ result[0]:`, result[0]);
-      if (result.length > 0) {
-        const hotel = result[0].Hotel as unknown as HotelType;
-        // 移除 Couchbase 自动添加的元数据（_type, active 等）
-        console.log(`🏨 ~ HotelService ~ findOne ~ hotel.id:`, hotel.id);
-        console.log(`🏨 ~ HotelService ~ findOne ~ hotelId (from meta):`, result[0].id);
-        // 确保数组字段不为 null
-        return { ...hotel, id: result[0].id, images: hotelImages, restaurants: hotel.restaurants || [] };
-      }
-      return null;
+      const allHotels = await this.findAllSimple();
+      const hotel = allHotels.find((h) => h.id === id);
+      if (!hotel) return null;
+      return hotel;
     } catch (error) {
       this.logger.error('findOne error:', error);
       return null;
@@ -88,6 +98,7 @@ export class HotelService {
     const now = new Date().toISOString();
     const hotel = {
       ...createHotelInput,
+      images: getHotelImages(),
       createdAt: now,
       updatedAt: now,
     };
@@ -96,15 +107,17 @@ export class HotelService {
     return { id, ...hotel } as unknown as HotelType;
   }
 
-  async update(id: string, updateHotelInput: UpdateHotelInput): Promise<HotelType> {
+  async update(input: UpdateHotelInput): Promise<HotelType> {
+    const id = input.id;
     const existing = await this.findOne(id);
     if (!existing) {
       throw new Error('酒店不存在');
     }
 
+    const { id: _, ...updateData } = input;
     const updated = {
       ...existing,
-      ...updateHotelInput,
+      ...updateData,
       updatedAt: new Date().toISOString(),
     };
 

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ReservationRepository } from './repositories/reservation.repository';
+import { ReservationRepository, PaginatedReservationResult } from './repositories/reservation.repository';
 import { ReservationStatus } from './models/reservation.model';
 import type { IReservation } from './models/reservation.model';
 import type { CreateReservationInput } from './dto/create-reservation.input';
-import type { UpdateReservationInput } from './dto/update-reservation.input';
+import type { ReservationListInput } from './dto/reservation-list.input';
 
 @Injectable()
 export class ReservationService {
@@ -13,13 +13,17 @@ export class ReservationService {
     return await this.reservationRepository.findAll(query);
   }
 
+  async findAllPaginated(input: ReservationListInput): Promise<PaginatedReservationResult> {
+    return await this.reservationRepository.findAllPaginated(input);
+  }
+
   async findById(id: string): Promise<IReservation | null> {
     return await this.reservationRepository.findById(id);
   }
 
   async create(input: CreateReservationInput, userId?: string): Promise<IReservation> {
     return await this.reservationRepository.create({
-      userId,
+      userId: input.userId || userId,
       customer: input.customer,
       reservationDate: input.reservationDate,
       storeId: input.storeId,
@@ -28,6 +32,11 @@ export class ReservationService {
       timeSlotName: input.timeSlotName,
       tableConfigId: input.tableConfigId,
       tableConfigName: input.tableConfigName,
+      partySize: input.partySize,
+      tableType: input.tableType,
+      hotelId: input.hotelId,
+      restaurantId: input.restaurantId,
+      areaId: input.areaId,
       status: ReservationStatus.REQUESTED,
       specialRequests: input.specialRequests,
       estimatedArrivalTime: input.estimatedArrivalTime,
@@ -38,7 +47,7 @@ export class ReservationService {
     return await this.reservationRepository.update(id, data);
   }
 
-  async delete(id: string): Promise<{ cas: any }> {
+  async delete(id: string): Promise<boolean> {
     return await this.reservationRepository.delete(id);
   }
 

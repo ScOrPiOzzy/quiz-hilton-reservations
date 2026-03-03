@@ -38,4 +38,13 @@ export class RestaurantType extends BaseEntity {
     description: '餐厅区域列表',
   })
   areas?: AreaType[];
+
+  @Field(() => String, { nullable: true })
+  cuisine?: string;
+
+  @Field(() => String, { nullable: true })
+  openingHours?: string;
+
+  @Field(() => [String], { nullable: true })
+  timeSlots?: string[];
 }

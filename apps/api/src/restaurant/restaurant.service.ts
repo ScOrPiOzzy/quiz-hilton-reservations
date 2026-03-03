@@ -6,7 +6,7 @@ import { RestaurantType } from './models/restaurant.type';
 import { RestaurantListInput } from './dto/restaurant-list.input';
 import { PaginatedRestaurant } from './dto/paginated-restaurant';
 import { generateId } from '@/common/utils/id-generator';
-import { restaurantImages } from '@/common/constants';
+import { getRestaurantImages } from '@/common/constants';
 
 @Injectable()
 export class RestaurantService {
@@ -20,6 +20,7 @@ export class RestaurantService {
     const now = new Date().toISOString();
     const restaurant = {
       ...createRestaurantInput,
+      images: getRestaurantImages(),
       createdAt: now,
       updatedAt: now,
     };
@@ -32,19 +33,16 @@ export class RestaurantService {
     const { page = 1, pageSize = 20, hotelId, search } = input;
     const skip = (page - 1) * pageSize;
 
+    // 先查询餐厅数据
     let query = `
-      SELECT r.*,
-             h.id as hotelId,
-             h.name as hotelName,
-             h.city as hotelCity
+      SELECT META().id as id, r.*
       FROM \`hilton\`.\`_default\`.\`Restaurant\` r
-      LEFT JOIN \`hilton\`.\`_default\`.\`Hotel\` h ON r.hotelId = h.id
     `;
     const conditions: string[] = [];
     const params: any[] = [];
 
     if (hotelId) {
-      conditions.push('h.id = $' + (params.length + 1));
+      conditions.push('r.hotelId = $' + (params.length + 1));
       params.push(hotelId);
     }
     if (search) {
@@ -62,18 +60,39 @@ export class RestaurantService {
     try {
       const result = await this.couchbaseService.query(query, params);
 
-      type Row = RestaurantType & {
-        hotelId: string;
-        hotelName: string;
-        hotelCity: string;
-      };
+      // 获取所有唯一的 hotelId
+      const hotelIds = [...new Set(result.map((r: any) => r.hotelId).filter(Boolean))];
+
+      // 批量查询酒店信息
+      let hotels: Record<string, { id: string; name: string; city: string }> = {};
+      if (hotelIds.length > 0) {
+        const hotelQuery = `
+          SELECT META().id as id, \`Hotel\`.name, \`Hotel\`.city
+          FROM \`hilton\`.\`_default\`.\`Hotel\`
+          WHERE META().id IN [${hotelIds.map((_, i) => '$' + (i + 1)).join(', ')}]
+        `;
+        console.log(`🚀 ~ RestaurantService ~ hotelQuery:`, hotelQuery);
+        console.log(`🚀 ~ RestaurantService ~ hotelIds:`, hotelIds);
+        const hotelResult = await this.couchbaseService.query(hotelQuery, hotelIds);
+        console.log(`🚀 ~ RestaurantService ~ hotelResult:`, hotelResult);
+        hotels = hotelResult.reduce((acc: any, h: any) => {
+          console.log(`🚀 ~ RestaurantService ~ hotel:`, h);
+          acc[h.id] = { id: h.id, name: h.name, city: h.city };
+          return acc;
+        }, {});
+      }
+
       // 组合餐厅和酒店数据
-      const items = result.map((row: Row) => {
+      const items = result.map((row: any) => {
         console.log(`🚀 ~ RestaurantService ~ findAll ~ row:`, row);
-        const hotelId = row.hotelId;
-        // 只有当有 hotelId 时才返回 hotel 对象
-        const hotel = hotelId ? { id: row.hotelId, name: row.hotelName, city: row.hotelCity } : null;
-        return { ...row, hotel, images: restaurantImages };
+        console.log(`🚀 ~ RestaurantService ~ findAll ~ row.hotelId:`, row.hotelId);
+        console.log(`🚀 ~ RestaurantService ~ findAll ~ hotels:`, hotels);
+        const hotel = row.hotelId && hotels[row.hotelId] ? hotels[row.hotelId] : null;
+        const restaurant = { ...row, hotel };
+        if (!restaurant.timeSlots || restaurant.timeSlots.length === 0) {
+          restaurant.timeSlots = ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30'];
+        }
+        return restaurant;
       });
 
       return {
@@ -107,8 +126,13 @@ export class RestaurantService {
 
   async findOne(id: string): Promise<RestaurantType | null> {
     try {
-      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`Restaurant` USE KEYS $1', [id]);
-      return result.length > 0 ? ({ id: result[0].id, ...result[0].Restaurant } as unknown as RestaurantType) : null;
+      const allRestaurants = await this.findAllSimple();
+      const restaurant = allRestaurants.find((r) => r.id === id);
+      if (!restaurant) return null;
+      return {
+        ...restaurant,
+        timeSlots: restaurant.timeSlots?.length ? restaurant.timeSlots : ['18:00', '18:30', '19:00', '19:30', '20:00', '20:30'],
+      };
     } catch (error) {
       this.logger.error('findOne error:', error);
       return null;
@@ -121,9 +145,10 @@ export class RestaurantService {
       throw new Error('餐厅不存在');
     }
 
+    const { id: _inputId, ...updateData } = updateRestaurantInput;
     const updated = {
       ...existing,
-      ...updateRestaurantInput,
+      ...updateData,
       updatedAt: new Date().toISOString(),
     };
 
