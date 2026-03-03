@@ -1,6 +1,6 @@
 export const GET_HOTELS = `
-  query GetHotels($city: String, $limit: Int) {
-    hotels(city: $city, limit: $limit) {
+  query GetHotels {
+    hotels(input: { pageSize: 20 }) {
       items {
         id
         name
@@ -8,14 +8,19 @@ export const GET_HOTELS = `
         address
         phone
         description
-        images
+        images {
+          id
+          url
+          alt
+          order
+        }
       }
     }
   }
 `;
 
 export const GET_HOTEL_DETAIL = `
-  query GetHotelDetail($id: ID!) {
+  query GetHotelDetail($id: String!) {
     hotel(id: $id) {
       id
       name
@@ -23,49 +28,84 @@ export const GET_HOTEL_DETAIL = `
       address
       phone
       description
-      images
-      amenities
+      images {
+        id
+        url
+        alt
+        order
+      }
       restaurants {
         id
         name
-        hotelId
-        hotelName
-        cuisine
-        openingHours
+        type
         description
+        hotelId
+        hotel {
+          id
+          name
+        }
+        images {
+          id
+          url
+          alt
+          order
+        }
       }
     }
   }
 `;
 
 export const GET_RESTAURANT_DETAIL = `
-  query GetRestaurantDetail($id: ID!) {
-    restaurant(id: $id) {
+  query GetRestaurantDetail($id: String!) {
+    findOne(id: $id) {
       id
       name
-      hotelId
-      hotelName
-      cuisine
-      openingHours
+      type
       description
-      images
-      timeSlots
+      capacity
+      hotelId
+      hotel {
+        id
+        name
+      }
+      images {
+        id
+        url
+        alt
+        order
+      }
+      areas {
+        id
+        name
+        type
+        capacity
+      }
     }
   }
 `;
 
 export const GET_RESERVATIONS = `
-  query GetReservations {
-    reservations {
+  query GetReservations($userId: String) {
+    myReservations(userId: $userId) {
       id
+      customer {
+        name
+        phone
+      }
       restaurantId
-      restaurantName
+      restaurant {
+        id
+        name
+      }
       hotelId
-      hotelName
-      date
+      hotel {
+        id
+        name
+      }
+      reservationDate
       timeSlot
-      name
-      phone
+      partySize
+      tableType
       specialRequests
       status
       createdAt
@@ -74,17 +114,19 @@ export const GET_RESERVATIONS = `
 `;
 
 export const CREATE_RESERVATION = `
-  mutation CreateReservation($input: ReservationInput!) {
+  mutation CreateReservation($input: CreateReservationInput!) {
     createReservation(input: $input) {
       id
+      customer {
+        name
+        phone
+      }
       restaurantId
-      restaurantName
       hotelId
-      hotelName
-      date
+      reservationDate
       timeSlot
-      name
-      phone
+      partySize
+      tableType
       specialRequests
       status
       createdAt

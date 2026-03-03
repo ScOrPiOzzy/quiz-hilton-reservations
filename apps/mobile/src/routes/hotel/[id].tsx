@@ -1,17 +1,15 @@
-import { createResource, Show, For } from "solid-js";
+import { createResource, Show, For, onMount, createSignal } from "solid-js";
 import { A, useParams } from "@solidjs/router";
-import { graphqlRequest, GET_HOTEL_DETAIL } from "~/lib";
+import { graphqlRequest, GET_HOTEL_DETAIL, type ImageType } from "~/lib";
 
 interface Restaurant {
   id: string;
   name: string;
-  hotelId: string;
-  hotelName: string;
-  cuisine: string;
-  openingHours: string;
+  type: string;
   description: string;
-  images: string[];
-  timeSlots: string[];
+  hotelId: string;
+  hotel?: { id: string; name: string };
+  images: ImageType[];
 }
 
 interface Hotel {
@@ -21,23 +19,26 @@ interface Hotel {
   address: string;
   phone: string;
   description: string;
-  images: string[];
-  amenities: string[];
+  images: ImageType[];
   restaurants?: Restaurant[];
 }
 
 async function fetchHotelDetail(id: string): Promise<Hotel | null> {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  
   const data = await graphqlRequest<{ hotel: Hotel }>(GET_HOTEL_DETAIL, { id });
   return data.hotel as Hotel;
 }
 
 export default function HotelDetail() {
   const params = useParams();
-  const [hotel] = createResource(() => params.id, fetchHotelDetail);
+  const [clientLoaded, setClientLoaded] = createSignal(false);
+  const [hotel] = createResource(() => clientLoaded() ? params.id : null, async (id) => {
+    if (!id) return null;
+    return fetchHotelDetail(id);
+  });
+
+  onMount(() => {
+    setClientLoaded(true);
+  });
 
   return (
     <div class="min-h-screen bg-gray-50 pb-32">
@@ -61,7 +62,7 @@ export default function HotelDetail() {
       <Show when={hotel()}>
         <div class="relative">
           <img
-            src={hotel()!.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800"}
+            src={hotel()!.images?.[0]?.url || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800"}
             alt={hotel()!.name}
             class="w-full h-64 object-cover"
           />
@@ -106,10 +107,10 @@ export default function HotelDetail() {
               <h3 class="font-semibold text-gray-900 mb-3">酒店图片</h3>
               <div class="flex gap-2 overflow-x-auto">
                 <For each={hotel()!.images}>
-                  {(image, index) => (
+                  {(image) => (
                     <img
-                      src={image}
-                      alt={`${hotel()!.name} ${index() + 1}`}
+                      src={image.url}
+                      alt={hotel()!.name}
                       class="w-32 h-24 object-cover rounded flex-shrink-0"
                     />
                   )}
@@ -126,15 +127,32 @@ export default function HotelDetail() {
                   {(restaurant) => (
                     <A
                       href={`/restaurant/${restaurant.id}`}
-                      class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      class="block border border-gray-200 rounded-lg hover:bg-gray-50"
                     >
-                      <div class="flex justify-between items-center">
-                        <div>
-                          <h4 class="font-medium text-gray-900">{restaurant.name}</h4>
-                          <p class="text-sm text-gray-500">{restaurant.cuisine}</p>
-                          <p class="text-xs text-gray-400">{restaurant.openingHours}</p>
+                      <div class="flex">
+                        <div class="w-24 h-20 flex-shrink-0 overflow-hidden rounded-l-lg">
+                          <Show when={restaurant.images && restaurant.images.length > 0} fallback={
+                            <img
+                              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200"
+                              alt={restaurant.name}
+                              class="w-full h-full object-cover"
+                            />
+                          }>
+                            <img
+                              src={restaurant.images[0].url}
+                              alt={restaurant.name}
+                              class="w-full h-full object-cover"
+                            />
+                          </Show>
                         </div>
-                        <span class="text-blue-600 text-sm">预约</span>
+                        <div class="flex-1 p-3">
+                          <h4 class="font-medium text-gray-900">{restaurant.name}</h4>
+                          <p class="text-sm text-gray-500">{restaurant.type}</p>
+                          <p class="text-xs text-gray-400 truncate">{restaurant.description}</p>
+                        </div>
+                        <div class="flex items-center pr-3">
+                          <span class="bg-blue-600 text-white text-sm px-3 py-1.5 rounded">预约</span>
+                        </div>
                       </div>
                     </A>
                   )}

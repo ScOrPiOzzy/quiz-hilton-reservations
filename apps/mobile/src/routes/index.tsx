@@ -1,6 +1,6 @@
 import { createSignal, createResource, Show, For, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { graphqlRequest, GET_HOTELS } from "~/lib";
+import { graphqlRequest, GET_HOTELS, type ImageType } from "~/lib";
 
 interface Hotel {
   id: string;
@@ -9,12 +9,11 @@ interface Hotel {
   address: string;
   phone: string;
   description: string;
-  images: string[];
-  amenities: string[];
+  images: ImageType[];
 }
 
 async function fetchHotels(): Promise<Hotel[]> {
-  const data = await graphqlRequest<{ hotels: { items: Hotel[] } }>(GET_HOTELS, { limit: 20 });
+  const data = await graphqlRequest<{ hotels: { items: Hotel[] } }>(GET_HOTELS);
   return data.hotels.items as Hotel[];
 }
 
@@ -71,7 +70,7 @@ export default function Index() {
               >
                 <div class="flex">
                   <img
-                    src={hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=400"}
+                    src={hotel.images?.[0]?.url || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=400"}
                     alt={hotel.name}
                     class="w-32 h-32 object-cover"
                   />

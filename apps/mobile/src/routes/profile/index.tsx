@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { createSignal, Show, onMount } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
 import { authApi, getUser } from "~/lib";
 
@@ -11,6 +11,8 @@ interface User {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const [clientLoaded, setClientLoaded] = createSignal(false);
+  
   const userStr = getUser();
   const userData = userStr ? JSON.parse(userStr) : null;
   
@@ -21,12 +23,16 @@ export default function Profile() {
     points: 12500,
   });
 
+  onMount(() => {
+    setClientLoaded(true);
+  });
+
   const handleLogout = () => {
     authApi.logout();
     navigate("/login");
   };
 
-  const isLoggedIn = authApi.isAuthenticated();
+  const isLoggedIn = () => clientLoaded() && authApi.isAuthenticated();
 
   return (
     <div class="min-h-screen bg-gray-50 pb-20">

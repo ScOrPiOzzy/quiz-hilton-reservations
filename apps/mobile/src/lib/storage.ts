@@ -38,6 +38,17 @@ export const getUser = (): string | null => {
   return storage.getItem(userKey);
 };
 
+export const getUserId = (): string | null => {
+  const userStr = getUser();
+  if (!userStr) return null;
+  try {
+    const user = JSON.parse(userStr);
+    return user.id || null;
+  } catch {
+    return null;
+  }
+};
+
 export const setUser = (user: string): void => {
   storage.setItem(userKey, user);
 };

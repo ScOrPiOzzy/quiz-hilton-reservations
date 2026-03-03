@@ -1,17 +1,17 @@
-import { createSignal, createResource, Show, For } from "solid-js";
+import { createSignal, createResource, Show, For, onMount } from "solid-js";
 import { A, useParams, useNavigate } from "@solidjs/router";
-import { graphqlRequest, GET_RESTAURANT_DETAIL, CREATE_RESERVATION, authApi } from "~/lib";
+import { graphqlRequest, GET_RESTAURANT_DETAIL, CREATE_RESERVATION, authApi, getUserId, tableTypeOptions, type ImageType } from "~/lib";
 
 interface Restaurant {
   id: string;
   name: string;
-  hotelId: string;
-  hotelName: string;
-  cuisine: string;
-  openingHours: string;
+  type: string;
   description: string;
-  images: string[];
-  timeSlots: string[];
+  capacity: number;
+  hotelId: string;
+  hotel?: { id: string; name: string };
+  images: ImageType[];
+  areas?: { id: string; name: string; type: string; capacity: number }[];
 }
 
 interface CreateReservationInput {
@@ -26,21 +26,25 @@ interface CreateReservationInput {
 }
 
 async function fetchRestaurantDetail(id: string): Promise<Restaurant | null> {
-  if (typeof window === 'undefined') {
-    return null;
-  }
-  
-  const data = await graphqlRequest<{ restaurant: Restaurant }>(GET_RESTAURANT_DETAIL, { id });
-  return data.restaurant as Restaurant;
+  const data = await graphqlRequest<{ findOne: Restaurant }>(GET_RESTAURANT_DETAIL, { id });
+  return data.findOne as Restaurant;
 }
 
 export default function RestaurantDetail() {
   const params = useParams();
   const navigate = useNavigate();
-  const [restaurant] = createResource(() => params.id, fetchRestaurantDetail);
+  const [clientLoaded, setClientLoaded] = createSignal(false);
+  const [restaurant] = createResource(() => clientLoaded() ? params.id : null, async (id) => {
+    if (!id) return null;
+    return fetchRestaurantDetail(id);
+  });
+  
+  onMount(() => {
+    setClientLoaded(true);
+  });
   
   const getHotelId = () => restaurant()?.hotelId || "";
-  const getHotelName = () => restaurant()?.hotelName || "";
+  const getHotelName = () => restaurant()?.hotel?.name || "";
   
   const [selectedDate, setSelectedDate] = createSignal("");
   const [selectedTime, setSelectedTime] = createSignal("");
@@ -52,14 +56,6 @@ export default function RestaurantDetail() {
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
   const [success, setSuccess] = createSignal(false);
-
-  const tableTypes = [
-    { value: "", label: "不限" },
-    { value: "大厅", label: "大厅" },
-    { value: "包厢", label: "包厢" },
-    { value: "靠窗", label: "靠窗" },
-    { value: "露台", label: "露台" },
-  ];
 
   const handleReservation = async (e: Event) => {
     e.preventDefault();
@@ -78,14 +74,19 @@ export default function RestaurantDetail() {
     setError("");
 
     try {
+      const userId = getUserId();
       const input = {
+        userId,
         restaurantId: params.id,
-        date: selectedDate(),
+        hotelId: getHotelId(),
+        reservationDate: selectedDate(),
         timeSlot: selectedTime(),
         partySize: partySize(),
         tableType: tableType(),
-        name: name(),
-        phone: phone(),
+        customer: {
+          name: name(),
+          phone: phone(),
+        },
         specialRequests: specialRequests(),
       };
       
@@ -125,7 +126,7 @@ export default function RestaurantDetail() {
         {/* 餐厅图片 */}
         <div class="relative">
           <img
-            src={restaurant()!.images?.[0] || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"}
+            src={restaurant()!.images?.[0]?.url || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"}
             alt={restaurant()!.name}
             class="w-full h-64 object-cover"
           />
@@ -226,7 +227,7 @@ export default function RestaurantDetail() {
                     餐桌类型
                   </label>
                   <div class="grid grid-cols-3 gap-2">
-                    <For each={tableTypes}>
+                    <For each={tableTypeOptions}>
                       {(type) => (
                         <button
                           type="button"
