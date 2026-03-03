@@ -10,8 +10,7 @@
     "dev:mobile": "pnpm --filter mobile dev",
     "build:mobile": "pnpm --filter mobile build",
     "dev:mobile:h5": "pnpm --filter mobile dev:h5",
-    "dev:mobile:wechat": "pnpm --filter mobile dev:wechat",
-    "build:mobile:shared": "pnpm --filter @repo/mobile-shared build"
+    "dev:mobile:wechat": "pnpm --filter mobile dev:wechat"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

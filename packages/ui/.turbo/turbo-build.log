@@ -51,18 +51,18 @@ package.json:
 [34mCLI[39m Target: esnext
 [34mESM[39m Build start
 [34mCLI[39m Target: esnext
-[34mESM[39m Build start
 [34mCLI[39m Target: esnext
+[34mESM[39m Build start
 [34mCLI[39m Cleaning output folder
 [34mESM[39m Build start
 [32mESM[39m [1mdist/index.jsx [22m[32m4.36 KB[39m
-[32mESM[39m ⚡️ Build success in 494ms
+[32mESM[39m ⚡️ Build success in 102ms
 [32mESM[39m [1mdist/dev.jsx [22m[32m4.36 KB[39m
-[32mESM[39m ⚡️ Build success in 493ms
-[32mESM[39m [1mdist/dev.js [22m[32m5.65 KB[39m
-[32mESM[39m ⚡️ Build success in 596ms
+[32mESM[39m ⚡️ Build success in 142ms
 [32mESM[39m [1mdist/index.js [22m[32m5.65 KB[39m
-[32mESM[39m ⚡️ Build success in 591ms
+[32mESM[39m ⚡️ Build success in 273ms
+[32mESM[39m [1mdist/dev.js [22m[32m5.65 KB[39m
+[32mESM[39m ⚡️ Build success in 283ms
 DTS Build start
-DTS ⚡️ Build success in 5864ms
+DTS ⚡️ Build success in 1599ms
 DTS dist/index.d.ts 1.07 KB
