@@ -80,7 +80,17 @@ export class AuthService {
       throw new ConflictException('手机号已被注册');
     }
 
-    const user = await this.userRepository.create(dto.convertToIUser());
+    const userData: Omit<IUser, 'id' | 'createdAt' | 'updatedAt'> = {
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email,
+      phone: dto.phone,
+      password: dto.password,
+      role: dto.role,
+      verified: false,
+    };
+
+    const user = await this.userRepository.create(userData);
 
     this.logger.log(`用户注册成功: ${JSON.stringify(dto)}`);
 

@@ -24,8 +24,4 @@ export class RegisterDto {
 
   @IsNotEmpty({ message: '角色不能为空' })
   role: IUser['role'];
-
-  convertToIUser(): Omit<IUser, 'id' | 'createdAt' | 'updatedAt'> {
-    return this as any as IUser;
-  }
 }
