@@ -84,6 +84,7 @@ export class CouchbaseService implements OnModuleInit, OnModuleDestroy {
   async query<T = any>(sql: string, params?: any): Promise<T[]> {
     const cluster = this.getCluster();
     const result = await cluster.query(sql, { parameters: params });
+    console.log(`🚀 ~ CouchbaseService ~ query ~ sql:`, sql);
     console.log(`🚀 ~ CouchbaseService ~ query ~ result:`, JSON.stringify(result.rows));
     return result.rows as T[];
   }

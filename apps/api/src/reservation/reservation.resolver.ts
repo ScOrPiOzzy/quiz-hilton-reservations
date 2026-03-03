@@ -1,6 +1,6 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { ReservationService } from './reservation.service';
-import { ReservationType } from './models/reservation.model';
+import { ReservationType, ReservationStatus } from './models/reservation.model';
 import { CreateReservationInput } from './dto/create-reservation.input';
 import { UpdateReservationStatusInput } from './dto/update-status.input';
 import { IReservation } from './models/reservation.model';
@@ -80,9 +80,9 @@ export class ReservationResolver {
     return await this.reservationService.create(input);
   }
 
-  @Mutation(() => Boolean, { description: '取消预订' })
-  async cancelReservation(@Args('id') id: string): Promise<boolean> {
-    return await this.reservationService.delete(id);
+  @Mutation(() => ReservationType, { description: '取消预订' })
+  async cancelReservation(@Args('id') id: string): Promise<IReservation | null> {
+    return await this.reservationService.updateStatus(id, ReservationStatus.CANCELLED, '用户取消');
   }
   @Mutation(() => ReservationType, { description: '更新预订状态' })
   async updateStatus(@Args('input') input: UpdateReservationStatusInput): Promise<IReservation | null> {

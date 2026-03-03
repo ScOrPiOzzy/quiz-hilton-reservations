@@ -133,3 +133,11 @@ export const CREATE_RESERVATION = `
     }
   }
 `;
+
+export const CANCEL_RESERVATION = `
+  mutation CancelReservation($id: String!) {
+    cancelReservation(id: $id) {
+      id
+    }
+  }
+`;

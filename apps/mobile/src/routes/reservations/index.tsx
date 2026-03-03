@@ -1,6 +1,6 @@
 import { createResource, Show, For, createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { graphqlRequest, GET_RESERVATIONS, authApi, getUserId } from "~/lib";
+import { graphqlRequest, GET_RESERVATIONS, CANCEL_RESERVATION, authApi, getUserId } from "~/lib";
 
 interface Reservation {
   id: string;
@@ -56,6 +56,25 @@ export default function Reservations() {
   );
 
   const isLoggedIn = () => clientLoaded() && authApi.isAuthenticated();
+
+  const canCancelReservation = (reservation: Reservation) => {
+    return reservation.status !== "COMPLETED" && reservation.status !== "CANCELLED";
+  };
+
+  const handleCancelReservation = async (reservationId: string) => {
+    if (confirm("确定要取消此预约吗？")) {
+      try {
+        await graphqlRequest<{ cancelReservation: boolean }>(
+          CANCEL_RESERVATION,
+          { id: reservationId }
+        );
+        refetch();
+      } catch (error) {
+        console.error("取消预约失败:", error);
+        alert("取消预约失败，请重试");
+      }
+    }
+  };
 
   return (
     <div class="min-h-screen bg-gray-50 pb-20">
@@ -159,6 +178,15 @@ export default function Reservations() {
                   <div class="mt-3 pt-3 border-t text-xs text-gray-400">
                     创建时间：{new Date(reservation.createdAt).toLocaleString()}
                   </div>
+
+                  <Show when={canCancelReservation(reservation)}>
+                    <button
+                      onClick={() => handleCancelReservation(reservation.id)}
+                      class="mt-3 w-full bg-red-50 text-red-600 py-2 rounded-lg text-sm font-medium hover:bg-red-100 active:bg-red-200 transition-colors"
+                    >
+                      取消预约
+                    </button>
+                  </Show>
                 </div>
               )}
             </For>

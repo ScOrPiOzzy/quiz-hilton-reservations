@@ -104,7 +104,7 @@ export class ReservationRepository {
       sql += ' WHERE ' + conditions.join(' AND ');
     }
 
-    sql += ' LIMIT 100';
+    sql += ' ORDER BY createdAt DESC';
 
     try {
       const result = await this.couchbaseService.query(sql, params);
@@ -185,7 +185,10 @@ export class ReservationRepository {
       sql += ' WHERE ' + conditions.join(' AND ');
     }
 
-    sql += ' ORDER BY createdAt DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2);
+    sql += ' ORDER BY createdAt DESC LIMIT $' +
+      (params.length + 1) +
+      ' OFFSET $' +
+      (params.length + 2);
     params.push(pageSize, skip);
 
     try {
