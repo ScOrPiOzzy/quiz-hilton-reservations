@@ -10,7 +10,9 @@ export function BottomNavigation() {
 
   const getItemClass = (path: string) => {
     const baseClass = "flex-1 flex flex-col items-center py-2";
-    return isActive(path) ? `${baseClass} text-blue-600` : `${baseClass} text-gray-600`;
+    return isActive(path)
+      ? `${baseClass} text-[#002f61]-600`
+      : `${baseClass} text-gray-600`;
   };
 
   return (

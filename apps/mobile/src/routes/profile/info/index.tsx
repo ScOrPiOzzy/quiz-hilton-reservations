@@ -15,7 +15,7 @@ interface UserInfo {
 export default function ProfileInfo() {
   const userStr = getUser();
   const userData = userStr ? JSON.parse(userStr) : null;
-  
+
   const [user] = createSignal<UserInfo>({
     firstName: userData?.firstName || "",
     lastName: userData?.lastName || "",
@@ -35,28 +35,36 @@ export default function ProfileInfo() {
       {/* 顶部导航 */}
       <div class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center">
-          <A href="/profile" class="text-blue-600 mr-4">←</A>
+          <A href="/profile" class="text-[#002f61] mr-4">
+            ←
+          </A>
           <h1 class="text-lg font-bold text-gray-900">个人信息</h1>
         </div>
       </div>
 
-      <Show when={authApi.isAuthenticated()} fallback={
-        <div class="max-w-md mx-auto px-4 py-8">
-          <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-            <LogIn size={64} class="mx-auto mb-4 text-gray-400" />
-            <h2 class="text-xl font-bold text-gray-900 mb-2">请先登录</h2>
-            <p class="text-gray-600 mb-4">登录后查看您的个人信息</p>
-            <A href="/login" class="inline-block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700">
-              立即登录
-            </A>
+      <Show
+        when={authApi.isAuthenticated()}
+        fallback={
+          <div class="max-w-md mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+              <LogIn size={64} class="mx-auto mb-4 text-gray-400" />
+              <h2 class="text-xl font-bold text-gray-900 mb-2">请先登录</h2>
+              <p class="text-gray-600 mb-4">登录后查看您的个人信息</p>
+              <A
+                href="/login"
+                class="inline-block w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61]"
+              >
+                立即登录
+              </A>
+            </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <div class="max-w-md mx-auto px-4 py-4">
           {/* 头像 */}
           <div class="bg-white rounded-lg shadow-sm p-6 text-center mb-4">
             <div class="flex items-center justify-center mx-auto mb-3">
-              <UserCircle size={80} class="text-blue-600" />
+              <UserCircle size={80} class="text-[#002f61]" />
             </div>
             <h2 class="text-xl font-bold text-gray-900">
               {user().firstName} {user().lastName}
@@ -69,7 +77,9 @@ export default function ProfileInfo() {
             <div class="px-4 py-4 border-b">
               <div class="flex justify-between">
                 <span class="text-gray-500">姓名</span>
-                <span class="text-gray-900">{user().firstName} {user().lastName}</span>
+                <span class="text-gray-900">
+                  {user().firstName} {user().lastName}
+                </span>
               </div>
             </div>
             <div class="px-4 py-4 border-b">
@@ -87,14 +97,16 @@ export default function ProfileInfo() {
             <div class="px-4 py-4">
               <div class="flex justify-between">
                 <span class="text-gray-500">账户类型</span>
-                <span class="text-gray-900">{roleMap[user().role] || user().role}</span>
+                <span class="text-gray-900">
+                  {roleMap[user().role] || user().role}
+                </span>
               </div>
             </div>
           </div>
 
           {/* 编辑按钮 */}
           <div class="mt-6">
-            <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700">
+            <button class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61]">
               编辑资料
             </button>
           </div>

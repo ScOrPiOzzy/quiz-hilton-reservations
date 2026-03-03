@@ -31,7 +31,7 @@ export default function Login() {
       {/* 顶部导航 */}
       <div class="bg-white shadow-sm">
         <div class="max-w-md mx-auto px-4 py-3">
-          <A href="/" class="text-blue-600">
+          <A href="/" class="text-[#002f61]">
             ← 返回
           </A>
         </div>
@@ -55,7 +55,7 @@ export default function Login() {
                 onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
                 placeholder="your@email.com"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
               />
             </div>
 
@@ -66,10 +66,12 @@ export default function Login() {
               <input
                 type="password"
                 value={password()}
-                onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+                onInput={(e) =>
+                  setPassword((e.target as HTMLInputElement).value)
+                }
                 placeholder="•••••••••"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
               />
             </div>
 
@@ -80,7 +82,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading()}
-              class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61] disabled:bg-[#002f61] disabled:cursor-not-allowed"
             >
               {loading() ? "登录中..." : "登录"}
             </button>
@@ -88,7 +90,7 @@ export default function Login() {
 
           <div class="mt-6 text-center text-sm text-gray-600">
             还没有账户？
-            <A href="/register" class="text-blue-600 font-medium ml-1">
+            <A href="/register" class="text-[#002f61] font-medium ml-1">
               立即注册
             </A>
           </div>

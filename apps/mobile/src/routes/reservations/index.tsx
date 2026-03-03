@@ -1,6 +1,12 @@
 import { createResource, Show, For, createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { graphqlRequest, GET_RESERVATIONS, CANCEL_RESERVATION, authApi, getUserId } from "~/lib";
+import {
+  graphqlRequest,
+  GET_RESERVATIONS,
+  CANCEL_RESERVATION,
+  authApi,
+  getUserId,
+} from "~/lib";
 import { LogIn, CalendarX } from "lucide-solid";
 import { BottomNavigation } from "~/components/BottomNavigation";
 
@@ -28,7 +34,7 @@ async function fetchReservations(): Promise<Reservation[]> {
   const userId = getUserId();
   const data = await graphqlRequest<{ myReservations: Reservation[] }>(
     GET_RESERVATIONS,
-    { userId }
+    { userId },
   );
   return data.myReservations as Reservation[];
 }
@@ -60,7 +66,9 @@ export default function Reservations() {
   const isLoggedIn = () => clientLoaded() && authApi.isAuthenticated();
 
   const canCancelReservation = (reservation: Reservation) => {
-    return reservation.status !== "COMPLETED" && reservation.status !== "CANCELLED";
+    return (
+      reservation.status !== "COMPLETED" && reservation.status !== "CANCELLED"
+    );
   };
 
   const handleCancelReservation = async (reservationId: string) => {
@@ -68,7 +76,7 @@ export default function Reservations() {
       try {
         await graphqlRequest<{ cancelReservation: boolean }>(
           CANCEL_RESERVATION,
-          { id: reservationId }
+          { id: reservationId },
         );
         refetch();
       } catch (error) {
@@ -85,7 +93,7 @@ export default function Reservations() {
         <div class="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <h1 class="text-lg font-bold text-gray-900">我的预约</h1>
           <Show when={isLoggedIn}>
-            <button onClick={() => refetch()} class="text-sm text-blue-600">
+            <button onClick={() => refetch()} class="text-sm text-[#002f61]">
               刷新
             </button>
           </Show>
@@ -101,7 +109,7 @@ export default function Reservations() {
             <p class="text-gray-600 mb-4">登录后查看您的餐厅预约</p>
             <A
               href="/login"
-              class="inline-block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
+              class="inline-block w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61]"
             >
               立即登录
             </A>
@@ -202,7 +210,7 @@ export default function Reservations() {
                 <p class="text-gray-500 mb-4">快去选择一家餐厅预约吧</p>
                 <A
                   href="/"
-                  class="inline-block bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700"
+                  class="inline-block bg-[#002f61] text-white py-2 px-4 rounded-lg font-medium"
                 >
                   浏览酒店
                 </A>

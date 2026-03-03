@@ -1,6 +1,14 @@
 import { createSignal, createResource, Show, For, onMount } from "solid-js";
 import { A, useParams, useNavigate } from "@solidjs/router";
-import { graphqlRequest, GET_RESTAURANT_DETAIL, CREATE_RESERVATION, authApi, getUserId, tableTypeOptions, type ImageType } from "~/lib";
+import {
+  graphqlRequest,
+  GET_RESTAURANT_DETAIL,
+  CREATE_RESERVATION,
+  authApi,
+  getUserId,
+  tableTypeOptions,
+  type ImageType,
+} from "~/lib";
 
 interface Restaurant {
   id: string;
@@ -26,7 +34,10 @@ interface CreateReservationInput {
 }
 
 async function fetchRestaurantDetail(id: string): Promise<Restaurant | null> {
-  const data = await graphqlRequest<{ findOne: Restaurant }>(GET_RESTAURANT_DETAIL, { id });
+  const data = await graphqlRequest<{ findOne: Restaurant }>(
+    GET_RESTAURANT_DETAIL,
+    { id },
+  );
   return data.findOne as Restaurant;
 }
 
@@ -34,18 +45,21 @@ export default function RestaurantDetail() {
   const params = useParams();
   const navigate = useNavigate();
   const [clientLoaded, setClientLoaded] = createSignal(false);
-  const [restaurant] = createResource(() => clientLoaded() ? params.id : null, async (id) => {
-    if (!id) return null;
-    return fetchRestaurantDetail(id);
-  });
-  
+  const [restaurant] = createResource(
+    () => (clientLoaded() ? params.id : null),
+    async (id) => {
+      if (!id) return null;
+      return fetchRestaurantDetail(id);
+    },
+  );
+
   onMount(() => {
     setClientLoaded(true);
   });
-  
+
   const getHotelId = () => restaurant()?.hotelId || "";
   const getHotelName = () => restaurant()?.hotel?.name || "";
-  
+
   const [selectedDate, setSelectedDate] = createSignal("");
   const [selectedTime, setSelectedTime] = createSignal("");
   const [partySize, setPartySize] = createSignal(2);
@@ -59,7 +73,7 @@ export default function RestaurantDetail() {
 
   const handleReservation = async (e: Event) => {
     e.preventDefault();
-    
+
     if (!selectedDate() || !selectedTime() || !name() || !phone()) {
       setError("请填写所有必填项");
       return;
@@ -89,9 +103,9 @@ export default function RestaurantDetail() {
         },
         specialRequests: specialRequests(),
       };
-      
+
       await graphqlRequest(CREATE_RESERVATION, { input });
-      
+
       setSuccess(true);
     } catch (err: any) {
       setError(err.message || "预约失败，请重试");
@@ -105,7 +119,7 @@ export default function RestaurantDetail() {
       {/* 顶部导航 */}
       <div class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center">
-          <A href={`/hotel/${getHotelId()}`} class="text-blue-600 mr-4">
+          <A href={`/hotel/${getHotelId()}`} class="text-[#002f61] mr-4">
             ←
           </A>
           <h1 class="text-lg font-bold text-gray-900 truncate">
@@ -126,12 +140,18 @@ export default function RestaurantDetail() {
         {/* 餐厅图片 */}
         <div class="relative">
           <img
-            src={restaurant()!.images?.[0]?.url || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"}
+            src={
+              restaurant()!.images?.[0]?.url ||
+              "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800"
+            }
             alt={restaurant()!.name}
             class="w-full h-64 object-cover"
           />
           <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-            <A href={`/hotel/${getHotelId()}`} class="text-white font-semibold hover:underline">
+            <A
+              href={`/hotel/${getHotelId()}`}
+              class="text-white font-semibold hover:underline"
+            >
               {getHotelName()}
             </A>
           </div>
@@ -142,24 +162,34 @@ export default function RestaurantDetail() {
           <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
             <div class="mb-3">
               <div class="flex items-center">
-                <span class="text-lg font-bold text-gray-900">{restaurant()!.name}</span>
+                <span class="text-lg font-bold text-gray-900">
+                  {restaurant()!.name}
+                </span>
               </div>
               <p class="text-sm text-gray-500">{restaurant()!.cuisine}</p>
-              <p class="text-sm text-gray-400">🕐 {restaurant()!.openingHours}</p>
+              <p class="text-sm text-gray-400">
+                🕐 {restaurant()!.openingHours}
+              </p>
             </div>
 
-            <p class="text-gray-700 leading-relaxed">{restaurant()!.description}</p>
+            <p class="text-gray-700 leading-relaxed">
+              {restaurant()!.description}
+            </p>
           </div>
 
           {/* 预约表单 */}
           <Show when={!success()}>
             <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
               <h3 class="font-semibold text-gray-900 mb-3">预约订座</h3>
-              
+
               <Show when={!authApi.isAuthenticated()}>
                 <div class="mb-4 p-3 bg-yellow-50 rounded-lg">
                   <p class="text-sm text-yellow-800">
-                    请先 <A href="/login" class="text-blue-600 underline">登录</A> 进行预约
+                    请先{" "}
+                    <A href="/login" class="text-[#002f61] underline">
+                      登录
+                    </A>{" "}
+                    进行预约
                   </p>
                 </div>
               </Show>
@@ -172,25 +202,38 @@ export default function RestaurantDetail() {
                   <input
                     type="date"
                     value={selectedDate()}
-                    onInput={(e) => setSelectedDate((e.target as HTMLInputElement).value)}
-                    min={new Date().toISOString().split('T')[0]}
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onInput={(e) =>
+                      setSelectedDate((e.target as HTMLInputElement).value)
+                    }
+                    min={new Date().toISOString().split("T")[0]}
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                   />
                 </div>
-                
+
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
                     预约时间
                   </label>
                   <div class="grid grid-cols-4 gap-2">
-                    <For each={restaurant()!.timeSlots || ["18:00", "18:30", "19:00", "19:30", "20:00", "20:30"]}>
+                    <For
+                      each={
+                        restaurant()!.timeSlots || [
+                          "18:00",
+                          "18:30",
+                          "19:00",
+                          "19:30",
+                          "20:00",
+                          "20:30",
+                        ]
+                      }
+                    >
                       {(time) => (
                         <button
                           type="button"
                           onClick={() => setSelectedTime(time)}
                           class={`py-2 px-1 text-sm rounded-lg border ${
                             selectedTime() === time
-                              ? "bg-blue-600 text-white border-blue-600"
+                              ? "bg-[#002f61] text-white border-[#002f61]"
                               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                           }`}
                         >
@@ -212,7 +255,7 @@ export default function RestaurantDetail() {
                         onClick={() => setPartySize(num)}
                         class={`py-2 text-sm rounded-lg border ${
                           partySize() === num
-                            ? "bg-blue-600 text-white border-blue-600"
+                            ? "bg-[#002f61] text-white border-[#002f61]"
                             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                         }`}
                       >
@@ -234,7 +277,7 @@ export default function RestaurantDetail() {
                           onClick={() => setTableType(type.value)}
                           class={`py-2 text-sm rounded-lg border ${
                             tableType() === type.value
-                              ? "bg-blue-600 text-white border-blue-600"
+                              ? "bg-[#002f61] text-white border-[#002f61]"
                               : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                           }`}
                         >
@@ -252,10 +295,12 @@ export default function RestaurantDetail() {
                   <input
                     type="text"
                     value={name()}
-                    onInput={(e) => setName((e.target as HTMLInputElement).value)}
+                    onInput={(e) =>
+                      setName((e.target as HTMLInputElement).value)
+                    }
                     placeholder="您的姓名"
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                   />
                 </div>
 
@@ -266,10 +311,12 @@ export default function RestaurantDetail() {
                   <input
                     type="tel"
                     value={phone()}
-                    onInput={(e) => setPhone((e.target as HTMLInputElement).value)}
+                    onInput={(e) =>
+                      setPhone((e.target as HTMLInputElement).value)
+                    }
                     placeholder="138****8888"
                     required
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                   />
                 </div>
 
@@ -279,21 +326,23 @@ export default function RestaurantDetail() {
                   </label>
                   <textarea
                     value={specialRequests()}
-                    onInput={(e) => setSpecialRequests((e.target as HTMLTextAreaElement).value)}
+                    onInput={(e) =>
+                      setSpecialRequests(
+                        (e.target as HTMLTextAreaElement).value,
+                      )
+                    }
                     placeholder="请告知您的特殊要求，如过敏信息、座位偏好等"
                     rows={3}
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                   />
                 </div>
 
-                {error() && (
-                  <div class="text-red-500 text-sm">{error()}</div>
-                )}
+                {error() && <div class="text-red-500 text-sm">{error()}</div>}
 
                 <button
                   type="submit"
                   disabled={loading()}
-                  class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-blue-400"
+                  class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61] disabled:bg-[#002f61]"
                 >
                   {loading() ? "提交中..." : "确认预约"}
                 </button>
@@ -311,7 +360,7 @@ export default function RestaurantDetail() {
               <div class="space-y-2">
                 <A
                   href="/reservations"
-                  class="block w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700"
+                  class="block w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61]"
                 >
                   查看我的预约
                 </A>

@@ -35,7 +35,7 @@ export default function Index() {
       {/* 顶部导航 */}
       <div class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-md mx-auto px-4 py-3">
-          <h1 class="text-xl font-bold text-gray-900">Hilton Reservations</h1>
+          <h1 class="text-xl font-bold text-gray-900">餐厅预约</h1>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export default function Index() {
             placeholder="搜索城市..."
             value={searchCity()}
             onInput={(e) => setSearchCity((e.target as HTMLInputElement).value)}
-            class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
           />
         </div>
       </div>
@@ -57,11 +57,11 @@ export default function Index() {
         <Show when={hotels.loading}>
           <div class="text-center py-8 text-gray-500">加载中...</div>
         </Show>
-        
+
         <Show when={hotels.error}>
           <div class="text-center py-8 text-red-500">加载失败，请重试</div>
         </Show>
-        
+
         <Show when={!hotels.loading && hotels()}>
           <For each={hotels()}>
             {(hotel) => (
@@ -71,19 +71,26 @@ export default function Index() {
               >
                 <div class="flex">
                   <img
-                    src={hotel.images?.[0]?.url || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=400"}
+                    src={
+                      hotel.images?.[0]?.url ||
+                      "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=400"
+                    }
                     alt={hotel.name}
                     class="w-32 h-32 object-cover"
                   />
                   <div class="flex-1 p-4">
-                    <h2 class="font-semibold text-gray-900 mb-1">{hotel.name}</h2>
-                    <p class="text-sm text-gray-500 mb-2">{hotel.city} - {hotel.address}</p>
+                    <h2 class="font-semibold text-gray-900 mb-1">
+                      {hotel.name}
+                    </h2>
+                    <p class="text-sm text-gray-500 mb-2">
+                      {hotel.city} - {hotel.address}
+                    </p>
                     <div class="flex items-center justify-between">
                       <div class="flex items-center">
                         <span class="text-yellow-500">★</span>
                         <span class="ml-1 text-sm text-gray-700">4.8</span>
                       </div>
-                      <span class="text-lg font-bold text-blue-600">
+                      <span class="text-lg font-bold text-[#002f61]">
                         查看详情
                       </span>
                     </div>
@@ -92,7 +99,7 @@ export default function Index() {
               </A>
             )}
           </For>
-          
+
           <Show when={hotels()?.length === 0}>
             <div class="text-center py-8 text-gray-500">暂无酒店数据</div>
           </Show>

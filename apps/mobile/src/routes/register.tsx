@@ -46,7 +46,7 @@ export default function Register() {
       {/* 顶部导航 */}
       <div class="bg-white shadow-sm">
         <div class="max-w-md mx-auto px-4 py-3">
-          <A href="/login" class="text-blue-600">
+          <A href="/login" class="text-[#002f61]">
             ← 返回
           </A>
         </div>
@@ -68,10 +68,12 @@ export default function Register() {
                 <input
                   type="text"
                   value={firstName()}
-                  onInput={(e) => setFirstName((e.target as HTMLInputElement).value)}
+                  onInput={(e) =>
+                    setFirstName((e.target as HTMLInputElement).value)
+                  }
                   placeholder="名"
                   required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                 />
               </div>
               <div>
@@ -81,10 +83,12 @@ export default function Register() {
                 <input
                   type="text"
                   value={lastName()}
-                  onInput={(e) => setLastName((e.target as HTMLInputElement).value)}
+                  onInput={(e) =>
+                    setLastName((e.target as HTMLInputElement).value)
+                  }
                   placeholder="姓"
                   required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                 />
               </div>
             </div>
@@ -99,7 +103,7 @@ export default function Register() {
                 onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
                 placeholder="your@email.com"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
               />
             </div>
 
@@ -113,7 +117,7 @@ export default function Register() {
                 onInput={(e) => setPhone((e.target as HTMLInputElement).value)}
                 placeholder="138****8888"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
               />
             </div>
 
@@ -124,10 +128,12 @@ export default function Register() {
               <input
                 type="password"
                 value={password()}
-                onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
+                onInput={(e) =>
+                  setPassword((e.target as HTMLInputElement).value)
+                }
                 placeholder="至少8位字符"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
               />
             </div>
 
@@ -138,10 +144,12 @@ export default function Register() {
               <input
                 type="password"
                 value={confirmPassword()}
-                onInput={(e) => setConfirmPassword((e.target as HTMLInputElement).value)}
+                onInput={(e) =>
+                  setConfirmPassword((e.target as HTMLInputElement).value)
+                }
                 placeholder="再次输入密码"
                 required
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
               />
             </div>
 
@@ -152,7 +160,7 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading()}
-              class="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
+              class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61] disabled:bg-[#002f61] disabled:cursor-not-allowed"
             >
               {loading() ? "注册中..." : "注册"}
             </button>
@@ -160,7 +168,7 @@ export default function Register() {
 
           <div class="mt-6 text-center text-sm text-gray-600">
             已有账户？
-            <A href="/login" class="text-blue-600 font-medium ml-1">
+            <A href="/login" class="text-[#002f61] font-medium ml-1">
               立即登录
             </A>
           </div>

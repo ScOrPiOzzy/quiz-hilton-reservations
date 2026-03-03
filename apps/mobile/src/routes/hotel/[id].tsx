@@ -31,10 +31,13 @@ async function fetchHotelDetail(id: string): Promise<Hotel | null> {
 export default function HotelDetail() {
   const params = useParams();
   const [clientLoaded, setClientLoaded] = createSignal(false);
-  const [hotel] = createResource(() => clientLoaded() ? params.id : null, async (id) => {
-    if (!id) return null;
-    return fetchHotelDetail(id);
-  });
+  const [hotel] = createResource(
+    () => (clientLoaded() ? params.id : null),
+    async (id) => {
+      if (!id) return null;
+      return fetchHotelDetail(id);
+    },
+  );
 
   onMount(() => {
     setClientLoaded(true);
@@ -44,7 +47,9 @@ export default function HotelDetail() {
     <div class="min-h-screen bg-gray-50 pb-32">
       <div class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center">
-          <A href="/" class="text-blue-600 mr-4">返回</A>
+          <A href="/" class="text-[#002f61] mr-4">
+            返回
+          </A>
           <h1 class="text-lg font-bold text-gray-900 truncate">
             {hotel()?.name || "酒店详情"}
           </h1>
@@ -62,12 +67,17 @@ export default function HotelDetail() {
       <Show when={hotel()}>
         <div class="relative">
           <img
-            src={hotel()!.images?.[0]?.url || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800"}
+            src={
+              hotel()!.images?.[0]?.url ||
+              "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800"
+            }
             alt={hotel()!.name}
             class="w-full h-64 object-cover"
           />
           <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
-            <p class="text-white font-semibold">{hotel()!.city} - {hotel()!.address}</p>
+            <p class="text-white font-semibold">
+              {hotel()!.city} - {hotel()!.address}
+            </p>
           </div>
         </div>
 
@@ -131,13 +141,18 @@ export default function HotelDetail() {
                     >
                       <div class="flex">
                         <div class="w-24 h-20 flex-shrink-0 overflow-hidden rounded-l-lg">
-                          <Show when={restaurant.images && restaurant.images.length > 0} fallback={
-                            <img
-                              src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200"
-                              alt={restaurant.name}
-                              class="w-full h-full object-cover"
-                            />
-                          }>
+                          <Show
+                            when={
+                              restaurant.images && restaurant.images.length > 0
+                            }
+                            fallback={
+                              <img
+                                src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200"
+                                alt={restaurant.name}
+                                class="w-full h-full object-cover"
+                              />
+                            }
+                          >
                             <img
                               src={restaurant.images[0].url}
                               alt={restaurant.name}
@@ -146,12 +161,18 @@ export default function HotelDetail() {
                           </Show>
                         </div>
                         <div class="flex-1 p-3">
-                          <h4 class="font-medium text-gray-900">{restaurant.name}</h4>
+                          <h4 class="font-medium text-gray-900">
+                            {restaurant.name}
+                          </h4>
                           <p class="text-sm text-gray-500">{restaurant.type}</p>
-                          <p class="text-xs text-gray-400 truncate">{restaurant.description}</p>
+                          <p class="text-xs text-gray-400 truncate">
+                            {restaurant.description}
+                          </p>
                         </div>
                         <div class="flex items-center pr-3">
-                          <span class="bg-blue-600 text-white text-sm px-3 py-1.5 rounded">预约</span>
+                          <span class="bg-[#002f61] text-white text-sm px-3 py-1.5 rounded">
+                            预约
+                          </span>
                         </div>
                       </div>
                     </A>
