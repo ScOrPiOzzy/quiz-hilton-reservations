@@ -1,6 +1,6 @@
 import { createSignal, createResource, Show, For } from "solid-js";
 import { A, useParams, useNavigate } from "@solidjs/router";
-import { getApolloClient, GET_RESTAURANT_DETAIL, authApi, createReservation as createRes, type CreateReservationInput } from "@repo/mobile-shared";
+import { graphqlRequest, GET_RESTAURANT_DETAIL, CREATE_RESERVATION, authApi } from "~/lib";
 
 interface Restaurant {
   id: string;
@@ -14,12 +14,23 @@ interface Restaurant {
   timeSlots: string[];
 }
 
+interface CreateReservationInput {
+  restaurantId: string;
+  date: string;
+  timeSlot: string;
+  partySize?: number;
+  tableType?: string;
+  name: string;
+  phone: string;
+  specialRequests?: string;
+}
+
 async function fetchRestaurantDetail(id: string): Promise<Restaurant | null> {
-  const client = getApolloClient();
-  const { data } = await client.query({
-    query: GET_RESTAURANT_DETAIL,
-    variables: { id },
-  });
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
+  const data = await graphqlRequest<{ restaurant: Restaurant }>(GET_RESTAURANT_DETAIL, { id });
   return data.restaurant as Restaurant;
 }
 
@@ -67,8 +78,7 @@ export default function RestaurantDetail() {
     setError("");
 
     try {
-      const client = getApolloClient();
-      const input: CreateReservationInput = {
+      const input = {
         restaurantId: params.id,
         date: selectedDate(),
         timeSlot: selectedTime(),
@@ -79,7 +89,7 @@ export default function RestaurantDetail() {
         specialRequests: specialRequests(),
       };
       
-      await createRes(client, input);
+      await graphqlRequest(CREATE_RESERVATION, { input });
       
       setSuccess(true);
     } catch (err: any) {

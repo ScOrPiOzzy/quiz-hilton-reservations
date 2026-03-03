@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div class="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
       <div class="text-center">
-        <div class="text-6xl mb-4">🏨</div>
+        <div class="text-6xl mb-4">404</div>
         <h1 class="text-2xl font-bold text-gray-900 mb-2">页面未找到</h1>
         <p class="text-gray-600 mb-6">
           抱歉，您访问的页面不存在

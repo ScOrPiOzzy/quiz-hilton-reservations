@@ -1,6 +1,6 @@
 import { createResource, Show, For } from "solid-js";
 import { A, useParams } from "@solidjs/router";
-import { getApolloClient, GET_HOTEL_DETAIL } from "@repo/mobile-shared";
+import { graphqlRequest, GET_HOTEL_DETAIL } from "~/lib";
 
 interface Restaurant {
   id: string;
@@ -27,11 +27,11 @@ interface Hotel {
 }
 
 async function fetchHotelDetail(id: string): Promise<Hotel | null> {
-  const client = getApolloClient();
-  const { data } = await client.query({
-    query: GET_HOTEL_DETAIL,
-    variables: { id },
-  });
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
+  const data = await graphqlRequest<{ hotel: Hotel }>(GET_HOTEL_DETAIL, { id });
   return data.hotel as Hotel;
 }
 
@@ -41,12 +41,9 @@ export default function HotelDetail() {
 
   return (
     <div class="min-h-screen bg-gray-50 pb-32">
-      {/* 顶部导航 */}
       <div class="bg-white shadow-sm sticky top-0 z-10">
         <div class="max-w-md mx-auto px-4 py-3 flex items-center">
-          <A href="/" class="text-blue-600 mr-4">
-            ←
-          </A>
+          <A href="/" class="text-blue-600 mr-4">返回</A>
           <h1 class="text-lg font-bold text-gray-900 truncate">
             {hotel()?.name || "酒店详情"}
           </h1>
@@ -62,7 +59,6 @@ export default function HotelDetail() {
       </Show>
 
       <Show when={hotel()}>
-        {/* 酒店图片 */}
         <div class="relative">
           <img
             src={hotel()!.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099925?w=800"}
@@ -74,13 +70,12 @@ export default function HotelDetail() {
           </div>
         </div>
 
-        {/* 酒店信息 */}
         <div class="max-w-md mx-auto px-4 py-4">
           <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
             <div class="flex items-center justify-between mb-3">
               <div>
                 <div class="flex items-center">
-                  <span class="text-yellow-500 text-xl">★★★★★</span>
+                  <span class="text-yellow-500 text-xl">*****</span>
                   <span class="ml-2 text-lg font-bold text-gray-900">4.8</span>
                 </div>
                 <p class="text-sm text-gray-500">1234 条评价</p>
@@ -89,7 +84,6 @@ export default function HotelDetail() {
 
             <p class="text-gray-700 leading-relaxed">{hotel()!.description}</p>
 
-            {/* 设施 */}
             <Show when={hotel()!.amenities && hotel()!.amenities.length > 0}>
               <div class="mt-4 pt-4 border-t">
                 <h3 class="font-semibold text-gray-900 mb-3">酒店设施</h3>
@@ -97,7 +91,7 @@ export default function HotelDetail() {
                   <For each={hotel()!.amenities}>
                     {(amenity) => (
                       <div class="flex items-center text-sm text-gray-700">
-                        <span class="mr-2">✓</span>
+                        <span class="mr-2">+</span>
                         {amenity}
                       </div>
                     )}
@@ -107,7 +101,6 @@ export default function HotelDetail() {
             </Show>
           </div>
 
-          {/* 图片轮播 */}
           <Show when={hotel()!.images && hotel()!.images.length > 1}>
             <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
               <h3 class="font-semibold text-gray-900 mb-3">酒店图片</h3>
@@ -125,7 +118,6 @@ export default function HotelDetail() {
             </div>
           </Show>
 
-          {/* 餐厅列表 */}
           <Show when={hotel()!.restaurants && hotel()!.restaurants!.length > 0}>
             <div class="bg-white rounded-lg shadow-sm p-4 mb-4">
               <h3 class="font-semibold text-gray-900 mb-3">酒店餐厅</h3>
@@ -142,7 +134,7 @@ export default function HotelDetail() {
                           <p class="text-sm text-gray-500">{restaurant.cuisine}</p>
                           <p class="text-xs text-gray-400">{restaurant.openingHours}</p>
                         </div>
-                        <span class="text-blue-600 text-sm">预约 →</span>
+                        <span class="text-blue-600 text-sm">预约</span>
                       </div>
                     </A>
                   )}

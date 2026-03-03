@@ -1,6 +1,6 @@
-import { createSignal, createResource, Show, For } from "solid-js";
+import { createSignal, createResource, Show, For, onMount } from "solid-js";
 import { A } from "@solidjs/router";
-import { getApolloClient, GET_HOTELS } from "@repo/mobile-shared";
+import { graphqlRequest, GET_HOTELS } from "~/lib";
 
 interface Hotel {
   id: string;
@@ -14,17 +14,21 @@ interface Hotel {
 }
 
 async function fetchHotels(): Promise<Hotel[]> {
-  const client = getApolloClient();
-  const { data } = await client.query({
-    query: GET_HOTELS,
-    variables: { limit: 20 },
-  });
+  const data = await graphqlRequest<{ hotels: { items: Hotel[] } }>(GET_HOTELS, { limit: 20 });
   return data.hotels.items as Hotel[];
 }
 
 export default function Index() {
-  const [hotels, { refetch }] = createResource(fetchHotels);
+  const [clientLoaded, setClientLoaded] = createSignal(false);
+  const [hotels] = createResource(clientLoaded, async (loaded) => {
+    if (!loaded) return [];
+    return fetchHotels();
+  });
   const [searchCity, setSearchCity] = createSignal("");
+
+  onMount(() => {
+    setClientLoaded(true);
+  });
 
   return (
     <div class="min-h-screen bg-gray-50 pb-20">
@@ -102,21 +106,21 @@ export default function Index() {
             href="/"
             class="flex-1 flex flex-col items-center py-2 text-blue-600"
           >
-            <span class="text-xl">🏨</span>
+            <span class="text-xl">H</span>
             <span class="text-xs mt-1">酒店</span>
           </A>
           <A
             href="/reservations"
             class="flex-1 flex flex-col items-center py-2 text-gray-600"
           >
-            <span class="text-xl">📅</span>
+            <span class="text-xl">R</span>
             <span class="text-xs mt-1">预约</span>
           </A>
           <A
             href="/profile"
             class="flex-1 flex flex-col items-center py-2 text-gray-600"
           >
-            <span class="text-xl">👤</span>
+            <span class="text-xl">P</span>
             <span class="text-xs mt-1">我的</span>
           </A>
         </div>

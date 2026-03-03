@@ -1,6 +1,6 @@
 import { createResource, Show, For } from "solid-js";
 import { A } from "@solidjs/router";
-import { getApolloClient, GET_RESERVATIONS, authApi } from "@repo/mobile-shared";
+import { graphqlRequest, GET_RESERVATIONS, authApi } from "~/lib";
 
 interface Reservation {
   id: string;
@@ -18,10 +18,11 @@ interface Reservation {
 }
 
 async function fetchReservations(): Promise<Reservation[]> {
-  const client = getApolloClient();
-  const { data } = await client.query({
-    query: GET_RESERVATIONS,
-  });
+  if (typeof window === 'undefined') {
+    return [];
+  }
+  
+  const data = await graphqlRequest<{ reservations: Reservation[] }>(GET_RESERVATIONS);
   return data.reservations as Reservation[];
 }
 
@@ -33,7 +34,12 @@ const statusMap: Record<string, { label: string; color: string }> = {
 
 export default function Reservations() {
   const isLoggedIn = authApi.isAuthenticated();
-  const [reservations, { refetch }] = createResource(isLoggedIn ? fetchReservations : null);
+  const [reservations, { refetch }] = createResource(
+    async () => {
+      if (!isLoggedIn) return [];
+      return fetchReservations();
+    }
+  );
 
   return (
     <div class="min-h-screen bg-gray-50 pb-20">
@@ -56,7 +62,7 @@ export default function Reservations() {
       <Show when={!isLoggedIn}>
         <div class="max-w-md mx-auto px-4 py-8">
           <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-            <div class="text-5xl mb-4">🔐</div>
+            <div class="text-5xl mb-4">L</div>
             <h2 class="text-xl font-bold text-gray-900 mb-2">请先登录</h2>
             <p class="text-gray-600 mb-4">登录后查看您的餐厅预约</p>
             <A
@@ -128,7 +134,7 @@ export default function Reservations() {
             
             <Show when={reservations()?.length === 0}>
               <div class="bg-white rounded-lg shadow-sm p-8 text-center">
-                <div class="text-5xl mb-4">📅</div>
+                <div class="text-5xl mb-4">N</div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-2">暂无预约</h3>
                 <p class="text-gray-500 mb-4">快去选择一家餐厅预约吧</p>
                 <A
@@ -146,25 +152,16 @@ export default function Reservations() {
       {/* 底部导航栏 */}
       <div class="fixed bottom-0 left-0 right-0 bg-white border-t">
         <div class="max-w-md mx-auto flex">
-          <A
-            href="/"
-            class="flex-1 flex flex-col items-center py-2 text-gray-600"
-          >
-            <span class="text-xl">🏨</span>
+          <A href="/" class="flex-1 flex flex-col items-center py-2 text-gray-600">
+            <span class="text-xl">H</span>
             <span class="text-xs mt-1">酒店</span>
           </A>
-          <A
-            href="/reservations"
-            class="flex-1 flex flex-col items-center py-2 text-blue-600"
-          >
-            <span class="text-xl">📅</span>
+          <A href="/reservations" class="flex-1 flex flex-col items-center py-2 text-blue-600">
+            <span class="text-xl">R</span>
             <span class="text-xs mt-1">预约</span>
           </A>
-          <A
-            href="/profile"
-            class="flex-1 flex flex-col items-center py-2 text-gray-600"
-          >
-            <span class="text-xl">👤</span>
+          <A href="/profile" class="flex-1 flex flex-col items-center py-2 text-gray-600">
+            <span class="text-xl">P</span>
             <span class="text-xs mt-1">我的</span>
           </A>
         </div>

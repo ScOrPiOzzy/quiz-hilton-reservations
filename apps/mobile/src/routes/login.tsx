@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
-import { authApi } from "@repo/mobile-shared";
+import { authApi } from "~/lib";
 
 export default function Login() {
   const [email, setEmail] = createSignal("");

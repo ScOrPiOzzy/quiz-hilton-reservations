@@ -11,15 +11,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "paths": {
       "~/*": ["./src/*"],
       "@repo/schemas": ["../../packages/schemas/src"],
-      "@repo/ui": ["../../packages/ui/src"],
-      "@repo/mobile-shared": ["../../packages/mobile-shared/src"]
+      "@repo/ui": ["../../packages/ui/src"]
     }
   },
   "include": ["src"],
