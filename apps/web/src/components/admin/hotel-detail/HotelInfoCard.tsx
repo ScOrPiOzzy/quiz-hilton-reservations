@@ -21,7 +21,7 @@ export const HotelInfoCard = (props: HotelInfoCardProps) => {
         <p class="text-sm md:text-base text-gray-700 line-clamp-3">{props.hotel.description}</p>
       </Show>
 
-      <div class="space-y-2 md:space-y-0 grid grid-cols-1 md:grid-cols-2 md:gap-4">
+      <div class="space-y-2 md:space-y-0 flex flex-col md:gap-4">
         <Show when={props.hotel.address}>
           <div class="flex items-start gap-2">
             <span class="text-gray-500 flex-shrink-0">📍</span>
