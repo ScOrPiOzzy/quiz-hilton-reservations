@@ -1,7 +1,8 @@
 import { createResource, Show, For, createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { graphqlRequest, GET_RESERVATIONS, CANCEL_RESERVATION, authApi, getUserId } from "~/lib";
-import { Building2, CalendarCheck, User, LogIn, CalendarX } from "lucide-solid";
+import { LogIn, CalendarX } from "lucide-solid";
+import { BottomNavigation } from "~/components/BottomNavigation";
 
 interface Reservation {
   id: string;
@@ -211,32 +212,7 @@ export default function Reservations() {
         </div>
       </Show>
 
-      {/* 底部导航栏 */}
-      <div class="fixed bottom-0 left-0 right-0 bg-white border-t">
-        <div class="max-w-md mx-auto flex">
-          <A
-            href="/"
-            class="flex-1 flex flex-col items-center py-2 text-gray-600"
-          >
-            <Building2 size={24} />
-            <span class="text-xs mt-1">酒店</span>
-          </A>
-          <A
-            href="/reservations"
-            class="flex-1 flex flex-col items-center py-2 text-blue-600"
-          >
-            <CalendarCheck size={24} />
-            <span class="text-xs mt-1">预约</span>
-          </A>
-          <A
-            href="/profile"
-            class="flex-1 flex flex-col items-center py-2 text-gray-600"
-          >
-            <User size={24} />
-            <span class="text-xs mt-1">我的</span>
-          </A>
-        </div>
-      </div>
+      <BottomNavigation />
     </div>
   );
 }
