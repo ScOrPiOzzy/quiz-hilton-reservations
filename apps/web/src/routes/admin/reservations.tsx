@@ -4,7 +4,9 @@ import type { Reservation, TableColumn, ActionConfig } from "~/lib/types";
 import { AdminLayout } from "../../components/admin/Layout/AdminLayout";
 import { DataTable } from "../../components/admin/Table/DataTable";
 import { ActionMenu } from "../../components/admin/ActionMenu/ActionMenu";
+import { StatusToggle } from "~/components/admin/StatusToggle";
 import { useReservationList } from "../../hooks/admin/useReservationList";
+import { useUpdateReservationStatus, useCancelReservation } from "~/lib/reservation-mutations";
 import { Button } from "@repo/ui";
 
 export default function ReservationsPage() {
@@ -14,48 +16,109 @@ export default function ReservationsPage() {
   const [detailOpen, setDetailOpen] = createSignal(false);
   const [selectedReservation, setSelectedReservation] =
     createSignal<Reservation | null>(null);
+  const updateStatusMutation = useUpdateReservationStatus();
+  const cancelReservationMutation = useCancelReservation();
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    await updateStatusMutation.execute({ input: { id, status: newStatus } });
+    refetch();
+  };
+
+  const handleCancelReservation = async (id: string) => {
+    if (confirm("确定要取消此预约吗？")) {
+      await cancelReservationMutation.execute({ id });
+      refetch();
+    }
+  };
 
   const columns: TableColumn<Reservation>[] = [
     {
-      key: "customer.name",
-      label: "客户姓名",
+      key: "customer",
+      label: "客户信息",
       searchable: true,
+      render: (value) => (
+        <div class="whitespace-nowrap">
+          <div class="font-medium">{value.name}</div>
+          <div class="text-sm text-gray-500">{value.phone}</div>
+        </div>
+      ),
     },
     {
-      key: "customer.phone",
-      label: "联系电话",
-      searchable: true,
+      key: "restaurant",
+      label: "餐厅/酒店",
+      render: (value, row) => (
+        <div class="whitespace-nowrap">
+          <div class="font-medium">{value?.name || "-"}</div>
+          <div class="text-sm text-gray-500">{row.hotel?.name || "-"}</div>
+        </div>
+      ),
     },
     {
-      key: "reservationDate",
+      key: "reservation",
       label: "预约时间",
-      render: (value) => {
-        const date = new Date(value);
-        return <span>{date.toLocaleString("zh-CN")}</span>;
-      },
+      render: (_, row) => (
+        <div class="whitespace-nowrap">
+          <div class="font-medium">
+            {new Date(row.reservationDate).toLocaleDateString("zh-CN")}
+          </div>
+          <div class="text-sm text-gray-500">{row.timeSlot || "-"}</div>
+        </div>
+      ),
     },
     {
       key: "status",
       label: "状态",
-      render: (value) => {
+      render: (value, row) => {
         const statusMap: Record<string, string> = {
-          REQUESTED: "待确认",
-          APPROVED: "已确认",
+          PENDING: "待处理",
+          CONFIRMED: "已确认",
+          APPROVED: "已批准",
           CANCELLED: "已取消",
           COMPLETED: "已完成",
         };
         const statusStyles: Record<string, string> = {
-          REQUESTED: "bg-yellow-100 text-yellow-800",
+          PENDING: "bg-orange-100 text-orange-800",
+          CONFIRMED: "bg-blue-100 text-blue-800",
           APPROVED: "bg-green-100 text-green-800",
           CANCELLED: "bg-red-100 text-red-800",
           COMPLETED: "bg-gray-100 text-gray-800",
         };
+
+        // 只有"待确认"或"待处理"状态的预约才显示状态切换按钮
+        const canChangeStatus = value === "REQUESTED" || value === "PENDING";
+
+        if (canChangeStatus) {
+          return (
+            <StatusToggle
+              type="reservation"
+              currentStatus={value}
+              id={row.id}
+              onStatusChange={handleStatusChange}
+            />
+          );
+        }
+
         return (
           <span
-            class={`px-2 py-1 rounded text-sm ${statusStyles[value] || "bg-gray-100 text-gray-800"}`}
+            class={`px-2 py-1 rounded text-sm whitespace-nowrap ${statusStyles[value] || "bg-gray-100 text-gray-800"}`}
           >
             {statusMap[value] || value}
           </span>
+        );
+      },
+    },
+    {
+      key: "specialRequests",
+      label: "备注",
+      render: (value) => <span>{value || "-"}</span>,
+    },
+    {
+      key: "createdAt",
+      label: "创建时间",
+      render: (value) => {
+        const date = new Date(value);
+        return (
+          <span class="text-gray-600 whitespace-nowrap">{date.toLocaleString("zh-CN")}</span>
         );
       },
     },
@@ -75,7 +138,7 @@ export default function ReservationsPage() {
       type: "danger",
       dropdown: true,
       onClick: () => {
-        alert(`取消预约: ${reservation.customer.name}`);
+        handleCancelReservation(reservation.id);
       },
     },
   ];
@@ -87,7 +150,32 @@ export default function ReservationsPage() {
   return (
     <AdminLayout>
       <div class="w-full">
-        <h1 class="text-2xl font-bold mb-6">预约管理</h1>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <h1 class="text-2xl font-bold">预约管理</h1>
+          {/* 移动端取消预约区域 */}
+          <div class="sm:hidden">
+            <select
+              class="px-3 py-2 rounded-md border border-gray-300 bg-white text-sm"
+              onChange={(e: Event) => {
+                const target = e.target as HTMLSelectElement;
+                const id = target.value;
+                if (id) {
+                  handleCancelReservation(id);
+                  target.value = "";
+                }
+              }}
+            >
+              <option value="">选择预约取消...</option>
+              <For each={reservations()}>
+                {(r) => (
+                  <Show when={r.status === "REQUESTED" || r.status === "PENDING"}>
+                    <option value={r.id}>{r.customer.name} - {new Date(r.reservationDate).toLocaleDateString("zh-CN")}</option>
+                  </Show>
+                )}
+              </For>
+            </select>
+          </div>
+        </div>
 
         <Show when={loading()}>
           <div class="text-center py-8 text-gray-500">加载中...</div>

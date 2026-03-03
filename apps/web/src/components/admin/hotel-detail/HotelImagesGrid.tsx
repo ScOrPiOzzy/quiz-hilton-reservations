@@ -33,7 +33,7 @@ export const HotelImagesGrid = (props: HotelImagesGridProps) => {
     <>
       <div class={`grid gap-2 ${colsClass()}`}>
         <Show
-          when={props.images.length > 0}
+          when={props.images && props.images.length > 0}
           fallback={
             <div class="col-span-full bg-gray-100 rounded-lg h-48 flex items-center justify-center text-gray-400">
               暂无图片

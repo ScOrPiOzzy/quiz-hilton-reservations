@@ -3,8 +3,9 @@ import { useNavigate } from "@solidjs/router";
 import { type Hotel, TableColumn, ActionConfig } from "~/lib/types";
 import { AdminLayout } from "~/components/admin/Layout/AdminLayout";
 import { DataTable } from "~/components/admin/Table/DataTable";
+import { StatusToggle } from "~/components/admin/StatusToggle";
 import { useHotelList } from "~/hooks/admin/useHotelList";
-import { useDeleteHotel } from "~/lib/hotel-mutations";
+import { useDeleteHotel, useUpdateHotelStatus } from "~/lib/hotel-mutations";
 import { HotelForm } from "~/components/admin/Modals/HotelForm";
 import { Button } from "@repo/ui";
 
@@ -14,7 +15,13 @@ export default function HotelsPage() {
   const [formOpen, setFormOpen] = createSignal(false);
   const [selectedHotel, setSelectedHotel] = createSignal<Hotel | null>(null);
   const deleteMutation = useDeleteHotel();
+  const updateStatusMutation = useUpdateHotelStatus();
   const navigate = useNavigate();
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    await updateStatusMutation.execute({ id, status: newStatus });
+    refetch();
+  };
 
   const columns: TableColumn<Hotel>[] = [
     {
@@ -35,16 +42,13 @@ export default function HotelsPage() {
     {
       key: "status",
       label: "状态",
-      render: (value) => (
-        <span
-          class={`px-2 py-1 rounded text-sm ${
-            value === "ACTIVE"
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {value === "ACTIVE" ? "营业中" : "已下架"}
-        </span>
+      render: (value, row) => (
+        <StatusToggle
+          type="hotel"
+          currentStatus={value}
+          id={row.id}
+          onStatusChange={handleStatusChange}
+        />
       ),
     },
     {
@@ -52,7 +56,7 @@ export default function HotelsPage() {
       label: "图片",
       render: (_, row) => (
         <div class="relative w-16 h-16">
-          <Show when={row.images.length > 0}>
+          <Show when={row.images && row.images.length > 0}>
             <img
               src={row.images[0].url}
               alt={row.name}
@@ -64,6 +68,16 @@ export default function HotelsPage() {
           </Show>
         </div>
       ),
+    },
+    {
+      key: "createdAt",
+      label: "创建时间",
+      render: (value) => {
+        const date = new Date(value);
+        return (
+          <span class="text-gray-600">{date.toLocaleString("zh-CN")}</span>
+        );
+      },
     },
   ];
 

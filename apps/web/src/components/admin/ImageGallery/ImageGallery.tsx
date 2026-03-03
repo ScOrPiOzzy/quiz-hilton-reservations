@@ -29,13 +29,13 @@ export const ImageGallery = (props: ImageGalleryProps) => {
   return (
     <>
       <div class="image-gallery">
-        <Show when={props.images.length === 0}>
+        <Show when={!props.images || props.images.length === 0}>
           <div class="empty-state">
             <p>暂无图片</p>
           </div>
         </Show>
 
-        <Show when={props.images.length > 0}>
+        <Show when={props.images && props.images.length > 0}>
           <div class="thumbnails-grid">
             <For each={props.images}>
               {(image) => (

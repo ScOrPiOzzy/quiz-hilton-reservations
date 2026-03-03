@@ -30,7 +30,6 @@ const GET_RESERVATIONS = `
         }
         reservationDate
         timeSlot
-        timeSlotName
         status
         specialRequests
         estimatedArrivalTime

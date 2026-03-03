@@ -38,6 +38,17 @@ const DELETE_HOTEL = `
   }
 `;
 
+const UPDATE_HOTEL_STATUS = `
+  mutation UpdateHotelStatus($id: String!, $status: String!) {
+    updateHotel(input: { id: $id, status: $status }) {
+      id
+      name
+      status
+      updatedAt
+    }
+  }
+`;
+
 export function useCreateHotel() {
   return useMutation(CREATE_HOTEL);
 }
@@ -48,4 +59,8 @@ export function useUpdateHotel() {
 
 export function useDeleteHotel() {
   return useMutation(DELETE_HOTEL);
+}
+
+export function useUpdateHotelStatus() {
+  return useMutation(UPDATE_HOTEL_STATUS);
 }

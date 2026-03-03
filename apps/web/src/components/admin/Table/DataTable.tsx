@@ -130,13 +130,19 @@ export const DataTable = <T extends Record<string, any>>(
                 <tr class="hover:bg-gray-50">
                   <td class="px-4 py-3 text-sm text-gray-900">{index() + 1}</td>
                   <For each={props.columns}>
-                    {(col) => (
-                      <td class="px-4 py-3 text-sm text-gray-900">
-                        {col.render
-                          ? col.render(row[col.key], row)
-                          : row[col.key]}
-                      </td>
-                    )}
+                    {(col) => {
+                      const getNestedValue = (obj: any, path: string) => {
+                        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+                      };
+                      const value = getNestedValue(row, col.key);
+                      return (
+                        <td class="px-4 py-3 text-sm text-gray-900">
+                          {col.render
+                            ? col.render(value, row)
+                            : String(value ?? '')}
+                        </td>
+                      );
+                    }}
                   </For>
                   <Show when={props.rowActions}>
                     <td class="px-4 py-3">

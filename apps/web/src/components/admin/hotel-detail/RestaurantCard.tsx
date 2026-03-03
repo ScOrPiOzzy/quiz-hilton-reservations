@@ -1,7 +1,7 @@
 import { Show, For } from 'solid-js';
 import type { Restaurant } from "~/lib/types";
 import { RestaurantType, AreaType } from "~/lib/types";
-import { StatusBadge } from "./StatusBadge";
+import { StatusToggle } from "~/components/admin/StatusToggle";
 import { HotelCarousel } from "./HotelCarousel";
 import { Button } from "@repo/ui";
 
@@ -9,6 +9,7 @@ interface RestaurantCardProps {
   restaurant: Restaurant;
   onEdit: () => void;
   onDelete: () => void;
+  onStatusChange?: (id: string, newStatus: string) => Promise<void>;
 }
 
 const AREA_TYPE_LABELS: Record<AreaType, string> = {
@@ -40,7 +41,23 @@ export const RestaurantCard = (props: RestaurantCardProps) => {
             <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
               {RESTAURANT_TYPE_LABELS[props.restaurant.type]}
             </span>
-            <StatusBadge status={props.restaurant.status} />
+            <Show when={props.onStatusChange}>
+              <StatusToggle
+                type="restaurant"
+                currentStatus={props.restaurant.status}
+                id={props.restaurant.id}
+                onStatusChange={props.onStatusChange!}
+              />
+            </Show>
+            <Show when={!props.onStatusChange}>
+              <StatusToggle
+                type="restaurant"
+                currentStatus={props.restaurant.status}
+                id={props.restaurant.id}
+                onStatusChange={() => Promise.resolve()}
+                disabled={true}
+              />
+            </Show>
           </div>
         </div>
         <Show when={!isDeleted()}>
@@ -68,8 +85,10 @@ export const RestaurantCard = (props: RestaurantCardProps) => {
       </Show>
 
       <Show when={props.restaurant.images?.length > 0}>
-        <div class="mb-4">
-          <HotelCarousel images={props.restaurant.images || []} />
+        <div class="mb-4 flex justify-center">
+          <div class="w-full max-w-2xl">
+            <HotelCarousel images={props.restaurant.images || []} />
+          </div>
         </div>
       </Show>
 

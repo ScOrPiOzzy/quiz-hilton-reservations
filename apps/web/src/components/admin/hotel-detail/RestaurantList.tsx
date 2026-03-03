@@ -3,7 +3,7 @@ import { RestaurantCard } from "./RestaurantCard";
 import { Button } from "@repo/ui";
 import type { Restaurant } from "~/lib/types";
 import { RestaurantForm } from "../Modals/RestaurantForm";
-import { useDeleteRestaurant } from "~/lib/restaurant-mutations";
+import { useDeleteRestaurant, useUpdateRestaurantStatus } from "~/lib/restaurant-mutations";
 
 interface RestaurantListProps {
   restaurants: Restaurant[];
@@ -15,6 +15,12 @@ export const RestaurantList = (props: RestaurantListProps) => {
   const [formOpen, setFormOpen] = createSignal(false);
   const [selectedRestaurant, setSelectedRestaurant] = createSignal<Restaurant | null>(null);
   const deleteMutation = useDeleteRestaurant();
+  const updateStatusMutation = useUpdateRestaurantStatus();
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    await updateStatusMutation.execute({ id, status: newStatus });
+    props.onUpdate();
+  };
 
   const handleAdd = () => {
     setSelectedRestaurant(null);
@@ -66,6 +72,7 @@ export const RestaurantList = (props: RestaurantListProps) => {
                 restaurant={restaurant}
                 onEdit={() => handleEdit(restaurant)}
                 onDelete={() => handleDelete(restaurant)}
+                onStatusChange={handleStatusChange}
               />
             )}
           </For>

@@ -3,13 +3,13 @@ import { createStore } from "solid-js/store";
 import { type Restaurant, type Hotel, type Area } from "~/lib/types";
 import { Input, Button } from "@repo/ui";
 import { useGetHotels } from "~/hooks/admin/useRestaurantList";
-import { 
-  useCreateRestaurant, 
+import {
+  useCreateRestaurant,
   useUpdateRestaurant,
   useGetAreasByRestaurant,
   useCreateArea,
   useUpdateArea,
-  useDeleteArea 
+  useDeleteArea,
 } from "~/lib/restaurant-mutations";
 
 interface RestaurantFormProps {
@@ -41,11 +41,11 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
   const [errors, setErrors] = createStore<Record<string, string>>({});
   const [error, setError] = createSignal("");
   const [loadingAreas, setLoadingAreas] = createSignal(false);
-  
+
   const createMutation = useCreateRestaurant();
   const updateMutation = useUpdateRestaurant();
   const { hotels } = useGetHotels();
-  
+
   const areasQuery = useGetAreasByRestaurant();
   const createAreaMutation = useCreateArea();
   const updateAreaMutation = useUpdateArea();
@@ -55,7 +55,9 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
     if (props.restaurant?.id) {
       setLoadingAreas(true);
       try {
-        const result = await areasQuery.execute({ restaurantId: props.restaurant.id });
+        const result = await areasQuery.execute({
+          restaurantId: props.restaurant.id,
+        });
         if (result.data?.areasByRestaurant) {
           setAreas(result.data.areasByRestaurant);
         }
@@ -116,9 +118,16 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
       };
 
       if (props.restaurant) {
+        const { name, type, hotelId, description, capacity } = formData;
         await updateMutation.execute({
-          id: props.restaurant.id,
-          ...input,
+          input: {
+            id: props.restaurant.id,
+            name,
+            type,
+            hotelId,
+            description,
+            capacity,
+          },
         });
       } else {
         await createMutation.execute({ input });
@@ -153,7 +162,7 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
 
   const handleAreaSubmit = async (e: Event) => {
     e.preventDefault();
-    
+
     if (!areaForm.name.trim()) {
       alert("请输入包厢名称");
       return;
@@ -181,7 +190,7 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
           minimumCapacity: areaForm.minimumCapacity,
         });
       }
-      
+
       setShowAreaModal(false);
       loadAreas();
     } catch (e) {
@@ -201,8 +210,14 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
   };
 
   return (
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={props.onClose}>
-      <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={props.onClose}
+    >
+      <div
+        class="bg-white rounded-lg shadow-xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div class="flex justify-between items-center p-6 border-b">
           <h2 class="text-xl font-bold">
             {props.restaurant ? "编辑餐厅" : "新建餐厅"}
@@ -218,22 +233,22 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
         <form onSubmit={handleSubmit}>
           <div class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Show when={!props.hotelId}>
+              <Show when={!props.hotelId && !props.restaurant}>
                 <div class="form-group">
                   <label class="block text-sm font-medium mb-2">
                     所属酒店 <span class="text-red-500">*</span>
                   </label>
                   <select
                     value={formData.hotelId}
-                    onInput={(e) => setFormData("hotelId", e.currentTarget.value)}
+                    onInput={(e) =>
+                      setFormData("hotelId", e.currentTarget.value)
+                    }
                     class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                   >
                     <option value="">请选择酒店</option>
                     <For each={hotels()}>
                       {(hotel) => (
-                        <option value={hotel.id}>
-                          {hotel.name}
-                        </option>
+                        <option value={hotel.id}>{hotel.name}</option>
                       )}
                     </For>
                   </select>
@@ -262,7 +277,10 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
                 <select
                   value={formData.type}
                   onInput={(e) =>
-                    setFormData("type", e.currentTarget.value as "HALL" | "PRIVATE_ROOM")
+                    setFormData(
+                      "type",
+                      e.currentTarget.value as "HALL" | "PRIVATE_ROOM",
+                    )
                   }
                   class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                 >
@@ -280,14 +298,19 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
                   placeholder="大厅可容纳人数"
                   value={formData.capacity}
                   onInput={(e) =>
-                    setFormData("capacity", parseInt(e.currentTarget.value) || 0)
+                    setFormData(
+                      "capacity",
+                      parseInt(e.currentTarget.value) || 0,
+                    )
                   }
                   error={!!errors.capacity}
                 />
                 <Show when={errors.capacity}>
                   <p class="mt-1 text-sm text-red-600">{errors.capacity}</p>
                 </Show>
-                <p class="mt-1 text-xs text-gray-500">设置大厅可容纳的用餐人数</p>
+                <p class="mt-1 text-xs text-gray-500">
+                  设置大厅可容纳的用餐人数
+                </p>
               </div>
 
               <div class="form-group md:col-span-2">
@@ -304,73 +327,13 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
               </div>
             </div>
 
-            {/* 包厢管理 */}
-            <Show when={props.restaurant?.id}>
-              <div class="border-t pt-6">
-                <div class="flex justify-between items-center mb-4">
-                  <h3 class="text-lg font-semibold">包厢管理</h3>
-                  <Button
-                    type="button"
-                    onClick={() => openAreaModal()}
-                    size="sm"
-                  >
-                    + 添加包厢
-                  </Button>
-                </div>
-
-                <Show when={loadingAreas()}>
-                  <div class="text-center py-4 text-gray-500">加载中...</div>
-                </Show>
-
-                <Show when={!loadingAreas() && areas().length === 0}>
-                  <div class="text-center py-4 text-gray-500 bg-gray-50 rounded">
-                    暂无包厢，点击"添加包厢"创建
-                  </div>
-                </Show>
-
-                <Show when={!loadingAreas() && areas().length > 0}>
-                  <div class="space-y-2">
-                    <For each={areas()}>
-                      {(area) => (
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <div>
-                            <span class="font-medium">{area.name}</span>
-                            <span class="ml-2 text-sm text-gray-500">
-                              容纳 {area.capacity} 人
-                              {area.minimumCapacity ? ` (最少${area.minimumCapacity}人)` : ""}
-                            </span>
-                          </div>
-                          <div class="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => openAreaModal(area)}
-                              class="text-blue-600 hover:text-blue-800 text-sm"
-                            >
-                              编辑
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteArea(area)}
-                              class="text-red-600 hover:text-red-800 text-sm"
-                            >
-                              删除
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </For>
-                  </div>
-                </Show>
-              </div>
-            </Show>
-
             <Show when={Object.keys(errors).length > 0 || error()}>
               <div class="p-4 mb-4 bg-red-50 text-red-700 rounded">
                 {createMutation.loading()
                   ? "创建中..."
                   : updateMutation.loading()
-                  ? "更新中..."
-                  : error()}
+                    ? "更新中..."
+                    : error()}
               </div>
             </Show>
 
@@ -397,8 +360,14 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
 
         {/* 包厢 Modal */}
         <Show when={showAreaModal()}>
-          <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]" onClick={() => setShowAreaModal(false)}>
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+          <div
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]"
+            onClick={() => setShowAreaModal(false)}
+          >
+            <div
+              class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-lg font-bold">
                   {editingArea() ? "编辑包厢" : "添加包厢"}
@@ -419,7 +388,9 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
                     <Input
                       placeholder="例如：VIP包厢、豪华包厢"
                       value={areaForm.name}
-                      onInput={(e) => setAreaForm("name", e.currentTarget.value)}
+                      onInput={(e) =>
+                        setAreaForm("name", e.currentTarget.value)
+                      }
                     />
                   </div>
                   <div>
@@ -430,7 +401,12 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
                       type="number"
                       placeholder="可容纳人数"
                       value={areaForm.capacity}
-                      onInput={(e) => setAreaForm("capacity", parseInt(e.currentTarget.value) || 0)}
+                      onInput={(e) =>
+                        setAreaForm(
+                          "capacity",
+                          parseInt(e.currentTarget.value) || 0,
+                        )
+                      }
                     />
                   </div>
                   <div>
@@ -441,9 +417,16 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
                       type="number"
                       placeholder="最少需要的人数"
                       value={areaForm.minimumCapacity}
-                      onInput={(e) => setAreaForm("minimumCapacity", parseInt(e.currentTarget.value) || 0)}
+                      onInput={(e) =>
+                        setAreaForm(
+                          "minimumCapacity",
+                          parseInt(e.currentTarget.value) || 0,
+                        )
+                      }
                     />
-                    <p class="mt-1 text-xs text-gray-500">设置包厢最少需要预订的人数</p>
+                    <p class="mt-1 text-xs text-gray-500">
+                      设置包厢最少需要预订的人数
+                    </p>
                   </div>
                 </div>
                 <div class="flex justify-end gap-2 p-4 border-t bg-gray-50">
@@ -456,10 +439,14 @@ export const RestaurantForm = (props: RestaurantFormProps) => {
                   </button>
                   <button
                     type="submit"
-                    disabled={createAreaMutation.loading() || updateAreaMutation.loading()}
+                    disabled={
+                      createAreaMutation.loading() ||
+                      updateAreaMutation.loading()
+                    }
                     class="px-4 py-2 bg-[#002f61] text-white rounded hover:bg-[#002450] disabled:opacity-50"
                   >
-                    {createAreaMutation.loading() || updateAreaMutation.loading()
+                    {createAreaMutation.loading() ||
+                    updateAreaMutation.loading()
                       ? "保存中..."
                       : "保存"}
                   </button>

@@ -1,10 +1,21 @@
 import { Show, createSignal } from "solid-js";
-import { type Restaurant, type TableColumn, type ActionConfig } from "~/lib/types";
+import {
+  type Restaurant,
+  type TableColumn,
+  type ActionConfig,
+} from "~/lib/types";
 import { AdminLayout } from "../../components/admin/Layout/AdminLayout";
 import { DataTable } from "../../components/admin/Table/DataTable";
+import { StatusToggle } from "~/components/admin/StatusToggle";
 import { RestaurantForm } from "../../components/admin/Modals/RestaurantForm";
-import { useRestaurantList, useGetHotels } from "../../hooks/admin/useRestaurantList";
-import { useDeleteRestaurant } from "~/lib/restaurant-mutations";
+import {
+  useRestaurantList,
+  useGetHotels,
+} from "../../hooks/admin/useRestaurantList";
+import {
+  useDeleteRestaurant,
+  useUpdateRestaurantStatus,
+} from "~/lib/restaurant-mutations";
 import { Button } from "@repo/ui";
 
 export default function RestaurantsPage() {
@@ -15,6 +26,12 @@ export default function RestaurantsPage() {
     createSignal<Restaurant | null>(null);
   const [detailOpen, setDetailOpen] = createSignal(false);
   const deleteMutation = useDeleteRestaurant();
+  const updateStatusMutation = useUpdateRestaurantStatus();
+
+  const handleStatusChange = async (id: string, newStatus: string) => {
+    await updateStatusMutation.execute({ id, status: newStatus });
+    refetch();
+  };
 
   const columns: TableColumn<Restaurant>[] = [
     {
@@ -23,10 +40,10 @@ export default function RestaurantsPage() {
       searchable: true,
     },
     {
-      key: "hotel",
+      key: "hotel.name",
       label: "所属酒店",
       render: (value) => (
-        <span class="text-blue-600 font-medium">{value?.name || '-'}</span>
+        <span class="text-blue-600 font-medium">{value || "-"}</span>
       ),
     },
     {
@@ -51,17 +68,24 @@ export default function RestaurantsPage() {
     {
       key: "status",
       label: "状态",
-      render: (value) => (
-        <span
-          class={`px-2 py-1 rounded text-sm ${
-            value === "ACTIVE"
-              ? "bg-green-100 text-green-800"
-              : "bg-gray-100 text-gray-800"
-          }`}
-        >
-          {value === "ACTIVE" ? "营业中" : "已下架"}
-        </span>
+      render: (value, row) => (
+        <StatusToggle
+          type="restaurant"
+          currentStatus={value}
+          id={row.id}
+          onStatusChange={handleStatusChange}
+        />
       ),
+    },
+    {
+      key: "createdAt",
+      label: "创建时间",
+      render: (value) => {
+        const date = new Date(value);
+        return (
+          <span class="text-gray-600">{date.toLocaleString("zh-CN")}</span>
+        );
+      },
     },
   ];
 
@@ -177,9 +201,7 @@ export default function RestaurantsPage() {
                     </p>
                     <p>
                       <strong>类型:</strong>{" "}
-                      {selectedRestaurant()?.type === "HALL"
-                        ? "大厅"
-                        : "包厢"}
+                      {selectedRestaurant()?.type === "HALL" ? "大厅" : "包厢"}
                     </p>
                     <p>
                       <strong>容量:</strong> {selectedRestaurant()?.capacity}
@@ -192,7 +214,8 @@ export default function RestaurantsPage() {
                     </p>
                     <Show when={selectedRestaurant()?.description}>
                       <p>
-                        <strong>简介:</strong> {selectedRestaurant()?.description}
+                        <strong>简介:</strong>{" "}
+                        {selectedRestaurant()?.description}
                       </p>
                     </Show>
                   </div>

@@ -53,6 +53,17 @@ const SOFT_DELETE_RESTAURANT = `
   }
 `;
 
+const UPDATE_RESTAURANT_STATUS = `
+  mutation UpdateRestaurantStatus($id: String!, $status: String!) {
+    updateRestaurant(input: { id: $id, status: $status }) {
+      id
+      name
+      status
+      updatedAt
+    }
+  }
+`;
+
 const GET_AREAS_BY_RESTAURANT = `
   query GetAreasByRestaurant($restaurantId: String!) {
     areasByRestaurant(restaurantId: $restaurantId) {
@@ -112,6 +123,10 @@ export function useDeleteRestaurant() {
 
 export function useSoftDeleteRestaurant() {
   return useMutation(SOFT_DELETE_RESTAURANT);
+}
+
+export function useUpdateRestaurantStatus() {
+  return useMutation(UPDATE_RESTAURANT_STATUS);
 }
 
 export function useGetAreasByRestaurant() {
