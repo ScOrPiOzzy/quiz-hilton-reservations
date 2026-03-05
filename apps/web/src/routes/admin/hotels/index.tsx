@@ -118,7 +118,6 @@ export default function HotelsPage() {
   ];
 
   const getRowActions = (hotel: Hotel): ActionConfig[] => {
-    console.log(`🚀 ~ getRowActions ~ hotel:`, hotel);
     return [
       {
         label: "详情",
