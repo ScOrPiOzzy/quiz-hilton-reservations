@@ -1,6 +1,5 @@
 import { For, Show, createMemo, createSignal, JSX } from "solid-js";
 import { type TableColumn } from "~/lib/types";
-import { Input } from "@repo/ui";
 import { ActionMenu } from "../ActionMenu/ActionMenu";
 import type { ActionConfig } from "~/lib/types";
 
@@ -14,35 +13,20 @@ interface DataTableProps<T> {
 export const DataTable = <T extends Record<string, any>>(
   props: DataTableProps<T>,
 ) => {
-  const [searchKeyword, setSearchKeyword] = createSignal("");
   const [sortColumn, setSortColumn] = createSignal<keyof T | null>(null);
   const [sortDirection, setSortDirection] = createSignal<"asc" | "desc">("asc");
 
-  const filteredData = createMemo(() => {
-    let result = props.data;
+  const sortedData = createMemo(() => {
+    if (!sortColumn()) return props.data;
 
-    if (searchKeyword()) {
-      const keyword = searchKeyword().toLowerCase();
-      result = result.filter((row) =>
-        props.columns.some((col) => {
-          const value = row[col.key];
-          return String(value).toLowerCase().includes(keyword);
-        }),
-      );
-    }
+    return [...props.data].sort((a, b) => {
+      const aValue = a[sortColumn()!];
+      const bValue = b[sortColumn()!];
 
-    if (sortColumn()) {
-      result = [...result].sort((a, b) => {
-        const aValue = a[sortColumn()!];
-        const bValue = b[sortColumn()!];
-
-        if (aValue < bValue) return sortDirection() === "asc" ? -1 : 1;
-        if (aValue > bValue) return sortDirection() === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return result;
+      if (aValue < bValue) return sortDirection() === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection() === "asc" ? 1 : -1;
+      return 0;
+    });
   });
 
   const handleSort = (column: TableColumn<T>) => {
@@ -58,16 +42,6 @@ export const DataTable = <T extends Record<string, any>>(
 
   return (
     <div class="w-full">
-      <div class="mb-4">
-        <Input
-          placeholder="搜索..."
-          value={searchKeyword()}
-          onInput={(e: Event) =>
-            setSearchKeyword((e.target as HTMLInputElement).value)
-          }
-        />
-      </div>
-
       <div class="overflow-x-auto border rounded-lg">
         <table class="w-full">
           <thead class="bg-gray-50">
@@ -114,7 +88,7 @@ export const DataTable = <T extends Record<string, any>>(
               </tr>
             </Show>
 
-            <Show when={!props.loading && filteredData().length === 0}>
+            <Show when={!props.loading && sortedData().length === 0}>
               <tr>
                 <td
                   colspan={props.columns.length + 1}
@@ -125,7 +99,7 @@ export const DataTable = <T extends Record<string, any>>(
               </tr>
             </Show>
 
-            <For each={filteredData()}>
+            <For each={sortedData()}>
               {(row, index) => (
                 <tr class="hover:bg-gray-50">
                   <td class="px-4 py-3 text-sm text-gray-900">{index() + 1}</td>
