@@ -1,12 +1,15 @@
 import { For, Show, createSignal } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import type { Reservation, TableColumn, ActionConfig } from "~/lib/types";
-import { AdminLayout } from "../../components/admin/Layout/AdminLayout";
-import { DataTable } from "../../components/admin/Table/DataTable";
-import { ActionMenu } from "../../components/admin/ActionMenu/ActionMenu";
+import { AdminLayout } from "~/components/admin/Layout/AdminLayout";
+import { DataTable } from "~/components/admin/Table/DataTable";
+import { ActionMenu } from "~/components/admin/ActionMenu/ActionMenu";
 import { StatusToggle } from "~/components/admin/StatusToggle";
-import { useReservationList } from "../../hooks/admin/useReservationList";
-import { useUpdateReservationStatus, useCancelReservation } from "~/lib/reservation-mutations";
+import { useReservationList } from "~/hooks/admin/useReservationList";
+import {
+  useUpdateReservationStatus,
+  useCancelReservation,
+} from "~/lib/reservation-mutations";
 import { FilterPanel, type FilterOption } from "~/components/admin/Filters";
 import { useHotelList } from "~/hooks/admin/useHotelList";
 import { Button } from "@repo/ui";
@@ -172,7 +175,9 @@ export default function ReservationsPage() {
       render: (value) => {
         const date = new Date(value);
         return (
-          <span class="text-gray-600 whitespace-nowrap">{date.toLocaleString("zh-CN")}</span>
+          <span class="text-gray-600 whitespace-nowrap">
+            {date.toLocaleString("zh-CN")}
+          </span>
         );
       },
     },
@@ -226,8 +231,13 @@ export default function ReservationsPage() {
               <option value="">选择预约取消...</option>
               <For each={reservations()}>
                 {(r) => (
-                  <Show when={r.status === "REQUESTED" || r.status === "PENDING"}>
-                    <option value={r.id}>{r.customer.name} - {new Date(r.reservationDate).toLocaleDateString("zh-CN")}</option>
+                  <Show
+                    when={r.status === "REQUESTED" || r.status === "PENDING"}
+                  >
+                    <option value={r.id}>
+                      {r.customer.name} -{" "}
+                      {new Date(r.reservationDate).toLocaleDateString("zh-CN")}
+                    </option>
                   </Show>
                 )}
               </For>
@@ -278,38 +288,38 @@ export default function ReservationsPage() {
               </div>
               <div class="p-4">
                 <div class="space-y-3">
+                  <p>
+                    <strong>客户姓名:</strong>{" "}
+                    {selectedReservation()?.customer.name}
+                  </p>
+                  <p>
+                    <strong>联系电话:</strong>{" "}
+                    {selectedReservation()?.customer.phone}
+                  </p>
+                  <Show when={selectedReservation()?.customer.email}>
                     <p>
-                      <strong>客户姓名:</strong>{" "}
-                      {selectedReservation()?.customer.name}
+                      <strong>邮箱:</strong>{" "}
+                      {selectedReservation()?.customer.email}
                     </p>
+                  </Show>
+                  <p>
+                    <strong>预约时间:</strong>{" "}
+                    {selectedReservation()
+                      ? new Date(
+                          selectedReservation()!.reservationDate,
+                        ).toLocaleString("zh-CN")
+                      : ""}
+                  </p>
+                  <p>
+                    <strong>状态:</strong> {selectedReservation()?.status}
+                  </p>
+                  <Show when={selectedReservation()?.specialRequests}>
                     <p>
-                      <strong>联系电话:</strong>{" "}
-                      {selectedReservation()?.customer.phone}
+                      <strong>特殊要求:</strong>{" "}
+                      {selectedReservation()?.specialRequests}
                     </p>
-                    <Show when={selectedReservation()?.customer.email}>
-                      <p>
-                        <strong>邮箱:</strong>{" "}
-                        {selectedReservation()?.customer.email}
-                      </p>
-                    </Show>
-                    <p>
-                      <strong>预约时间:</strong>{" "}
-                      {selectedReservation()
-                        ? new Date(
-                            selectedReservation()!.reservationDate,
-                          ).toLocaleString("zh-CN")
-                        : ""}
-                    </p>
-                    <p>
-                      <strong>状态:</strong> {selectedReservation()?.status}
-                    </p>
-                    <Show when={selectedReservation()?.specialRequests}>
-                      <p>
-                        <strong>特殊要求:</strong>{" "}
-                        {selectedReservation()?.specialRequests}
-                      </p>
-                    </Show>
-                  </div>
+                  </Show>
+                </div>
               </div>
             </div>
           </div>

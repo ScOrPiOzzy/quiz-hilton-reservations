@@ -4,13 +4,11 @@ import {
   type TableColumn,
   type ActionConfig,
 } from "~/lib/types";
-import { AdminLayout } from "../../components/admin/Layout/AdminLayout";
-import { DataTable } from "../../components/admin/Table/DataTable";
+import { AdminLayout } from "~/components/admin/Layout/AdminLayout";
+import { DataTable } from "~/components/admin/Table/DataTable";
 import { StatusToggle } from "~/components/admin/StatusToggle";
-import { RestaurantForm } from "../../components/admin/Modals/RestaurantForm";
-import {
-  useRestaurantList,
-} from "../../hooks/admin/useRestaurantList";
+import { RestaurantForm } from "~/components/admin/Modals/RestaurantForm";
+import { useRestaurantList } from "~/hooks/admin/useRestaurantList";
 import {
   useDeleteRestaurant,
   useUpdateRestaurantStatus,
@@ -270,8 +268,7 @@ export default function RestaurantsPage() {
                   </p>
                   <Show when={selectedRestaurant()?.description}>
                     <p>
-                      <strong>简介:</strong>{" "}
-                      {selectedRestaurant()?.description}
+                      <strong>简介:</strong> {selectedRestaurant()?.description}
                     </p>
                   </Show>
                 </div>

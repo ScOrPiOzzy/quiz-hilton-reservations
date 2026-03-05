@@ -1,6 +1,6 @@
 import { createSignal, createMemo } from "solid-js";
-import type { Reservation, PaginatedResult } from "../../lib/types";
-import { useQuery } from "../../lib/graphql-hooks";
+import type { Reservation, PaginatedResult } from "~/lib/types";
+import { useQuery } from "~/lib/graphql-hooks";
 
 const GET_RESERVATIONS = `
   query GetReservations($input: ReservationListInput!) {
@@ -71,7 +71,9 @@ interface GetReservationsResponse {
 export const useReservationList = () => {
   const [page, setPage] = createSignal(1);
   const [pageSize, setPageSize] = createSignal(20);
-  const [filters, setFilters] = createSignal<Partial<Omit<ReservationListInput, 'page' | 'pageSize'>>>({});
+  const [filters, setFilters] = createSignal<
+    Partial<Omit<ReservationListInput, "page" | "pageSize">>
+  >({});
 
   const queryVariables = createMemo(() => ({
     input: {
@@ -105,7 +107,9 @@ export const useReservationList = () => {
     setPage(1);
   };
 
-  const updateFilters = (newFilters: Partial<Omit<ReservationListInput, 'page' | 'pageSize'>>) => {
+  const updateFilters = (
+    newFilters: Partial<Omit<ReservationListInput, "page" | "pageSize">>,
+  ) => {
     setFilters(newFilters);
     setPage(1); // 过滤器更改时重置到第一页
   };

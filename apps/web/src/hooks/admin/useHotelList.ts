@@ -1,6 +1,6 @@
 import { createSignal, createMemo } from "solid-js";
-import type { Hotel, PaginatedResult } from "../../lib/types";
-import { useQuery } from "../../lib/graphql-hooks";
+import type { Hotel, PaginatedResult } from "~/lib/types";
+import { useQuery } from "~/lib/graphql-hooks";
 
 const GET_HOTELS = `
   query GetHotels($input: HotelListInput!) {
@@ -46,7 +46,9 @@ interface GetHotelsResponse {
 export const useHotelList = () => {
   const [page, setPage] = createSignal(1);
   const [pageSize, setPageSize] = createSignal(20);
-  const [filters, setFilters] = createSignal<Partial<Omit<HotelListInput, 'page' | 'pageSize'>>>({});
+  const [filters, setFilters] = createSignal<
+    Partial<Omit<HotelListInput, "page" | "pageSize">>
+  >({});
 
   const queryVariables = createMemo(() => ({
     input: {
@@ -56,10 +58,8 @@ export const useHotelList = () => {
     },
   }));
 
-  const { data, loading, error, refetch, graphqlErrors } = useQuery<GetHotelsResponse>(
-    GET_HOTELS,
-    { variables: queryVariables() }
-  );
+  const { data, loading, error, refetch, graphqlErrors } =
+    useQuery<GetHotelsResponse>(GET_HOTELS, { variables: queryVariables() });
 
   const hotels = createMemo(() => data()?.hotels?.items || []);
   const pagination = createMemo(() => ({
@@ -78,7 +78,9 @@ export const useHotelList = () => {
     setPage(1);
   };
 
-  const updateFilters = (newFilters: Partial<Omit<HotelListInput, 'page' | 'pageSize'>>) => {
+  const updateFilters = (
+    newFilters: Partial<Omit<HotelListInput, "page" | "pageSize">>,
+  ) => {
     setFilters(newFilters);
     setPage(1); // 过滤器更改时重置到第一页
   };
