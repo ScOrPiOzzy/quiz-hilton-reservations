@@ -186,7 +186,7 @@ export default function LoginPage() {
               </div>
 
               {/* 角色选择 */}
-              <div class="flex gap-2 mb-6">
+              <div class="flex gap-2 mb-6 hidden">
                 <button
                   type="button"
                   class={`flex-1 py-3 rounded-[4px] text-base font-medium transition-colors ${
