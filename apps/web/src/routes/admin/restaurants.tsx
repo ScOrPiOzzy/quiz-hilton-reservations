@@ -35,7 +35,7 @@ export default function RestaurantsPage() {
   const updateStatusMutation = useUpdateRestaurantStatus();
 
   const handleStatusChange = async (id: string, newStatus: string) => {
-    await updateStatusMutation.execute({ id, status: newStatus });
+    await updateStatusMutation.execute({ input: { id, status: newStatus } });
     refetch();
   };
 
@@ -70,6 +70,8 @@ export default function RestaurantsPage() {
       options: [
         { value: "ACTIVE", label: "营业中" },
         { value: "INACTIVE", label: "已下架" },
+        { value: "RENOVATION", label: "装修中" },
+        { value: "COMING_SOON", label: "即将开放" },
       ],
     },
     {

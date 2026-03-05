@@ -22,7 +22,7 @@ export const RestaurantList = (props: RestaurantListProps) => {
   const updateStatusMutation = useUpdateRestaurantStatus();
 
   const handleStatusChange = async (id: string, newStatus: string) => {
-    await updateStatusMutation.execute({ id, status: newStatus });
+    await updateStatusMutation.execute({ input: { id, status: newStatus } });
     props.onUpdate();
   };
 

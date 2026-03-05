@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
 import { authApi } from "~/lib";
 
@@ -11,14 +11,17 @@ export default function Register() {
   const [phone, setPhone] = createSignal("");
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal("");
+  const [showSuccessModal, setShowSuccessModal] = createSignal(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
+
     if (password() !== confirmPassword()) {
       setError("密码不一致");
       return;
     }
+
     setLoading(true);
     setError("");
 
@@ -38,7 +41,13 @@ export default function Register() {
     }
 
     setLoading(false);
-    navigate("/login");
+    // 显示成功提示，而不是立即跳转
+    setShowSuccessModal(true);
+  };
+
+  const handleNavigateToLogin = () => {
+    setShowSuccessModal(false);
+    navigate("/login", { replace: true });
   };
 
   return (
@@ -54,28 +63,20 @@ export default function Register() {
 
       {/* 注册表单 */}
       <div class="flex-1 flex items-center justify-center px-4 py-6">
-        <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
+        <div class="w-full max-w-md bg-white rounded-lg shadow-md p-6">
           <h1 class="text-2xl font-bold text-gray-900 text-center mb-6">
             创建 Hilton 账户
           </h1>
 
+          {/* 错误提示 */}
+          <Show when={error()}>
+            <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error()}
+            </div>
+          </Show>
+
           <form onSubmit={handleSubmit} class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  名
-                </label>
-                <input
-                  type="text"
-                  value={firstName()}
-                  onInput={(e) =>
-                    setFirstName((e.target as HTMLInputElement).value)
-                  }
-                  placeholder="名"
-                  required
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
-                />
-              </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">
                   姓
@@ -87,6 +88,21 @@ export default function Register() {
                     setLastName((e.target as HTMLInputElement).value)
                   }
                   placeholder="姓"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  名
+                </label>
+                <input
+                  type="text"
+                  value={firstName()}
+                  onInput={(e) =>
+                    setFirstName((e.target as HTMLInputElement).value)
+                  }
+                  placeholder="名"
                   required
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#002f61]"
                 />
@@ -153,14 +169,10 @@ export default function Register() {
               />
             </div>
 
-            {error() && (
-              <div class="text-red-500 text-sm text-center">{error()}</div>
-            )}
-
             <button
               type="submit"
               disabled={loading()}
-              class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002f61] disabled:bg-[#002f61] disabled:cursor-not-allowed"
+              class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium hover:bg-[#002450] disabled:bg-[#002f61] disabled:cursor-not-allowed"
             >
               {loading() ? "注册中..." : "注册"}
             </button>
@@ -174,6 +186,51 @@ export default function Register() {
           </div>
         </div>
       </div>
+
+      {/* 注册成功提示模态框 */}
+      <Show when={showSuccessModal()}>
+        <div
+          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => {}}
+        >
+          <div
+            class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-green-100 rounded-full">
+              <svg
+                class="w-8 h-8 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
+              </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-900 mb-2">注册成功！</h2>
+            <p class="text-gray-600 mb-6">
+              您的账户已成功创建，现在可以登录使用 Hilton Hotels 服务。
+            </p>
+            <button
+              onClick={handleNavigateToLogin}
+              class="w-full bg-[#002f61] text-white py-3 rounded-lg font-medium"
+            >
+              前往登录
+            </button>
+          </div>
+        </div>
+      </Show>
     </div>
   );
 }

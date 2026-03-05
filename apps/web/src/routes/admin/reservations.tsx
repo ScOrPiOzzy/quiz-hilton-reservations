@@ -51,24 +51,6 @@ export default function ReservationsPage() {
 
   const filterOptions: FilterOption[] = [
     {
-      key: "status",
-      label: "状态",
-      type: "select",
-      placeholder: "全部状态",
-      options: [
-        { value: "PENDING", label: "待处理" },
-        { value: "CONFIRMED", label: "已确认" },
-        { value: "APPROVED", label: "已批准" },
-        { value: "CANCELLED", label: "已取消" },
-        { value: "COMPLETED", label: "已完成" },
-      ],
-    },
-    {
-      key: "reservationDate",
-      label: "预约日期",
-      type: "dateRange",
-    },
-    {
       key: "name",
       label: "客户姓名",
       type: "text",
@@ -81,11 +63,28 @@ export default function ReservationsPage() {
       placeholder: "输入电话...",
     },
     {
+      key: "status",
+      label: "状态",
+      type: "select",
+      placeholder: "全部状态",
+      options: [
+        { value: "REQUESTED", label: "待处理" },
+        { value: "APPROVED", label: "已批准" },
+        { value: "CANCELLED", label: "已取消" },
+        { value: "COMPLETED", label: "已完成" },
+      ],
+    },
+    {
       key: "storeId",
       label: "酒店",
       type: "select",
       placeholder: "全部酒店",
       options: hotelOptions(),
+    },
+    {
+      key: "reservationDate",
+      label: "预约日期",
+      type: "dateRange",
     },
   ];
 
@@ -127,22 +126,20 @@ export default function ReservationsPage() {
       label: "状态",
       render: (value, row) => {
         const statusMap: Record<string, string> = {
-          PENDING: "待处理",
-          CONFIRMED: "已确认",
+          REQUESTED: "待处理",
           APPROVED: "已批准",
           CANCELLED: "已取消",
           COMPLETED: "已完成",
         };
         const statusStyles: Record<string, string> = {
-          PENDING: "bg-orange-100 text-orange-800",
-          CONFIRMED: "bg-blue-100 text-blue-800",
+          REQUESTED: "bg-orange-100 text-orange-800",
           APPROVED: "bg-green-100 text-green-800",
           CANCELLED: "bg-red-100 text-red-800",
           COMPLETED: "bg-gray-100 text-gray-800",
         };
 
-        // 只有"待确认"或"待处理"状态的预约才显示状态切换按钮
-        const canChangeStatus = value === "REQUESTED" || value === "PENDING";
+        // 只有"待处理"状态的预约才显示状态切换按钮
+        const canChangeStatus = value === "REQUESTED";
 
         if (canChangeStatus) {
           return (
@@ -231,9 +228,7 @@ export default function ReservationsPage() {
               <option value="">选择预约取消...</option>
               <For each={reservations()}>
                 {(r) => (
-                  <Show
-                    when={r.status === "REQUESTED" || r.status === "PENDING"}
-                  >
+                  <Show when={r.status === "REQUESTED"}>
                     <option value={r.id}>
                       {r.customer.name} -{" "}
                       {new Date(r.reservationDate).toLocaleDateString("zh-CN")}

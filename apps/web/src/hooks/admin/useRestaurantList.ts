@@ -126,7 +126,7 @@ export const useRestaurantList = () => {
   const { data, loading, error, refetch } = useQuery<GetRestaurantsResponse>(
     GET_RESTAURANTS,
     {
-      variables: queryVariables(),
+      variables: queryVariables,
     },
   );
 

@@ -152,8 +152,8 @@ export class RestaurantService {
     if (!existing) {
       throw new Error('餐厅不存在');
     }
-
-    const { id: _inputId, ...updateData } = updateRestaurantInput;
+    // 不修改id，和hotelId
+    const { id: _inputId, hotelId: _no_update, ...updateData } = updateRestaurantInput;
     const updated = {
       ...existing,
       ...updateData,

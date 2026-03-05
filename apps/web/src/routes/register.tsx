@@ -34,7 +34,8 @@ type IEvent = InputEvent & {
 export default function RegisterPage() {
   const navigate = useNavigate();
 
-  const [role, setRole] = createSignal<UserRole>(UserRole.CUSTOMER);
+  // 默认注册为员工角色（内部使用，不显示选择）
+  const [role] = createSignal<UserRole>(UserRole.STAFF);
   const [lastName, setLastName] = createSignal("");
   const [firstName, setFirstName] = createSignal("");
   const [email, setEmail] = createSignal("");
@@ -46,6 +47,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = createSignal(false);
   const [errors, setErrors] = createSignal<FormErrors>({});
   const [registerError, setRegisterError] = createSignal("");
+  const [showSuccessModal, setShowSuccessModal] = createSignal(false);
 
   /**
    * 表单验证
@@ -86,10 +88,6 @@ export default function RegisterPage() {
       newErrors.confirmPassword = "两次输入的密码不一致";
     }
 
-    if (!role()) {
-      newErrors.role = "请选择角色";
-    }
-
     setErrors(newErrors);
     return isEmpty(newErrors);
   };
@@ -120,8 +118,8 @@ export default function RegisterPage() {
         throw new Error(data.message || "注册失败，请稍后重试");
       }
 
-      alert("注册成功！请登录");
-      navigate("/login", { replace: true });
+      // 显示成功提示，而不是立即跳转
+      setShowSuccessModal(true);
     } catch (error) {
       setRegisterError(
         error instanceof Error ? error.message : "注册失败，请稍后重试",
@@ -167,15 +165,15 @@ export default function RegisterPage() {
         <div class="max-w-md">
           <h1 class="text-3xl font-bold mb-6">Hilton Hotels</h1>
           <p class="mb-4 text-white/80">
-            加入 Hilton Hotels 会员，享受世界级的酒店服务和独特的入住体验。
+            Hilton Hotels 员工管理系统，提供便捷的酒店、餐厅和预约管理服务。
           </p>
           <div class="space-y-2">
-            <h2 class="text-xl font-semibold mb-2">会员特权</h2>
+            <h2 class="text-xl font-semibold mb-2">系统功能</h2>
             <ul class="list-disc list-inside space-y-2 text-white/90 pl-4">
-              <li>预订折扣与专属优惠</li>
-              <li>积分累积与兑换</li>
-              <li>会员优先入住服务</li>
-              <li>全球 6500+ 酒店通用</li>
+              <li>酒店信息管理</li>
+              <li>餐厅与区域配置</li>
+              <li>预约订单处理</li>
+              <li>数据统计分析</li>
             </ul>
           </div>
         </div>
@@ -187,9 +185,9 @@ export default function RegisterPage() {
           <div class="bg-white rounded-[4px] shadow-lg p-8">
             <div>
               <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-[#002f61] mb-2">创建账户</h1>
+                <h1 class="text-3xl font-bold text-[#002f61] mb-2">员工注册</h1>
                 <p class="text-gray-600 text-sm">
-                  所有字段均为必填项。注册即表示您同意我们的服务条款。
+                  创建 Hilton Hotels 员工账户以访问管理系统。所有字段均为必填项。
                 </p>
               </div>
 
@@ -201,52 +199,6 @@ export default function RegisterPage() {
                   </p>
                 </div>
               </Show>
-
-              {/* 角色选择 */}
-              <div class="flex gap-2 mb-6">
-                <button
-                  type="button"
-                  class={`flex-1 py-3 rounded-[4px] text-sm font-medium transition-colors ${
-                    role() === UserRole.CUSTOMER
-                      ? "bg-[#002f61] text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                  onClick={() => {
-                    setRole(UserRole.CUSTOMER);
-                    clearFieldError("role");
-                  }}
-                >
-                  客户
-                </button>
-                <button
-                  type="button"
-                  class={`flex-1 py-3 rounded-[4px] text-sm font-medium transition-colors ${
-                    role() === UserRole.STAFF
-                      ? "bg-[#002f61] text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                  onClick={() => {
-                    setRole(UserRole.STAFF);
-                    clearFieldError("role");
-                  }}
-                >
-                  员工
-                </button>
-                <button
-                  type="button"
-                  class={`flex-1 py-3 rounded-[4px] text-sm font-medium transition-colors ${
-                    role() === UserRole.ADMIN
-                      ? "bg-[#002f61] text-white"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                  onClick={() => {
-                    setRole(UserRole.ADMIN);
-                    clearFieldError("role");
-                  }}
-                >
-                  管理员
-                </button>
-              </div>
 
               {/* 注册表单 */}
               <form onSubmit={handleSubmit} class="space-y-4">
@@ -319,9 +271,6 @@ export default function RegisterPage() {
                 {/* 手机号 */}
                 <div>
                   <div class="relative">
-                    <div class="absolute left-0 top-1/2 -translate-y-1/2 pl-3 text-gray-600 text-sm font-medium">
-                      +86
-                    </div>
                     <Input
                       label="手机号"
                       type="tel"
@@ -333,7 +282,6 @@ export default function RegisterPage() {
                       }}
                       error={!!errors().phone}
                       errorMessage={errors().phone}
-                      class="pl-12"
                     />
                   </div>
                 </div>
@@ -403,7 +351,7 @@ export default function RegisterPage() {
                   loading={loading()}
                   class="w-full"
                 >
-                  {loading() ? "注册中..." : "创建账户"}
+                  {loading() ? "注册中..." : "注册员工账户"}
                 </Button>
               </form>
 
@@ -423,6 +371,41 @@ export default function RegisterPage() {
             </div>
           </div>
         </div>
+
+        {/* 注册成功提示模态框 */}
+        <Show when={showSuccessModal()}>
+          <div
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={() => {}}
+          >
+            <div
+              class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-green-100 rounded-full">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900 mb-2">注册成功！</h2>
+              <p class="text-gray-600 mb-6">
+                您的员工账户已成功创建，现在可以登录使用管理系统。
+              </p>
+              <Button
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  navigate("/login", { replace: true });
+                }}
+                class="w-full"
+                variant="primary"
+                size="lg"
+              >
+                前往登录
+              </Button>
+            </div>
+          </div>
+        </Show>
       </div>
     </div>
   );

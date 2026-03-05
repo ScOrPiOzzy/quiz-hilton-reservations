@@ -86,8 +86,10 @@ export const HotelForm = (props: HotelFormProps) => {
     try {
       if (props.hotel) {
         await updateMutation.execute({
-          id: props.hotel.id,
-          ...input,
+          input: {
+            id: props.hotel.id,
+            ...input,
+          },
         });
       } else {
         await createMutation.execute({ input });

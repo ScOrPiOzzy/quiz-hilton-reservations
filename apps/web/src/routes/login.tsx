@@ -93,8 +93,8 @@ export default function LoginPage() {
 
       // 根据角色跳转到相应页面
       const returnUrl = new URLSearchParams(location.search).get("returnUrl");
-      const destination =
-        returnUrl || (role() === UserRole.ADMIN ? "/admin" : "/dashboard");
+      const destination = "/admin";
+      // returnUrl || (role() === UserRole.ADMIN ? "/admin" : "/dashboard");
       navigate(destination, { replace: true });
     } catch (error) {
       setLoginError(

@@ -24,8 +24,8 @@ const RESTAURANT_STATUS_OPTIONS: Record<RestaurantStatus, StatusOption> = {
 };
 
 const RESERVATION_STATUS_OPTIONS: Record<string, StatusOption> = {
-  PENDING: { value: "PENDING", label: "待处理", colorClass: "bg-orange-100 text-orange-800" },
-  CONFIRMED: { value: "CONFIRMED", label: "已确认", colorClass: "bg-blue-100 text-blue-800" },
+  REQUESTED: { value: "REQUESTED", label: "待处理", colorClass: "bg-orange-100 text-orange-800" },
+  APPROVED: { value: "APPROVED", label: "已批准", colorClass: "bg-green-100 text-green-800" },
   CANCELLED: { value: "CANCELLED", label: "已取消", colorClass: "bg-red-100 text-red-800" },
   COMPLETED: { value: "COMPLETED", label: "已完成", colorClass: "bg-gray-100 text-gray-800" },
 };

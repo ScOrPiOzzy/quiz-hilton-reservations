@@ -86,7 +86,7 @@ export const useReservationList = () => {
   const { data, loading, error, refetch } = useQuery<GetReservationsResponse>(
     GET_RESERVATIONS,
     {
-      variables: queryVariables(),
+      variables: queryVariables,
     },
   );
 

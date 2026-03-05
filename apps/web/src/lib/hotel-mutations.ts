@@ -39,8 +39,8 @@ const DELETE_HOTEL = `
 `;
 
 const UPDATE_HOTEL_STATUS = `
-  mutation UpdateHotelStatus($id: String!, $status: String!) {
-    updateHotel(input: { id: $id, status: $status }) {
+  mutation UpdateHotelStatus($input: UpdateHotelInput!) {
+    updateHotel(input: $input) {
       id
       name
       status

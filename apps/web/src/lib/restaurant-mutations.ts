@@ -54,8 +54,8 @@ const SOFT_DELETE_RESTAURANT = `
 `;
 
 const UPDATE_RESTAURANT_STATUS = `
-  mutation UpdateRestaurantStatus($id: String!, $status: String!) {
-    updateRestaurant(input: { id: $id, status: $status }) {
+  mutation UpdateRestaurantStatus($input: UpdateRestaurantInput!) {
+    updateRestaurant(input: $input) {
       id
       name
       status

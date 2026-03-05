@@ -59,7 +59,7 @@ export const useHotelList = () => {
   }));
 
   const { data, loading, error, refetch, graphqlErrors } =
-    useQuery<GetHotelsResponse>(GET_HOTELS, { variables: queryVariables() });
+    useQuery<GetHotelsResponse>(GET_HOTELS, { variables: queryVariables });
 
   const hotels = createMemo(() => data()?.hotels?.items || []);
   const pagination = createMemo(() => ({

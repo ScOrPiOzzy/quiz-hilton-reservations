@@ -9,6 +9,7 @@ import { useDeleteHotel, useUpdateHotelStatus } from "~/lib/hotel-mutations";
 import { HotelForm } from "~/components/admin/Modals/HotelForm";
 import { FilterPanel, type FilterOption } from "~/components/admin/Filters";
 import { Button } from "@repo/ui";
+import { useCityOptions } from "~/hooks/admin/useCityOptions";
 
 export default function HotelsPage() {
   const {
@@ -27,9 +28,12 @@ export default function HotelsPage() {
   const navigate = useNavigate();
 
   const handleStatusChange = async (id: string, newStatus: string) => {
-    await updateStatusMutation.execute({ id, status: newStatus });
+    await updateStatusMutation.execute({ input: { id, status: newStatus } });
     refetch();
   };
+
+  // 获取动态城市选项
+  const cityOptions = useCityOptions(hotels());
 
   const filterOptions: FilterOption[] = [
     {
@@ -37,12 +41,7 @@ export default function HotelsPage() {
       label: "城市",
       type: "select",
       placeholder: "全部城市",
-      options: [
-        { value: "北京", label: "北京" },
-        { value: "上海", label: "上海" },
-        { value: "广州", label: "广州" },
-        { value: "深圳", label: "深圳" },
-      ],
+      options: cityOptions(),
     },
     {
       key: "status",
@@ -52,6 +51,8 @@ export default function HotelsPage() {
       options: [
         { value: "ACTIVE", label: "营业中" },
         { value: "INACTIVE", label: "已下架" },
+        { value: "RENOVATION", label: "装修中" },
+        { value: "COMING_SOON", label: "即将开放" },
       ],
     },
     {
