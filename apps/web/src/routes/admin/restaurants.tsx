@@ -232,7 +232,7 @@ export default function RestaurantsPage() {
           />
         </Show>
 
-        <Show when={detailOpen}>
+        <Show when={detailOpen() && selectedRestaurant()}>
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             onClick={() => setDetailOpen(false)}
@@ -251,32 +251,30 @@ export default function RestaurantsPage() {
                 </button>
               </div>
               <div class="p-4">
-                <Show when={selectedRestaurant()}>
-                  <div class="space-y-3">
+                <div class="space-y-3">
+                  <p>
+                    <strong>名称:</strong> {selectedRestaurant()?.name}
+                  </p>
+                  <p>
+                    <strong>类型:</strong>{" "}
+                    {selectedRestaurant()?.type === "HALL" ? "大厅" : "包厢"}
+                  </p>
+                  <p>
+                    <strong>容量:</strong> {selectedRestaurant()?.capacity}
+                  </p>
+                  <p>
+                    <strong>状态:</strong>{" "}
+                    {selectedRestaurant()?.status === "ACTIVE"
+                      ? "营业中"
+                      : "已下架"}
+                  </p>
+                  <Show when={selectedRestaurant()?.description}>
                     <p>
-                      <strong>名称:</strong> {selectedRestaurant()?.name}
+                      <strong>简介:</strong>{" "}
+                      {selectedRestaurant()?.description}
                     </p>
-                    <p>
-                      <strong>类型:</strong>{" "}
-                      {selectedRestaurant()?.type === "HALL" ? "大厅" : "包厢"}
-                    </p>
-                    <p>
-                      <strong>容量:</strong> {selectedRestaurant()?.capacity}
-                    </p>
-                    <p>
-                      <strong>状态:</strong>{" "}
-                      {selectedRestaurant()?.status === "ACTIVE"
-                        ? "营业中"
-                        : "已下架"}
-                    </p>
-                    <Show when={selectedRestaurant()?.description}>
-                      <p>
-                        <strong>简介:</strong>{" "}
-                        {selectedRestaurant()?.description}
-                      </p>
-                    </Show>
-                  </div>
-                </Show>
+                  </Show>
+                </div>
               </div>
             </div>
           </div>
