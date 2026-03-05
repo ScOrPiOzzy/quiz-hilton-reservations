@@ -1,8 +1,6 @@
 {
   "name": "mobile",
-  "version": "1.0.0",
   "type": "module",
-  "private": true,
   "scripts": {
     "dev": "vinxi dev --port 3002",
     "build": "vinxi build",
