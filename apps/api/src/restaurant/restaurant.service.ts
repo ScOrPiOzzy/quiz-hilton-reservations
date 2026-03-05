@@ -30,7 +30,7 @@ export class RestaurantService {
   }
 
   async findAll(input: RestaurantListInput): Promise<PaginatedRestaurant> {
-    const { page = 1, pageSize = 20, hotelId, search } = input;
+    const { page = 1, pageSize = 20, hotelId, search, status, type } = input;
     const skip = (page - 1) * pageSize;
 
     // 先查询餐厅数据
@@ -48,6 +48,14 @@ export class RestaurantService {
     if (search) {
       conditions.push('LOWER(r.name) LIKE $' + (params.length + 1));
       params.push(`%${search.toLowerCase()}%`);
+    }
+    if (status) {
+      conditions.push('r.status = $' + (params.length + 1));
+      params.push(status);
+    }
+    if (type) {
+      conditions.push('r.type = $' + (params.length + 1));
+      params.push(type);
     }
 
     if (conditions.length > 0) {

@@ -24,4 +24,14 @@ export class RestaurantListInput {
   @IsString({ message: '搜索关键词必须是字符串' })
   @MaxLength(100, { message: '搜索关键词长度不能超过100个字符' })
   search?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString({ message: '状态必须是字符串' })
+  status?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString({ message: '类型必须是字符串' })
+  type?: string;
 }
