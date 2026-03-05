@@ -16,7 +16,7 @@ export class HotelService {
   constructor(private readonly couchbaseService: CouchbaseService) {}
 
   async findAll(input: HotelListInput): Promise<PaginatedHotel> {
-    const { page = 1, pageSize = 20, city, search } = input;
+    const { page = 1, pageSize = 20, city, search, status } = input;
     const skip = (page - 1) * pageSize;
 
     let query = 'SELECT META().id, * FROM `hilton`.`_default`.`Hotel`';
@@ -30,6 +30,10 @@ export class HotelService {
     if (search) {
       conditions.push('LOWER(name) LIKE $' + (params.length + 1));
       params.push(`%${search.toLowerCase()}%`);
+    }
+    if (status) {
+      conditions.push('status = $' + (params.length + 1));
+      params.push(status);
     }
 
     if (conditions.length > 0) {
