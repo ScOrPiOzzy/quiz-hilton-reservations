@@ -7,12 +7,22 @@ import { ActionMenu } from "../../components/admin/ActionMenu/ActionMenu";
 import { StatusToggle } from "~/components/admin/StatusToggle";
 import { useReservationList } from "../../hooks/admin/useReservationList";
 import { useUpdateReservationStatus, useCancelReservation } from "~/lib/reservation-mutations";
+import { FilterPanel, type FilterOption } from "~/components/admin/Filters";
+import { useHotelList } from "~/hooks/admin/useHotelList";
 import { Button } from "@repo/ui";
 
 export default function ReservationsPage() {
   const navigate = useNavigate();
-  const { reservations, loading, pagination, setPagination, refetch } =
-    useReservationList();
+  const {
+    reservations,
+    loading,
+    pagination,
+    setPagination,
+    refetch,
+    filters,
+    updateFilters,
+  } = useReservationList();
+  const { hotels } = useHotelList();
   const [detailOpen, setDetailOpen] = createSignal(false);
   const [selectedReservation, setSelectedReservation] =
     createSignal<Reservation | null>(null);
@@ -31,11 +41,55 @@ export default function ReservationsPage() {
     }
   };
 
+  // 动态生成酒店选项
+  const hotelOptions = () => [
+    ...hotels().map((h) => ({ value: h.id, label: h.name })),
+  ];
+
+  const filterOptions: FilterOption[] = [
+    {
+      key: "status",
+      label: "状态",
+      type: "select",
+      placeholder: "全部状态",
+      options: [
+        { value: "PENDING", label: "待处理" },
+        { value: "CONFIRMED", label: "已确认" },
+        { value: "APPROVED", label: "已批准" },
+        { value: "CANCELLED", label: "已取消" },
+        { value: "COMPLETED", label: "已完成" },
+      ],
+    },
+    {
+      key: "reservationDate",
+      label: "预约日期",
+      type: "dateRange",
+    },
+    {
+      key: "name",
+      label: "客户姓名",
+      type: "text",
+      placeholder: "输入姓名...",
+    },
+    {
+      key: "phone",
+      label: "联系电话",
+      type: "text",
+      placeholder: "输入电话...",
+    },
+    {
+      key: "storeId",
+      label: "酒店",
+      type: "select",
+      placeholder: "全部酒店",
+      options: hotelOptions(),
+    },
+  ];
+
   const columns: TableColumn<Reservation>[] = [
     {
       key: "customer",
       label: "客户信息",
-      searchable: true,
       render: (value) => (
         <div class="whitespace-nowrap">
           <div class="font-medium">{value.name}</div>
@@ -147,6 +201,10 @@ export default function ReservationsPage() {
     setPagination((prev) => ({ ...prev, page }));
   };
 
+  const handleResetFilters = () => {
+    updateFilters({});
+  };
+
   return (
     <AdminLayout>
       <div class="w-full">
@@ -177,6 +235,13 @@ export default function ReservationsPage() {
           </div>
         </div>
 
+        <FilterPanel
+          filters={filters()}
+          onFiltersChange={updateFilters}
+          options={filterOptions}
+          onReset={handleResetFilters}
+        />
+
         <Show when={loading()}>
           <div class="text-center py-8 text-gray-500">加载中...</div>
         </Show>
@@ -196,7 +261,7 @@ export default function ReservationsPage() {
           />
         </Show>
 
-        <Show when={detailOpen()}>
+        <Show when={detailOpen}>
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             onClick={() => setDetailOpen(false)}
