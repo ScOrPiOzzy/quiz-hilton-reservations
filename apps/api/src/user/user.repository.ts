@@ -97,10 +97,10 @@ export class UserRepository {
 
   async searchByKeyword(keyword: string, limit = 10): Promise<IUser[]> {
     try {
-      const result = await this.couchbaseService.query('SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE LOWER(email) LIKE $1 OR LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $1 LIMIT $2', [
-        `%${keyword.toLowerCase()}%`,
-        limit,
-      ]);
+      const result = await this.couchbaseService.query(
+        'SELECT META().id, * FROM `hilton`.`_default`.`User` WHERE LOWER(email) LIKE $1 OR LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $1 LIMIT $2',
+        [`%${keyword.toLowerCase()}%`, limit],
+      );
       return result.map((row: any) => ({ id: row.id, ...row.User }));
     } catch (error) {
       this.logger.error('searchByKeyword error:', error);
