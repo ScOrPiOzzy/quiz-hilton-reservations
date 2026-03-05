@@ -7,11 +7,19 @@ import { StatusToggle } from "~/components/admin/StatusToggle";
 import { useHotelList } from "~/hooks/admin/useHotelList";
 import { useDeleteHotel, useUpdateHotelStatus } from "~/lib/hotel-mutations";
 import { HotelForm } from "~/components/admin/Modals/HotelForm";
+import { FilterPanel, type FilterOption } from "~/components/admin/Filters";
 import { Button } from "@repo/ui";
 
 export default function HotelsPage() {
-  const { hotels, loading, pagination, setPagination, refetch } =
-    useHotelList();
+  const {
+    hotels,
+    loading,
+    pagination,
+    setPagination,
+    refetch,
+    filters,
+    updateFilters,
+  } = useHotelList();
   const [formOpen, setFormOpen] = createSignal(false);
   const [selectedHotel, setSelectedHotel] = createSignal<Hotel | null>(null);
   const deleteMutation = useDeleteHotel();
@@ -23,21 +31,49 @@ export default function HotelsPage() {
     refetch();
   };
 
+  const filterOptions: FilterOption[] = [
+    {
+      key: "city",
+      label: "城市",
+      type: "select",
+      placeholder: "全部城市",
+      options: [
+        { value: "北京", label: "北京" },
+        { value: "上海", label: "上海" },
+        { value: "广州", label: "广州" },
+        { value: "深圳", label: "深圳" },
+      ],
+    },
+    {
+      key: "status",
+      label: "状态",
+      type: "select",
+      placeholder: "全部状态",
+      options: [
+        { value: "ACTIVE", label: "营业中" },
+        { value: "INACTIVE", label: "已下架" },
+      ],
+    },
+    {
+      key: "search",
+      label: "搜索",
+      type: "text",
+      placeholder: "酒店名称/地址...",
+    },
+  ];
+
   const columns: TableColumn<Hotel>[] = [
     {
       key: "name",
       label: "酒店名称",
-      searchable: true,
     },
     {
       key: "city",
       label: "城市",
-      searchable: true,
     },
     {
       key: "address",
       label: "地址",
-      searchable: true,
     },
     {
       key: "status",
@@ -117,6 +153,10 @@ export default function HotelsPage() {
     refetch();
   };
 
+  const handleResetFilters = () => {
+    updateFilters({});
+  };
+
   return (
     <AdminLayout>
       <div class="w-full">
@@ -131,6 +171,13 @@ export default function HotelsPage() {
             新建酒店
           </Button>
         </div>
+
+        <FilterPanel
+          filters={filters()}
+          onFiltersChange={updateFilters}
+          options={filterOptions}
+          onReset={handleResetFilters}
+        />
 
         <Show when={loading()}>
           <div class="text-center py-8 text-gray-500">加载中...</div>
