@@ -261,7 +261,7 @@ export default function ReservationsPage() {
           />
         </Show>
 
-        <Show when={detailOpen}>
+        <Show when={detailOpen() && selectedReservation()}>
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             onClick={() => setDetailOpen(false)}
@@ -277,8 +277,7 @@ export default function ReservationsPage() {
                 </Button>
               </div>
               <div class="p-4">
-                <Show when={selectedReservation()}>
-                  <div class="space-y-3">
+                <div class="space-y-3">
                     <p>
                       <strong>客户姓名:</strong>{" "}
                       {selectedReservation()?.customer.name}
@@ -311,7 +310,6 @@ export default function ReservationsPage() {
                       </p>
                     </Show>
                   </div>
-                </Show>
               </div>
             </div>
           </div>
