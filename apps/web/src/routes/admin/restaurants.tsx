@@ -1,4 +1,4 @@
-import { Show, createSignal } from "solid-js";
+import { Show, createSignal, For } from "solid-js";
 import {
   type Restaurant,
   type TableColumn,
@@ -10,17 +10,25 @@ import { StatusToggle } from "~/components/admin/StatusToggle";
 import { RestaurantForm } from "../../components/admin/Modals/RestaurantForm";
 import {
   useRestaurantList,
-  useGetHotels,
 } from "../../hooks/admin/useRestaurantList";
 import {
   useDeleteRestaurant,
   useUpdateRestaurantStatus,
 } from "~/lib/restaurant-mutations";
+import { FilterPanel, type FilterOption } from "~/components/admin/Filters";
 import { Button } from "@repo/ui";
 
 export default function RestaurantsPage() {
-  const { restaurants, loading, pagination, setPagination, refetch } =
-    useRestaurantList();
+  const {
+    restaurants,
+    hotels,
+    loading,
+    pagination,
+    setPagination,
+    refetch,
+    filters,
+    updateFilters,
+  } = useRestaurantList();
   const [formOpen, setFormOpen] = createSignal(false);
   const [selectedRestaurant, setSelectedRestaurant] =
     createSignal<Restaurant | null>(null);
@@ -33,11 +41,51 @@ export default function RestaurantsPage() {
     refetch();
   };
 
+  // 动态生成酒店选项
+  const hotelOptions = () => [
+    ...hotels().map((h) => ({ value: h.id, label: h.name })),
+  ];
+
+  const filterOptions: FilterOption[] = [
+    {
+      key: "hotelId",
+      label: "酒店",
+      type: "select",
+      placeholder: "全部酒店",
+      options: hotelOptions(),
+    },
+    {
+      key: "type",
+      label: "类型",
+      type: "select",
+      placeholder: "全部类型",
+      options: [
+        { value: "HALL", label: "大厅" },
+        { value: "PRIVATE_ROOM", label: "包厢" },
+      ],
+    },
+    {
+      key: "status",
+      label: "状态",
+      type: "select",
+      placeholder: "全部状态",
+      options: [
+        { value: "ACTIVE", label: "营业中" },
+        { value: "INACTIVE", label: "已下架" },
+      ],
+    },
+    {
+      key: "search",
+      label: "搜索",
+      type: "text",
+      placeholder: "餐厅名称...",
+    },
+  ];
+
   const columns: TableColumn<Restaurant>[] = [
     {
       key: "name",
       label: "餐厅名称",
-      searchable: true,
     },
     {
       key: "hotel.name",
@@ -123,6 +171,10 @@ export default function RestaurantsPage() {
     refetch();
   };
 
+  const handleResetFilters = () => {
+    updateFilters({});
+  };
+
   return (
     <AdminLayout>
       <div class="w-full">
@@ -137,6 +189,13 @@ export default function RestaurantsPage() {
             新建餐厅
           </Button>
         </div>
+
+        <FilterPanel
+          filters={filters()}
+          onFiltersChange={updateFilters}
+          options={filterOptions}
+          onReset={handleResetFilters}
+        />
 
         <Show when={loading()}>
           <div class="text-center py-8 text-gray-500">加载中...</div>
@@ -173,7 +232,7 @@ export default function RestaurantsPage() {
           />
         </Show>
 
-        <Show when={detailOpen()}>
+        <Show when={detailOpen}>
           <div
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             onClick={() => setDetailOpen(false)}
