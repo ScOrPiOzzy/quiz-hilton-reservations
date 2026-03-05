@@ -1,4 +1,4 @@
-import { For, Show, Component, createSignal } from "solid-js";
+import { For, Show, Component, createSignal, onCleanup } from "solid-js";
 
 export interface FilterOption {
   key: string;
@@ -16,36 +16,41 @@ interface FilterPanelProps {
 }
 
 export const FilterPanel: Component<FilterPanelProps> = (props) => {
-  // 为每个文本输入的 timeout 创建独立的信号
-  const timeoutSignals = new Map<string, ReturnType<typeof setTimeout>>();
+  // 本地状态用于文本输入的即时显示
+  const localTextValues = createSignal<Record<string, string>>({});
+  const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
   const handleFilterChange = (key: string, value: any, isText = false) => {
-    // 立即更新显示值
-    const newFilters = { ...props.filters, [key]: value };
-    props.onFiltersChange(newFilters);
-
     if (isText) {
+      // 更新本地显示值
+      localTextValues.update(prev => ({ ...prev, [key]: value }));
+
       // 清除之前的 timeout
-      const prevTimeout = timeoutSignals.get(key);
+      const prevTimeout = timeouts.get(key);
       if (prevTimeout) {
         clearTimeout(prevTimeout);
       }
 
-      // 创建新的 timeout 进行防抖
+      // 防抖后更新实际过滤器
       const timeoutId = setTimeout(() => {
-        // 防抖后再次调用 onFiltersChange
+        const newFilters = { ...props.filters, [key]: value };
         props.onFiltersChange(newFilters);
-        timeoutSignals.delete(key);
+        timeouts.delete(key);
       }, 300);
 
-      timeoutSignals.set(key, timeoutId);
+      timeouts.set(key, timeoutId);
+    } else {
+      // 非（select, date）立即更新
+      const newFilters = { ...props.filters, [key]: value };
+      props.onFiltersChange(newFilters);
     }
   };
 
   const handleReset = () => {
     // 清理所有 timeout
-    timeoutSignals.forEach((timeout) => clearTimeout(timeout));
-    timeoutSignals.clear();
+    timeouts.forEach((timeout) => clearTimeout(timeout));
+    timeouts.clear();
+    localTextValues.set({});
 
     const emptyFilters = props.options.reduce(
       (acc, opt) => ({ ...acc, [opt.key]: "" }),
@@ -53,6 +58,17 @@ export const FilterPanel: Component<FilterPanelProps> = (props) => {
     );
     props.onFiltersChange(emptyFilters);
     props.onReset?.();
+  };
+
+  // 组件卸载时清理
+  onCleanup(() => {
+    timeouts.forEach((timeout) => clearTimeout(timeout));
+    timeouts.clear();
+  });
+
+  // 获取输入框的显示值
+  const getInputValue = (key: string) => {
+    return localTextValues()[key] !== undefined ? localTextValues()[key] : (props.filters[key] || "");
   };
 
   return (
@@ -68,7 +84,7 @@ export const FilterPanel: Component<FilterPanelProps> = (props) => {
                 <input
                   type="text"
                   placeholder={option.placeholder}
-                  value={props.filters[option.key] || ""}
+                  value={getInputValue(option.key)}
                   onInput={(e) =>
                     handleFilterChange(option.key, (e.target as HTMLInputElement).value, true)
                   }
