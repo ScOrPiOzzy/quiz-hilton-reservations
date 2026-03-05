@@ -55,6 +55,13 @@ const GET_RESERVATIONS = `
 interface ReservationListInput {
   page: number;
   pageSize: number;
+  status?: string;
+  userId?: string;
+  storeId?: string;
+  phone?: string;
+  name?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 interface GetReservationsResponse {
@@ -64,11 +71,20 @@ interface GetReservationsResponse {
 export const useReservationList = () => {
   const [page, setPage] = createSignal(1);
   const [pageSize, setPageSize] = createSignal(20);
+  const [filters, setFilters] = createSignal<Partial<Omit<ReservationListInput, 'page' | 'pageSize'>>>({});
+
+  const queryVariables = createMemo(() => ({
+    input: {
+      page: page(),
+      pageSize: pageSize(),
+      ...filters(),
+    },
+  }));
 
   const { data, loading, error, refetch } = useQuery<GetReservationsResponse>(
     GET_RESERVATIONS,
     {
-      variables: { input: { page: page(), pageSize: pageSize() } },
+      variables: queryVariables(),
     },
   );
 
@@ -89,6 +105,11 @@ export const useReservationList = () => {
     setPage(1);
   };
 
+  const updateFilters = (newFilters: Partial<Omit<ReservationListInput, 'page' | 'pageSize'>>) => {
+    setFilters(newFilters);
+    setPage(1); // 过滤器更改时重置到第一页
+  };
+
   const fetchReservations = async (p: number, ps: number) => {
     setPage(p);
     setPageSize(ps);
@@ -102,6 +123,8 @@ export const useReservationList = () => {
     pagination,
     setPagination,
     setPageSize: changePageSize,
+    updateFilters,
+    filters,
     refetch: () => fetchReservations(page(), pageSize()),
   };
 };
