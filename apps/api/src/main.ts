@@ -1,12 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
-import * as Couchbase from 'couchbase';
 
 async function bootstrap() {
   const logger = new Logger(bootstrap.name);
   const app = await NestFactory.create(AppModule);
-  Couchbase.shutdownLogger();
 
   app.enableCors({
     origin: '*',
